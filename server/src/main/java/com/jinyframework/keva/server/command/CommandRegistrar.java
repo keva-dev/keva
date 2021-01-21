@@ -22,7 +22,7 @@ public final class CommandRegistrar {
             map.put(CommandName.GET, new Get());
             map.put(CommandName.SET, new Set());
             map.put(CommandName.PING, new Ping());
-            map.put(CommandName.STAT, new Stat());
+            map.put(CommandName.INFO, new Info());
 
             map.put(CommandName.UNSUPPORTED, new Unsupported());
             return Collections.unmodifiableMap(map);

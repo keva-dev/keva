@@ -43,6 +43,10 @@ public class KevaClient {
             socketOut.println(consoleLine);
             socketOut.flush();
             val line = socketIn.readLine();
+            if (line == null) {
+                console.println("Lost connection to server");
+                break;
+            }
             console.println(line);
         }
     }

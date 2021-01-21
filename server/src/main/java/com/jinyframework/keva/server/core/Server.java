@@ -32,7 +32,7 @@ public class Server {
             serverSocket = new ServerSocket();
         }
         serverSocket.bind(socketAddress);
-        log.info("Database server started");
+        log.info("Database server started on {}:{}", host, port);
     }
 
     private void startHeartbeat() {

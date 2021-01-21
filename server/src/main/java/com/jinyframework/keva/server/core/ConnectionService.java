@@ -32,16 +32,15 @@ public class ConnectionService {
             val socketOut = new PrintWriter(socket.getOutputStream());
             while (kevaSocket.isAlive()) {
                 val line = socketIn.readLine();
-                if (line == null || line.isEmpty()) {
-                    continue;
+                if (line == null) {
+                    socketMap.remove(kevaSocket.getId());
+                    log.info("{} {} disconnected", kevaSocket.getSocket().getRemoteSocketAddress(), kevaSocket.getId());
+                    break;
                 }
                 kevaSocket.getLastOnlineLong().set(System.currentTimeMillis());
                 log.info("{} sent {}", kevaSocket.getId(), line);
                 commandService.handleCommand(socketOut, line);
             }
-        } catch (SocketException ignored) {
-            socketMap.remove(kevaSocket.getId());
-            log.info("{} {} disconnected", kevaSocket.getSocket().getRemoteSocketAddress(), kevaSocket.getId());
         } catch (Exception e) {
             log.error("Error while handling socket {}: {}", kevaSocket.getId(), e);
         }
