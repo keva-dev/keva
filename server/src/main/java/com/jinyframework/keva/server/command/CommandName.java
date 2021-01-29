@@ -5,5 +5,6 @@ public enum CommandName {
     SET,
     PING,
     INFO,
+    DEL,
     UNSUPPORTED
 }

@@ -1,12 +1,12 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.storage.StorageService;
-
 import java.util.List;
 
-public class Get implements CommandHandler{
+import static com.jinyframework.keva.server.storage.StorageFactory.hashStore;
+
+public class Get implements CommandHandler {
     @Override
     public Object handle(List<String> args) {
-        return StorageService.getStringStringStore().get(args.get(0));
+        return hashStore().get(args.get(0));
     }
 }

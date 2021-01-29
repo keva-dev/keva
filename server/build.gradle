@@ -28,3 +28,12 @@ shadowJar {
 application {
     mainClassName = 'com.jinyframework.keva.server.Application'
 }
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
+}

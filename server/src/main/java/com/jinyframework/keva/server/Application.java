@@ -12,10 +12,12 @@ import java.util.Map;
 public final class Application {
     private Application() {
     }
+
     public static Map<String, String> getConfig(String[] args) {
         val options = new HashSet<String>();
         options.add("h");
         options.add("p");
+        options.add("ht");
         return ArgsParser.parse(args, options);
     }
 
@@ -25,11 +27,12 @@ public final class Application {
 
             val hostname = config.getOrDefault("h", "localhost");
             val port = Integer.parseInt(config.getOrDefault("p", "6767"));
+            val heartbeatTimeout = Integer.parseInt(config.getOrDefault("ht", "60000"));
 
             val server = Server.builder()
                     .host(hostname)
                     .port(port)
-                    .heartbeatTimeout(60000)
+                    .heartbeatTimeout(heartbeatTimeout)
                     .build();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

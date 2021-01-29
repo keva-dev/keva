@@ -1,12 +1,11 @@
 package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.core.ConnectionService;
-import lombok.Setter;
+import com.jinyframework.keva.server.core.ConnectionServiceImpl;
 
-@Setter
 public final class ServiceFactory {
-
     private ServiceFactory() {
     }
 
@@ -18,11 +17,11 @@ public final class ServiceFactory {
         return CommandServiceHolder.commandService;
     }
 
-    private static final class ConnectionServiceHolder {
-        static final ConnectionService connectionService = new ConnectionService();
+    private static final class CommandServiceHolder {
+        static final CommandService commandService = new CommandServiceImpl();
     }
 
-    private static final class CommandServiceHolder {
-        static final CommandService commandService = new CommandService();
+    private static final class ConnectionServiceHolder {
+        static final ConnectionService connectionService = new ConnectionServiceImpl();
     }
 }

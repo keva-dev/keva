@@ -58,6 +58,18 @@ myvalue
 localhost/127.0.0.1:6767> set mykey myvalue
 1
 ```
+### DEL key
+- Remove the key value pair. Returns 1 if successful, 0 otherwise.
+```
+localhost/127.0.0.1:6767> set a b
+1
+localhost/127.0.0.1:6767> get a
+b
+localhost/127.0.0.1:6767> del a
+1
+localhost/127.0.0.1:6767> get a
+null
+```
 ### INFO
 - Returns information about the server.
 ```
