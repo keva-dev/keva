@@ -1,5 +1,11 @@
+# Jiny Key-Value Store
+
+![](https://i.imgur.com/kUEAX6q.png)
+
 Use `gradle` if you have it installed, or `gradlew` from root project
+
 ## Quickstart
+
 ### Build jar files:
 - build server:
 ```
@@ -14,7 +20,6 @@ Use `gradle` if you have it installed, or `gradlew` from root project
 - run server: replace `server.jar` with correct jar name
 ```
 java -jar server.jar
-
 ```
 - run client: replace `client.jar` with correct jar name
 ```
