@@ -4,6 +4,8 @@ import com.jinyframework.keva.server.command.CommandService;
 import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.core.ConnectionServiceImpl;
+import com.jinyframework.keva.server.core.SnapShotServiceImpl;
+import com.jinyframework.keva.server.core.SnapshotService;
 
 public final class ServiceFactory {
     private ServiceFactory() {
@@ -17,11 +19,19 @@ public final class ServiceFactory {
         return CommandServiceHolder.commandService;
     }
 
-    private static final class CommandServiceHolder {
-        static final CommandService commandService = new CommandServiceImpl();
+    public static SnapshotService snapshotService() {
+        return SnapshotServiceHolder.snapshotService;
     }
 
     private static final class ConnectionServiceHolder {
         static final ConnectionService connectionService = new ConnectionServiceImpl();
+    }
+
+    private static final class CommandServiceHolder {
+        static final CommandService commandService = new CommandServiceImpl();
+    }
+
+    private static final class SnapshotServiceHolder {
+        static final SnapshotService snapshotService = new SnapShotServiceImpl();
     }
 }

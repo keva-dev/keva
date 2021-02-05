@@ -1,6 +1,7 @@
 package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.core.Server;
+import com.jinyframework.keva.server.core.SnapshotConfig;
 import com.jinyframework.keva.server.util.ArgsParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -18,6 +19,8 @@ public final class Application {
         options.add("h");
         options.add("p");
         options.add("ht");
+        options.add("rc");
+        options.add("sn");
         return ArgsParser.parse(args, options);
     }
 
@@ -28,11 +31,19 @@ public final class Application {
             val hostname = config.getOrDefault("h", "localhost");
             val port = Integer.parseInt(config.getOrDefault("p", "6767"));
             val heartbeatTimeout = Integer.parseInt(config.getOrDefault("ht", "60000"));
+            val recoveryPath = config.getOrDefault("rc", "./dump.keva");
+            val snapInterval = config.getOrDefault("sn", "PT2M");
+
+            val snapConfig = SnapshotConfig.builder()
+                    .recoveryPath(recoveryPath)
+                    .snapshotInterval(snapInterval)
+                    .build();
 
             val server = Server.builder()
                     .host(hostname)
                     .port(port)
                     .heartbeatTimeout(heartbeatTimeout)
+                    .snapshotConfig(snapConfig)
                     .build();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static com.jinyframework.keva.server.ServiceFactory.connectionService;
+import static com.jinyframework.keva.server.ServiceFactory.snapshotService;
 
 @Slf4j
 @Builder
@@ -28,11 +30,12 @@ public class Server {
 
     private final String host;
     private final int port;
+    private final SnapshotConfig snapshotConfig;
     private long heartbeatTimeout;
     private ServerSocket serverSocket;
     private ExecutorService executor;
 
-    private void init() throws IOException {
+    private void startServer() throws IOException {
         executor = Executors.newCachedThreadPool();
         val socketAddress = new InetSocketAddress(host, port);
         if (serverSocket == null) {
@@ -56,12 +59,33 @@ public class Server {
         log.info("Heartbeat service started");
     }
 
+    private void startSnapshot() {
+        if (snapshotConfig == null) {
+            return;
+        }
+
+        val recoveryPath = snapshotConfig.getRecoveryPath();
+        if (recoveryPath != null && !recoveryPath.isEmpty()) {
+            snapshotService().recover(recoveryPath);
+        }
+
+        val snapIntervalDur = Duration.parse(snapshotConfig.getSnapshotInterval());
+        if (snapIntervalDur.toMillis() > 0) {
+            snapshotService().start(snapIntervalDur);
+        }
+    }
+
     public void run() throws IOException {
-        init();
+        startServer();
         startHeartbeat();
+        startSnapshot();
         while (!serverStopping.get()) {
             try {
                 val socket = serverSocket.accept();
+                if (serverStopping.get()) {
+                    socket.close();
+                    break;
+                }
                 executor.execute(() -> {
                     val kevaSocket = KevaSocket.builder()
                             .socket(socket)
