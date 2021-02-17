@@ -20,6 +20,7 @@ public final class Application {
         options.add("p");
         options.add("ht");
         options.add("rc");
+        options.add("bk");
         options.add("sn");
         return ArgsParser.parse(args, options);
     }
@@ -32,10 +33,12 @@ public final class Application {
             val port = Integer.parseInt(config.getOrDefault("p", "6767"));
             val heartbeatTimeout = Integer.parseInt(config.getOrDefault("ht", "60000"));
             val recoveryPath = config.getOrDefault("rc", "./dump.keva");
+            val backupPath = config.getOrDefault("bk", "./dump.keva");
             val snapInterval = config.getOrDefault("sn", "PT2M");
 
             val snapConfig = SnapshotConfig.builder()
                     .recoveryPath(recoveryPath)
+                    .backupPath(backupPath)
                     .snapshotInterval(snapInterval)
                     .build();
 

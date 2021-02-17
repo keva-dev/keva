@@ -7,6 +7,7 @@ import lombok.val;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.time.Duration;
 import java.util.UUID;
@@ -42,7 +43,6 @@ public class Server {
             serverSocket = new ServerSocket();
         }
         serverSocket.bind(socketAddress);
-        serverSocket.setSoTimeout(SHUTDOWN_TIMEOUT);
 
         log.info("Database server started on {}:{}", host, port);
     }
@@ -71,7 +71,7 @@ public class Server {
 
         val snapIntervalDur = Duration.parse(snapshotConfig.getSnapshotInterval());
         if (snapIntervalDur.toMillis() > 0) {
-            snapshotService().start(snapIntervalDur);
+            snapshotService().start(snapIntervalDur, snapshotConfig.getBackupPath());
         }
     }
 
@@ -95,7 +95,7 @@ public class Server {
                             .build();
                     connectionService().handleConnection(kevaSocket);
                 });
-            } catch (SocketTimeoutException ignore) {
+            } catch (SocketException | SocketTimeoutException ignore) {
                 continue;
             }
         }
@@ -104,13 +104,13 @@ public class Server {
 
     public void shutdown() throws Exception {
         serverStopping.set(true);
+        if (serverSocket != null && !serverSocket.isClosed() && serverStopped.get()) {
+            serverSocket.close();
+        }
         executor.shutdown();
         val graceful = executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
         if (!graceful) {
             log.error("Graceful shutdown timed out");
-        }
-        if (serverSocket != null && !serverSocket.isClosed() && serverStopped.get()) {
-            serverSocket.close();
         }
         log.info("Database server stopped");
     }

@@ -20,19 +20,13 @@ public class SnapShotServiceImpl implements SnapshotService {
     public static final String snapFileName = "dump.keva";
     private final Map<String, String> hashStore = hashStore();
 
-    @Override
-    public void start(Duration interval, String fileDir) {
-        if (fileDir == null || fileDir.isEmpty()) {
-            fileDir = ".";
-        }
-        val finalFileDir = fileDir;
+    private void startService(Duration interval, String snapFilePath) {
         final Runnable runnable = () -> {
             log.info("Saving snapshot");
             val entrySetCopy = new HashMap<>(hashStore).entrySet();
             try {
-                val snapFilePath = Paths.get(finalFileDir, snapFileName);
                 @Cleanup
-                val fileOut = new FileOutputStream(snapFilePath.toString());
+                val fileOut = new FileOutputStream(snapFilePath);
                 @Cleanup
                 val objOutStream = new ObjectOutputStream(fileOut);
 
@@ -51,8 +45,16 @@ public class SnapShotServiceImpl implements SnapshotService {
     }
 
     @Override
+    public void start(Duration interval, String snapFilePath) {
+        if (snapFilePath == null || snapFilePath.isEmpty()) {
+            snapFilePath = Paths.get(".", snapFileName).toString();
+        }
+        startService(interval, snapFilePath);
+    }
+
+    @Override
     public void start(Duration interval) {
-        start(interval, "./");
+        start(interval, null);
     }
 
     @Override

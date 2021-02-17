@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.SocketException;
 import java.util.Map;
 
 import static com.jinyframework.keva.server.ServiceFactory.commandService;
@@ -44,6 +45,8 @@ public class ConnectionServiceImpl implements ConnectionService {
                 log.info("{} sent {}", kevaSocket.getId(), line);
                 commandService.handleCommand(socketOut, line);
             }
+        } catch (SocketException e) {
+            log.debug("SocketException {}: {}", socketId, e);
         } catch (Exception e) {
             log.error("Error while handling socket {}: {}", socketId, e);
         }

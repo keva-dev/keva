@@ -9,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class SnapshotConfig {
     private final String snapshotInterval;
+    private final String backupPath;
     private final String recoveryPath;
 }

@@ -21,6 +21,7 @@ public class SnapshotServiceTest {
     Server startServer(int port) throws Exception {
         val snapshotConfig = SnapshotConfig.builder()
                 .snapshotInterval(snapInterval)
+                .backupPath("./dump.keva")
                 .recoveryPath("./dump.keva")
                 .build();
         val server = Server.builder()
