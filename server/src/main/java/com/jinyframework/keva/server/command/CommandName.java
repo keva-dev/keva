@@ -6,5 +6,6 @@ public enum CommandName {
     PING,
     INFO,
     DEL,
+    EXPIRE,
     UNSUPPORTED
 }

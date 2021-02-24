@@ -75,6 +75,12 @@ localhost/127.0.0.1:6767> del a
 localhost/127.0.0.1:6767> get a
 null
 ```
+### EXPIRE key expireTimeInMilliSecond
+- Set expire time for key. Returns 1 if successful, 0 otherwise.
+```
+localhost/127.0.0.1:6767> expire mykey 1000
+1
+```
 ### INFO
 - Returns information about the server.
 ```

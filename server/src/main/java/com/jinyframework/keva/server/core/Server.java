@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.core;
 
+import com.jinyframework.keva.server.ServiceFactory;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -16,9 +17,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static com.jinyframework.keva.server.ServiceFactory.connectionService;
-import static com.jinyframework.keva.server.ServiceFactory.snapshotService;
 
 @Slf4j
 @Builder
@@ -54,7 +52,7 @@ public class Server {
         val heartbeatInterval = heartbeatTimeout / 2;
 
         val scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutor.scheduleAtFixedRate(connectionService().getHeartbeatRunnable(heartbeatTimeout),
+        scheduledExecutor.scheduleAtFixedRate(ServiceFactory.getConnectionService().getHeartbeatRunnable(heartbeatTimeout),
                 heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
         log.info("Heartbeat service started");
     }
@@ -66,12 +64,12 @@ public class Server {
 
         val recoveryPath = snapshotConfig.getRecoveryPath();
         if (recoveryPath != null && !recoveryPath.isEmpty()) {
-            snapshotService().recover(recoveryPath);
+            ServiceFactory.getSnapshotService().recover(recoveryPath);
         }
 
         val snapIntervalDur = Duration.parse(snapshotConfig.getSnapshotInterval());
         if (snapIntervalDur.toMillis() > 0) {
-            snapshotService().start(snapIntervalDur, snapshotConfig.getBackupPath());
+            ServiceFactory.getSnapshotService().start(snapIntervalDur, snapshotConfig.getBackupPath());
         }
     }
 
@@ -93,10 +91,9 @@ public class Server {
                             .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))
                             .alive(new AtomicBoolean(true))
                             .build();
-                    connectionService().handleConnection(kevaSocket);
+                    ServiceFactory.getConnectionService().handleConnection(kevaSocket);
                 });
             } catch (SocketException | SocketTimeoutException ignore) {
-                continue;
             }
         }
         serverStopped.set(true);

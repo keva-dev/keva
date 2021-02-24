@@ -95,4 +95,22 @@ public class ServerTest {
             fail(e);
         }
     }
+
+    // @Test
+    // Skip for later check
+    void getSetExpire() {
+        try {
+            val setAbc = client.exchange("set abc 123");
+            val getAbc = client.exchange("get abc");
+            val expireAbc = client.exchange("expire abc 1000");
+            assertEquals("1", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals("1", expireAbc);
+            Thread.sleep(1500);
+            val getAbcNull = client.exchange("get abc");
+            assertEquals("null", getAbcNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }

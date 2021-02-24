@@ -1,5 +1,7 @@
 package com.jinyframework.keva.server.core;
 
+import com.jinyframework.keva.server.storage.KevaStore;
+import com.jinyframework.keva.server.storage.StorageFactory;
 import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -13,17 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.jinyframework.keva.server.storage.StorageFactory.hashStore;
-
 @Slf4j
 public class SnapShotServiceImpl implements SnapshotService {
     public static final String snapFileName = "dump.keva";
-    private final Map<String, String> hashStore = hashStore();
+    private final KevaStore kevaStore = StorageFactory.getKevaStore();
 
     private void startService(Duration interval, String snapFilePath) {
         final Runnable runnable = () -> {
             log.info("Saving snapshot");
-            val entrySetCopy = new HashMap<>(hashStore).entrySet();
+            val entrySetCopy = kevaStore.entrySetCopy();
             try {
                 @Cleanup
                 val fileOut = new FileOutputStream(snapFilePath);
@@ -69,8 +69,10 @@ public class SnapShotServiceImpl implements SnapshotService {
             @Cleanup
             val objInStream = new ObjectInputStream(fileIn);
 
-            val snapMap = (HashMap<String, String>) objInStream.readObject();
-            hashStore.putAll(snapMap);
+            @SuppressWarnings("unchecked")
+            val snapMap = (HashMap<String, Object>) objInStream.readObject();
+
+            kevaStore.putAll(snapMap);
         } catch (Exception e) {
             log.error("Failed to recover from snapshot:", e);
         }

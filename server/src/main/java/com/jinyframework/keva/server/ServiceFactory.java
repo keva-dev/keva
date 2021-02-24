@@ -6,32 +6,35 @@ import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.core.ConnectionServiceImpl;
 import com.jinyframework.keva.server.core.SnapShotServiceImpl;
 import com.jinyframework.keva.server.core.SnapshotService;
+import lombok.Setter;
 
+@Setter
 public final class ServiceFactory {
-    private ServiceFactory() {
+    public static ConnectionService connectionService;
+    private static CommandService commandService;
+    private static SnapshotService snapshotService;
+
+    public synchronized static ConnectionService getConnectionService() {
+        if (connectionService == null) {
+            connectionService = new ConnectionServiceImpl();
+        }
+
+        return connectionService;
     }
 
-    public static ConnectionService connectionService() {
-        return ConnectionServiceHolder.connectionService;
+    public synchronized static CommandService getCommandService() {
+        if (commandService == null) {
+            commandService = new CommandServiceImpl();
+        }
+
+        return commandService;
     }
 
-    public static CommandService commandService() {
-        return CommandServiceHolder.commandService;
-    }
+    public synchronized static SnapshotService getSnapshotService() {
+        if (snapshotService == null) {
+            snapshotService = new SnapShotServiceImpl();
+        }
 
-    public static SnapshotService snapshotService() {
-        return SnapshotServiceHolder.snapshotService;
-    }
-
-    private static final class ConnectionServiceHolder {
-        static final ConnectionService connectionService = new ConnectionServiceImpl();
-    }
-
-    private static final class CommandServiceHolder {
-        static final CommandService commandService = new CommandServiceImpl();
-    }
-
-    private static final class SnapshotServiceHolder {
-        static final SnapshotService snapshotService = new SnapShotServiceImpl();
+        return snapshotService;
     }
 }
