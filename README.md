@@ -1,54 +1,37 @@
-# Jiny Key-Value Store
+<p align="center">
+  <img width="150" src="https://i.imgur.com/OpG00Ct.png">
+</p>
 
-![](https://i.imgur.com/kUEAX6q.png)
+Jiny Keva is an open source (Apache 2.0 licensed), in-memory data structure store, used as a database or cache. Keva provides data structures such as strings, hashes, lists, sets, sorted sets.
 
-Use `gradle` if you have it installed, or `gradlew` from root project
+Keva provides access to mutable data structures via a set of commands, which are sent using a server-client model with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in a shared way.
 
-## Quickstart
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/huynhminhtufu/jiny/Java%20CI%20runner/master?label=build&style=flat-square)
+![Lines of code](https://img.shields.io/tokei/lines/github/huynhminhtufu/jiny?style=flat-square)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/huynhminhtufu/jiny?style=flat-square)
+![GitHub](https://img.shields.io/github/license/huynhminhtufu/jiny?style=flat-square)
+![Maven Central](https://img.shields.io/maven-central/v/com.jinyframework/core?style=flat-square)
 
-### Build jar files:
-- build server:
-```
-./gradlew :keva:server:shadowJar
-```
-- build client:
-```
-./gradlew :keva:client:shadowJar
-```
+## Features
 
-### Run jar files:
-- run server: replace `server.jar` with correct jar name
-```
-java -jar server.jar
-```
-- run client: replace `client.jar` with correct jar name
-```
-java -jar client.jar
-```
+- High performance and low latency in-memory key-value store
+- The basic operations are PUT(key,value), GET(key), DEL(key), EXPIRE(key)
+- Persistence in-memory data to disk
 
-### Run directly (for development):
-- run server:
-```
-./gradlew --no-daemon --quiet --console plain :keva:server:run
-```
-- run client:
-```
-./gradlew --no-daemon --quiet --console plain :keva:client:run
-```
+## Install
 
-### Run options:
-- ```-h```: hostname
-- ```-p```: port
+Visit [Binaries Builds](https://github.com/tuhuynh27/jiny/tree/master/keva/builds)
 
-## Available commands:
+## Usage
+
 ### PING
 - Returns "PONG". Often used to check connection to server.
 ```
 localhost/127.0.0.1:6767> ping
 PONG
 ```
-### GET key 
-- Returns value of key. If key or value doesn't exist, returns "null". 
+### GET key
+- Returns value of key. If key or value doesn't exist, returns "null".
 ```
 localhost/127.0.0.1:6767> get mykey
 null
@@ -87,3 +70,39 @@ localhost/127.0.0.1:6767> expire mykey 1000
 localhost/127.0.0.1:6767> info
 {threads:=6, clients:=1}
 ```
+
+## Development
+
+Want to file a bug, contribute some code, or improve documentation? Excellent!
+
+First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.html).
+
+Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/huynhminhtufu/jiny/issues) and help us out!
+
+Run server:
+
+```
+./gradlew --no-daemon --quiet --console plain :keva:server:run
+```
+
+Run client:
+
+```
+./gradlew --no-daemon --quiet --console plain :keva:client:run
+```
+
+Build server:
+
+```
+./gradlew :keva:server:shadowJar
+```
+
+Build client:
+
+```
+./gradlew :keva:client:shadowJar
+```
+
+## License
+
+[Apache License 2.0](https://github.com/huynhminhtufu/jiny/blob/master/LICENSE)
