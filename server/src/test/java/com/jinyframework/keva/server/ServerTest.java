@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server;
 
+import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +22,10 @@ public class ServerTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = Server.builder()
-                .host(host)
+        server = new Server(ConfigHolder.builder()
+                .hostname(host)
                 .port(port)
-                .build();
+                .build());
         new Thread(() -> {
             try {
                 server.run();
@@ -96,8 +97,7 @@ public class ServerTest {
         }
     }
 
-    // @Test
-    // Skip for later check
+    @Test
     void getSetExpire() {
         try {
             val setAbc = client.exchange("set abc 123");

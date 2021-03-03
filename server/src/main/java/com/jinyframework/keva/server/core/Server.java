@@ -1,9 +1,11 @@
 package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.ServiceFactory;
+import com.jinyframework.keva.server.config.ConfigHolder;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import lombok.var;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,7 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-@Builder
 public class Server {
     private static final long HEARTBEAT_TIMEOUT = 60000;
     private static final int SHUTDOWN_TIMEOUT = 5;
@@ -27,14 +28,17 @@ public class Server {
     private final AtomicBoolean serverStopping = new AtomicBoolean(false);
     private final AtomicBoolean serverStopped = new AtomicBoolean(false);
 
-    private final String host;
-    private final int port;
-    private final SnapshotConfig snapshotConfig;
-    private long heartbeatTimeout;
+    private final ConfigHolder config;
     private ServerSocket serverSocket;
     private ExecutorService executor;
 
+    public Server(ConfigHolder config) {
+        this.config = config;
+    }
+
     private void startServer() throws IOException {
+        val host = config.getHostname();
+        val port = config.getPort();
         executor = Executors.newCachedThreadPool();
         val socketAddress = new InetSocketAddress(host, port);
         if (serverSocket == null) {
@@ -46,6 +50,10 @@ public class Server {
     }
 
     private void startHeartbeat() {
+        if (!config.getHeartbeatEnabled()) {
+            return;
+        }
+        var heartbeatTimeout = config.getHeartbeatTimeout();
         if (heartbeatTimeout <= 0) {
             heartbeatTimeout = HEARTBEAT_TIMEOUT;
         }
@@ -58,18 +66,18 @@ public class Server {
     }
 
     private void startSnapshot() {
-        if (snapshotConfig == null) {
+        if (!config.getSnapshotEnabled()) {
             return;
         }
 
-        val recoveryPath = snapshotConfig.getRecoveryPath();
+        val recoveryPath = config.getRecoveryPath();
         if (recoveryPath != null && !recoveryPath.isEmpty()) {
             ServiceFactory.getSnapshotService().recover(recoveryPath);
         }
 
-        val snapIntervalDur = Duration.parse(snapshotConfig.getSnapshotInterval());
+        val snapIntervalDur = Duration.parse(config.getSnapshotInterval());
         if (snapIntervalDur.toMillis() > 0) {
-            ServiceFactory.getSnapshotService().start(snapIntervalDur, snapshotConfig.getBackupPath());
+            ServiceFactory.getSnapshotService().start(snapIntervalDur, config.getBackupPath());
         }
     }
 

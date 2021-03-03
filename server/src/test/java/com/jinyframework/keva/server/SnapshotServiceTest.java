@@ -1,7 +1,7 @@
 package com.jinyframework.keva.server;
 
+import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.Server;
-import com.jinyframework.keva.server.core.SnapshotConfig;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
 import lombok.var;
@@ -19,16 +19,14 @@ public class SnapshotServiceTest {
     static String snapInterval = "PT2S";
 
     Server startServer(int port) throws Exception {
-        val snapshotConfig = SnapshotConfig.builder()
+        val server = new Server(ConfigHolder.builder()
+                .hostname(host)
+                .port(port)
+                .snapshotEnabled(true)
                 .snapshotInterval(snapInterval)
                 .backupPath("./dump.keva")
                 .recoveryPath("./dump.keva")
-                .build();
-        val server = Server.builder()
-                .host(host)
-                .port(port)
-                .snapshotConfig(snapshotConfig)
-                .build();
+                .build());
         new Thread(() -> {
             try {
                 server.run();

@@ -62,7 +62,7 @@ public class SnapShotServiceImpl implements SnapshotService {
         if (snapFilePath == null || snapFilePath.isEmpty()) {
             snapFilePath = Paths.get(".", snapFileName).toString();
         }
-        log.info("Recovering hash map from file");
+        log.info("Recovering data from: {}",snapFilePath);
         try {
             @Cleanup
             val fileIn = new FileInputStream(snapFilePath);

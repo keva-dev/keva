@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server;
 
+import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
@@ -23,11 +24,12 @@ public class HeartbeatServiceTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = Server.builder()
-                .host(host)
+        server = new Server(ConfigHolder.builder()
+                .hostname(host)
                 .port(port)
+                .heartbeatEnabled(true)
                 .heartbeatTimeout(heartbeatTimeout)
-                .build();
+                .build());
         new Thread(() -> {
             try {
                 server.run();

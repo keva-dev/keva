@@ -1,53 +1,37 @@
 package com.jinyframework.keva.server;
 
+import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.Server;
-import com.jinyframework.keva.server.core.SnapshotConfig;
 import com.jinyframework.keva.server.util.ArgsParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Properties;
 
 @Slf4j
 public final class Application {
     private Application() {
     }
 
-    public static Map<String, String> getConfig(String[] args) {
-        val options = new HashSet<String>();
-        options.add("h");
-        options.add("p");
-        options.add("ht");
-        options.add("rc");
-        options.add("bk");
-        options.add("sn");
-        return ArgsParser.parse(args, options);
-    }
-
     public static void main(String[] args) {
         try {
-            val config = getConfig(args);
+            val config = ArgsParser.parse(args);
+            log.info(config.toString());
+            val overrider = ConfigHolder.fromArgs(config);
 
-            val hostname = config.getOrDefault("h", "localhost");
-            val port = Integer.parseInt(config.getOrDefault("p", "6767"));
-            val heartbeatTimeout = Integer.parseInt(config.getOrDefault("ht", "60000"));
-            val recoveryPath = config.getOrDefault("rc", "./dump.keva");
-            val backupPath = config.getOrDefault("bk", "./dump.keva");
-            val snapInterval = config.getOrDefault("sn", "PT2M");
+            val configFilePath = config.getArgVal("f");
+            if (configFilePath != null) {
+                ConfigManager.loadConfigFromFile(configFilePath);
+            } else {
+                // init using cli args values
+                ConfigManager.setConfig(ConfigHolder.fromProperties(new Properties()));
+            }
 
-            val snapConfig = SnapshotConfig.builder()
-                    .recoveryPath(recoveryPath)
-                    .backupPath(backupPath)
-                    .snapshotInterval(snapInterval)
-                    .build();
+            ConfigManager.getConfig().merge(overrider);
 
-            val server = Server.builder()
-                    .host(hostname)
-                    .port(port)
-                    .heartbeatTimeout(heartbeatTimeout)
-                    .snapshotConfig(snapConfig)
-                    .build();
+            log.info(ConfigManager.getConfig().toString());
+            val server = new Server(ConfigManager.getConfig());
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
