@@ -4,7 +4,6 @@ import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
-import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -71,7 +70,7 @@ public class SnapshotServiceTest {
         try {
             client.connect();
 
-            var success = client.exchange("set a b");
+            String success = client.exchange("set a b");
             assertEquals("1", success);
             success = client.exchange("set b c");
             assertEquals("1", success);
@@ -113,7 +112,7 @@ public class SnapshotServiceTest {
         try {
             client.connect();
 
-            var success = client.exchange("get a");
+            String success = client.exchange("get a");
             assertEquals("b", success);
             success = client.exchange("get b");
             assertEquals("c", success);

@@ -6,7 +6,6 @@ import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -54,7 +53,7 @@ public class HeartbeatServiceTest {
         try {
             client.connect();
 
-            var pong = client.exchange("ping");
+            String pong = client.exchange("ping");
             assertEquals("PONG", pong);
             TimeUnit.MILLISECONDS.sleep(100);
             pong = client.exchange("ping");
@@ -74,7 +73,7 @@ public class HeartbeatServiceTest {
         try {
             client.connect();
 
-            var pong = client.exchange("ping");
+            String pong = client.exchange("ping");
             pong = client.exchange("ping");
             assertEquals("PONG", pong);
 

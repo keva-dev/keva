@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.adarshr.test-logger' version '2.1.0'
 }
 
 group 'com.jinyframework'

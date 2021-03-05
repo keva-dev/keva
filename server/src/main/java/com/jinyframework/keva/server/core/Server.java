@@ -2,10 +2,8 @@ package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.ServiceFactory;
 import com.jinyframework.keva.server.config.ConfigHolder;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -50,10 +48,11 @@ public class Server {
     }
 
     private void startHeartbeat() {
-        if (!config.getHeartbeatEnabled()) {
+        if (config == null || config.getHeartbeatEnabled() == null || !config.getHeartbeatEnabled()) {
             return;
         }
-        var heartbeatTimeout = config.getHeartbeatTimeout();
+
+        Long heartbeatTimeout = config.getHeartbeatTimeout();
         if (heartbeatTimeout <= 0) {
             heartbeatTimeout = HEARTBEAT_TIMEOUT;
         }
@@ -66,7 +65,7 @@ public class Server {
     }
 
     private void startSnapshot() {
-        if (!config.getSnapshotEnabled()) {
+        if (config == null || config.getSnapshotEnabled() == null || !config.getSnapshotEnabled()) {
             return;
         }
 
