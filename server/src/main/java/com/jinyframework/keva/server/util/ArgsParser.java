@@ -12,12 +12,12 @@ public final class ArgsParser {
             val token = args[i];
             if (token.startsWith("-")) {
                 val name = token.substring(1);
-                if (i >= args.length-2) {
+                if (i >= args.length - 2) {
                     holder.addFlag(name);
-                } else if (args[i+1].startsWith("-")) {
+                } else if (args[i + 1].startsWith("-")) {
                     holder.addFlag(name);
-                } else if (!args[i+1].isEmpty()){
-                    holder.addArgVal(name,args[i+1]);
+                } else if (!args[i + 1].isEmpty()) {
+                    holder.addArgVal(name, args[i + 1]);
                 }
             }
         }

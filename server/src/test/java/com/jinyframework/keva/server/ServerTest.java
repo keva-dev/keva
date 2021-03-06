@@ -31,6 +31,7 @@ public class ServerTest {
                 server.run();
             } catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         }).start();
 

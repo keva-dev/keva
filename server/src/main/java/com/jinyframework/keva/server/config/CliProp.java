@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface CliProp {
     String name();
+
     CliPropType type();
+
     String value() default "";
 }

@@ -9,12 +9,11 @@ import java.util.Properties;
 @Getter
 @Setter
 public class ConfigHolder {
-
-    @ConfigProp(name = "heartbeat_enabled", defaultVal = "false")
+    @ConfigProp(name = "heartbeat_enabled", defaultVal = "true")
     @CliProp(name = "hb", type = CliPropType.FLAG)
     private Boolean heartbeatEnabled;
 
-    @ConfigProp(name = "snapshot_enabled", defaultVal = "false")
+    @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
     @CliProp(name = "ss", type = CliPropType.FLAG)
     private Boolean snapshotEnabled;
 
@@ -30,21 +29,16 @@ public class ConfigHolder {
     @CliProp(name = "ht", type = CliPropType.VAL)
     private Long heartbeatTimeout;
 
-    @ConfigProp(name = "snapshot_interval", defaultVal = "PT2M")
-    @CliProp(name = "sn", type = CliPropType.VAL)
-    private String snapshotInterval;
+    @ConfigProp(name = "snapshot_location", defaultVal = "")
+    @CliProp(name = "sl", type = CliPropType.VAL)
+    private String snapshotLocation;
 
-    @ConfigProp(name = "backup_path", defaultVal = "./dump.keva")
-    @CliProp(name = "bk", type = CliPropType.VAL)
-    private String backupPath;
-
-    @ConfigProp(name = "recovery_path", defaultVal = "./dump.keva")
-    @CliProp(name = "rc", type = CliPropType.VAL)
-    private String recoveryPath;
+    @ConfigProp(name = "heap_size", defaultVal = "64")
+    @CliProp(name = "hs", type = CliPropType.VAL)
+    private Integer heapSize;
 
     public static ConfigHolder fromProperties(@NonNull Properties props) throws Exception {
         val configHolder = builder().build();
-
         val fields = ConfigHolder.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(ConfigProp.class)) {
@@ -63,14 +57,14 @@ public class ConfigHolder {
         val fields = ConfigHolder.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(CliProp.class)) {
-                val cliAnnot = field.getAnnotation(CliProp.class);
+                val cliAnnotate = field.getAnnotation(CliProp.class);
                 String strVal = null;
-                switch (cliAnnot.type()) {
+                switch (cliAnnotate.type()) {
                     case VAL:
-                        strVal = args.getArgVal(cliAnnot.name());
+                        strVal = args.getArgVal(cliAnnotate.name());
                         break;
                     case FLAG:
-                        strVal = args.getFlag(cliAnnot.name());
+                        strVal = args.getFlag(cliAnnotate.name());
                         break;
                 }
                 if (strVal != null) {
@@ -83,19 +77,19 @@ public class ConfigHolder {
         return configHolder;
     }
 
+    private static <T> T parse(String s, Class<T> clazz) throws Exception {
+        return clazz.getConstructor(new Class[]{String.class}).newInstance(s);
+    }
+
     public void merge(ConfigHolder overrideHolder) throws Exception {
         if (overrideHolder != null) {
             for (val field : overrideHolder.getClass().getDeclaredFields()) {
                 val overrideVal = field.get(overrideHolder);
                 if (overrideVal != null) {
-                    field.set(this,overrideVal);
+                    field.set(this, overrideVal);
                 }
             }
         }
-    }
-
-    private static <T> T parse(String s, Class<T> clazz) throws Exception {
-        return clazz.getConstructor(new Class[]{String.class}).newInstance(s);
     }
 
     @Override
@@ -106,9 +100,8 @@ public class ConfigHolder {
                 ", hostname='" + hostname + '\'' +
                 ", port=" + port +
                 ", heartbeatTimeout=" + heartbeatTimeout +
-                ", snapshotInterval='" + snapshotInterval + '\'' +
-                ", backupPath='" + backupPath + '\'' +
-                ", recoveryPath='" + recoveryPath + '\'' +
+                ", snapshotLocation='" + snapshotLocation + '\'' +
+                ", heapSize=" + heapSize +
                 '}';
     }
 }

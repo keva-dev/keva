@@ -13,16 +13,20 @@ public class ArgsHolder {
         flags.add(name);
     }
 
+    @SuppressWarnings("ReturnOfNull")
     public String getFlag(String name) {
-        return Boolean.toString(flags.contains(name));
+        if (flags.contains(name)) {
+            return "true";
+        }
+        return null;
     }
 
     public void addArgVal(String name, String value) {
-        values.put(name,value);
+        values.put(name, value);
     }
 
     @SuppressWarnings("ReturnOfNull")
-    public String getArgVal(String name) throws Exception {
+    public String getArgVal(String name) {
         if (values.containsKey(name)) {
             return values.get(name);
         }

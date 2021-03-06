@@ -33,7 +33,8 @@ public class HeartbeatServiceTest {
             try {
                 server.run();
             } catch (Exception e) {
-                fail(e);
+                e.printStackTrace();
+                System.exit(1);
             }
         }).start();
 

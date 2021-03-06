@@ -25,7 +25,7 @@ public final class ConfigManager {
     }
 
     public static void loadConfigFromFile(String filePath) throws Exception {
-        loadConfigFromFile(filePath,null);
+        loadConfigFromFile(filePath, null);
     }
 
     public static void loadConfigFromFile(String filePath, ConfigHolder overrideHolder) throws Exception {
