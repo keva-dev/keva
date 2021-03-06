@@ -7,7 +7,6 @@ import lombok.val;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.UUID;
@@ -26,7 +25,7 @@ public class Server {
     private final AtomicBoolean serverStopped = new AtomicBoolean(false);
 
     private final ConfigHolder config;
-    private ServerSocket serverSocket;
+    private java.net.ServerSocket serverSocket;
     private ExecutorService executor;
 
     public Server(ConfigHolder config) {
@@ -39,7 +38,7 @@ public class Server {
         executor = Executors.newCachedThreadPool();
         val socketAddress = new InetSocketAddress(host, port);
         if (serverSocket == null) {
-            serverSocket = new ServerSocket();
+            serverSocket = new java.net.ServerSocket();
         }
         serverSocket.bind(socketAddress);
 
@@ -73,7 +72,7 @@ public class Server {
                     break;
                 }
                 executor.execute(() -> {
-                    val kevaSocket = KevaSocket.builder()
+                    val kevaSocket = ServerSocket.builder()
                             .socket(socket)
                             .id(UUID.randomUUID().toString())
                             .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))

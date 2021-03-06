@@ -1,4 +1,4 @@
-package com.jinyframework.keva.server.noheap;
+package com.jinyframework.keva.store;
 
 public interface IndexStore {
     void put(String k, Long v);

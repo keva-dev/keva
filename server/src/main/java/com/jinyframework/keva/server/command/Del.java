@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.noheap.NoHeapStore;
+import com.jinyframework.keva.store.NoHeapStore;
 import com.jinyframework.keva.server.storage.StorageFactory;
 
 import java.util.List;

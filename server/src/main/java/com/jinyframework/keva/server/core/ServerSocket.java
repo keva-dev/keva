@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Builder
 @Getter
 @Setter
-public class KevaSocket {
+public class ServerSocket {
     private final Socket socket;
     private final String id;
     private AtomicLong lastOnlineLong;

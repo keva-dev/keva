@@ -18,14 +18,14 @@ import java.util.Map;
 public class ConnectionServiceImpl implements ConnectionService {
     private final CommandService commandService = ServiceFactory.getCommandService();
 
-    private final Map<String, KevaSocket> socketMap = StorageFactory.getSocketHashMap();
+    private final Map<String, ServerSocket> socketMap = StorageFactory.getSocketHashMap();
 
     @Override
-    public void handleConnection(KevaSocket kevaSocket) {
-        val socketId = kevaSocket.getId();
+    public void handleConnection(ServerSocket serverSocket) {
+        val socketId = serverSocket.getId();
         try {
-            socketMap.put(socketId, kevaSocket);
-            val socket = kevaSocket.getSocket();
+            socketMap.put(socketId, serverSocket);
+            val socket = serverSocket.getSocket();
             val remoteAddr = socket.getRemoteSocketAddress();
             log.info("{} {} connected", remoteAddr, socketId);
 
@@ -33,15 +33,15 @@ public class ConnectionServiceImpl implements ConnectionService {
             val socketIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             @Cleanup
             val socketOut = new PrintWriter(socket.getOutputStream());
-            while (kevaSocket.isAlive()) {
+            while (serverSocket.isAlive()) {
                 val line = socketIn.readLine();
                 if (line == null) {
                     socketMap.remove(socketId);
                     log.info("{} {} disconnected", remoteAddr, socketId);
                     break;
                 }
-                kevaSocket.getLastOnlineLong().set(System.currentTimeMillis());
-                log.info("{} sent {}", kevaSocket.getId(), line);
+                serverSocket.getLastOnlineLong().set(System.currentTimeMillis());
+                log.info("{} sent {}", serverSocket.getId(), line);
                 commandService.handleCommand(socketOut, line);
             }
         } catch (SocketException e) {
@@ -61,16 +61,16 @@ public class ConnectionServiceImpl implements ConnectionService {
         return () -> {
             log.info("Running heartbeat");
             val now = System.currentTimeMillis();
-            socketMap.values().forEach(kevaSocket -> {
-                if (kevaSocket.getLastOnline() + sockTimeout < now) {
-                    kevaSocket.getAlive().set(false);
+            socketMap.values().forEach(serverSocket -> {
+                if (serverSocket.getLastOnline() + sockTimeout < now) {
+                    serverSocket.getAlive().set(false);
                     try {
-                        kevaSocket.getSocket().close();
+                        serverSocket.getSocket().close();
                     } catch (IOException e) {
-                        log.error("Error while closing socket {}: {}", kevaSocket.getId(), e);
+                        log.error("Error while closing socket {}: {}", serverSocket.getId(), e);
                     }
-                    socketMap.remove(kevaSocket.getId());
-                    log.info("{} {} closed from timeout", kevaSocket.getSocket().getRemoteSocketAddress(), kevaSocket.getId());
+                    socketMap.remove(serverSocket.getId());
+                    log.info("{} {} closed from timeout", serverSocket.getSocket().getRemoteSocketAddress(), serverSocket.getId());
                 }
             });
         };
