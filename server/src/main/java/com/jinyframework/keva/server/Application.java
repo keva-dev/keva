@@ -1,14 +1,10 @@
 package com.jinyframework.keva.server;
 
-import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.storage.StorageFactory;
-import com.jinyframework.keva.server.util.ArgsParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import java.util.Properties;
 
 @Slf4j
 public final class Application {
@@ -22,21 +18,7 @@ public final class Application {
 
     public static void main(String[] args) {
         try {
-            val config = ArgsParser.parse(args);
-            log.info(config.toString());
-            // TODO: Check @blu
-            // val overrider = ConfigHolder.fromArgs(config);
-
-            val configFilePath = config.getArgVal("f");
-            if (configFilePath != null) {
-                ConfigManager.loadConfigFromFile(configFilePath);
-            } else {
-                // init using cli args values
-                ConfigManager.setConfig(ConfigHolder.fromProperties(new Properties()));
-            }
-
-            // TODO: Check @blu
-            // ConfigManager.getConfig().merge(overrider);
+            ConfigManager.loadConfig(args);
             log.info(ConfigManager.getConfig().toString());
 
             // Bootstrap Storage Service

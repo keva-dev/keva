@@ -52,7 +52,7 @@ public class ServerTest {
     void ping() {
         try {
             val pong = client.exchange("ping");
-            assertEquals("PONG", pong);
+            assertTrue("PONG".contentEquals(pong));
         } catch (Exception e) {
             fail(e);
         }
@@ -62,7 +62,7 @@ public class ServerTest {
     void info() {
         try {
             val info = client.exchange("info");
-            assertNotEquals("null", info);
+            assertFalse("null".contentEquals(info));
         } catch (Exception e) {
             fail(e);
         }
@@ -74,9 +74,9 @@ public class ServerTest {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
             val getNull = client.exchange("get notexist");
-            assertEquals("1", setAbc);
-            assertEquals("123", getAbc);
-            assertEquals("null", getNull);
+            assertTrue("1".contentEquals(setAbc));
+            assertTrue("123".contentEquals(getAbc));
+            assertTrue("null".contentEquals(getNull));
         } catch (Exception e) {
             fail(e);
         }
@@ -89,10 +89,10 @@ public class ServerTest {
             val getAbc = client.exchange("get abc");
             val delAbc = client.exchange("del abc");
             val getAbcNull = client.exchange("get abc");
-            assertEquals("1", setAbc);
-            assertEquals("123", getAbc);
-            assertEquals("1", delAbc);
-            assertEquals("null", getAbcNull);
+            assertTrue("1".contentEquals(setAbc));
+            assertTrue("123".contentEquals(getAbc));
+            assertTrue("1".contentEquals(delAbc));
+            assertTrue("null".contentEquals(getAbcNull));
         } catch (Exception e) {
             fail(e);
         }
@@ -104,12 +104,12 @@ public class ServerTest {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
             val expireAbc = client.exchange("expire abc 1000");
-            assertEquals("1", setAbc);
-            assertEquals("123", getAbc);
-            assertEquals("1", expireAbc);
+            assertTrue("1".contentEquals(setAbc));
+            assertTrue("123".contentEquals(getAbc));
+            assertTrue("1".contentEquals(expireAbc));
             Thread.sleep(1500);
             val getAbcNull = client.exchange("get abc");
-            assertEquals("null", getAbcNull);
+            assertTrue("null".contentEquals(getAbcNull));
         } catch (Exception e) {
             fail(e);
         }

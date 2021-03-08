@@ -75,7 +75,6 @@ public class HeartbeatServiceTest {
             client.connect();
 
             String pong = client.exchange("ping");
-            pong = client.exchange("ping");
             assertEquals("PONG", pong);
 
             // wait for timeout

@@ -69,10 +69,6 @@ public class SnapshotServiceTest {
             success = client.exchange("set c d");
             assertEquals("1", success);
 
-            // Wait for snap service to start
-            TimeUnit.SECONDS.sleep(2);
-            // Wait for snap service to finish
-            TimeUnit.MILLISECONDS.sleep(100);
         } catch (Exception e) {
             fail(e);
         }

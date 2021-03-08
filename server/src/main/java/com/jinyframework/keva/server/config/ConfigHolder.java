@@ -3,6 +3,7 @@ package com.jinyframework.keva.server.config;
 import com.jinyframework.keva.server.util.ArgsHolder;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.Properties;
 
 @Builder(toBuilder = true)
@@ -81,8 +82,20 @@ public class ConfigHolder {
         return clazz.getConstructor(new Class[]{String.class}).newInstance(s);
     }
 
+    public static ConfigHolder makeDefaultConfig() {
+        return builder()
+                .snapshotLocation("")
+                .hostname("localhost")
+                .port(6767)
+                .heapSize(64)
+                .heartbeatEnabled(true)
+                .heartbeatTimeout(120000L)
+                .snapshotEnabled(true)
+                .build();
+    }
+
     public void merge(ConfigHolder overrideHolder) throws Exception {
-        if (overrideHolder != null) {
+        if (overrideHolder != null && !equals(overrideHolder)) {
             for (val field : overrideHolder.getClass().getDeclaredFields()) {
                 val overrideVal = field.get(overrideHolder);
                 if (overrideVal != null) {
@@ -103,5 +116,24 @@ public class ConfigHolder {
                 ", snapshotLocation='" + snapshotLocation + '\'' +
                 ", heapSize=" + heapSize +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final ConfigHolder that = (ConfigHolder) o;
+        return Objects.equals(heartbeatEnabled, that.heartbeatEnabled) &&
+                Objects.equals(snapshotEnabled, that.snapshotEnabled) &&
+                Objects.equals(hostname, that.hostname) &&
+                Objects.equals(port, that.port) &&
+                Objects.equals(heartbeatTimeout, that.heartbeatTimeout) &&
+                Objects.equals(snapshotLocation, that.snapshotLocation) &&
+                Objects.equals(heapSize, that.heapSize);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(heartbeatEnabled, snapshotEnabled, hostname, port, heartbeatTimeout, snapshotLocation, heapSize);
     }
 }

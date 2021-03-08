@@ -16,7 +16,10 @@ public final class StorageFactory {
     private static NoHeapStore noHeapStore;
     private static ConcurrentHashMap<String, ServerSocket> socketHashMap;
 
-    public synchronized static NoHeapStore getNoHeapDBStore() {
+    private StorageFactory() {
+    }
+
+    public static synchronized NoHeapStore getNoHeapDBStore() {
         if (noHeapStore == null) {
             try {
                 val db = new NoHeapStoreManager();
@@ -36,7 +39,7 @@ public final class StorageFactory {
         return noHeapStore;
     }
 
-    public synchronized static ConcurrentHashMap<String, ServerSocket> getSocketHashMap() {
+    public static synchronized ConcurrentHashMap<String, ServerSocket> getSocketHashMap() {
         if (socketHashMap == null) {
             socketHashMap = new ConcurrentHashMap<>();
         }
