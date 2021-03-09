@@ -11,9 +11,10 @@ public final class PortUtil {
 
     @SneakyThrows
     public static int getAvailablePort() {
-        val serverSocket = new ServerSocket(0);
-        val port = serverSocket.getLocalPort();
-        serverSocket.close();
+        final int port;
+        try (val serverSocket = new ServerSocket(0)) {
+            port = serverSocket.getLocalPort();
+        }
         return port;
     }
 }

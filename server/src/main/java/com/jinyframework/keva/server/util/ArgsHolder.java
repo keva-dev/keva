@@ -1,10 +1,13 @@
 package com.jinyframework.keva.server.util;
 
+import lombok.ToString;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+@ToString
 public class ArgsHolder {
     private final Map<String, String> values = new HashMap<>();
     private final Set<String> flags = new HashSet<>();
@@ -31,13 +34,5 @@ public class ArgsHolder {
             return values.get(name);
         }
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return "ArgsHolder{" +
-                "values=" + values +
-                ", flags=" + flags +
-                '}';
     }
 }
