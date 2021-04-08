@@ -397,14 +397,10 @@ public class NoHeapStoreImpl implements NoHeapStore {
     }
 
     protected long expandJournal(long journalLen) throws IOException {
-        if (debugLogging) {
-            log.info("Expanding journal size");
-        }
-
         if (inMemory) {
             long newLength =
                     journalLen + (MEGABYTE * JOURNAL_SIZE_FACTOR);
-            log.info("Expanding ByteBuffer size to " + newLength + "...");
+            log.info("Expanding (in-memory) data store to " + newLength + "...");
             ByteBuffer newBuffer = ByteBuffer.allocateDirect((int) newLength);
             if (buffer.hasArray()) {
                 byte[] array = buffer.array();
@@ -415,14 +411,15 @@ public class NoHeapStoreImpl implements NoHeapStore {
             }
             buffer = newBuffer;
         } else {
-            log.info("Expanding RandomAccessFile journal size to " + (journalLen + (MEGABYTE * JOURNAL_SIZE_FACTOR)) + "...");
+            log.info("Expanding (persisted) data store to " + (journalLen + (MEGABYTE * JOURNAL_SIZE_FACTOR)) + "...");
             ((MappedByteBuffer) buffer).force();
             journal.setLength(journalLen + (MEGABYTE * JOURNAL_SIZE_FACTOR));
             channel = journal.getChannel();
             journalLen = channel.size();
             buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, journalLen);
         }
-        log.info("Expanded journal size");
+
+        log.info("Expanded data store.");
 
         // Since we re-mapped the file, double-check the position
         long currentPos = buffer.position();

@@ -149,12 +149,14 @@ public class IndexStoreImpl implements IndexStore {
             // Hold a reference to the original buffer to copy its contents
             ByteBuffer oldBuffer = indexBuffer;
 
+            long newSize = sizeInBytes + (PAGE_SIZE * SIZE_FACTOR);
+
             if (inMemory) {
-                log.info("Expanding in-memory index...");
+                log.info("Expanding (in-memory) index store to " + newSize + "...");
                 sizeInBytes += (PAGE_SIZE * SIZE_FACTOR);
                 createIndexJournalBB();
             } else {
-                log.info("Expanding persisted index...");
+                log.info("Expanding (persisted) index store to " + newSize + "...");
                 ((MappedByteBuffer) indexBuffer).force();
                 indexFile.setLength(sizeInBytes + (PAGE_SIZE * SIZE_FACTOR));
                 indexChannel = indexFile.getChannel();
@@ -188,12 +190,11 @@ public class IndexStoreImpl implements IndexStore {
 
             totalBuckets = (int) (sizeInBytes / INDEX_ENTRY_SIZE_BYTES);
             bucketsFree = totalBuckets - bucketsUsed;
-            log.info("Done!");
+            log.info("Expanded index store.");
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
     }
 
     protected int findBucket(Integer hashcode, int offset, boolean mustFind) {

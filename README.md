@@ -2,9 +2,9 @@
   <img width="150" src="https://i.imgur.com/OpG00Ct.png">
 </p>
 
-Jiny Keva is an open source (Apache 2.0 licensed), in-memory data structure store, used as a database or cache. Keva provides data structures such as strings, hashes, lists, sets, sorted sets.
+Jiny Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva provides value types such as strings, object, integer, long, double, float.
 
-Keva provides access to mutable data structures via a set of commands, which are sent using a server-client model with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in a shared way.
+Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in a shared way.
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/huynhminhtufu/jiny/Java%20CI%20runner/master?label=build&style=flat-square)
 ![Lines of code](https://img.shields.io/tokei/lines/github/huynhminhtufu/jiny?style=flat-square)
@@ -14,13 +14,23 @@ Keva provides access to mutable data structures via a set of commands, which are
 
 ## Features
 
-- High performance and low latency in-memory key-value store
-- The basic operations are PUT(key,value), GET(key), DEL(key), EXPIRE(key)
-- Persistence in-memory data to disk
+- High performance and low latency in-memory key-value store (JVM GC independent)
+- The basic operations are PUT(key,value), GET(key), DEL(key)
+- Persistence in-memory data to disk (very fast thanks to disk-memory mapping at OS level)
 
 ## Install
 
-Visit [Binaries Builds](https://github.com/tuhuynh27/jiny/tree/master/keva/builds)
+- Use embedded in app as a library:
+
+`build.gradle`
+
+```groovy
+dependencies {
+    compile group: 'com.jinyframework', name: 'keva-store', version: '0.3.4'
+}
+```
+
+- Standalone server-client: [Binaries Builds](https://github.com/tuhuynh27/jiny/tree/master/keva/builds)
 
 ## Usage
 
