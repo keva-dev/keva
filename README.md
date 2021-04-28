@@ -2,9 +2,12 @@
   <img width="150" src="https://i.imgur.com/OpG00Ct.png">
 </p>
 
-Jiny Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva provides value types such as strings, object, integer, long, double, float.
+Jiny Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva
+provides value types such as strings, object, integer, long, double, float.
 
-Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in a shared way.
+Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model
+with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in
+a shared way.
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/huynhminhtufu/jiny/Java%20CI%20runner/master?label=build&style=flat-square)
 ![Lines of code](https://img.shields.io/tokei/lines/github/huynhminhtufu/jiny?style=flat-square)
@@ -20,9 +23,9 @@ Keva Server provides access to mutable data structures via a set of commands, wh
 
 ## Install
 
-- Use embedded in app as a library:
+### Use embedded in app as a library:
 
-`build.gradle`
+Include this to `build.gradle`
 
 ```groovy
 dependencies {
@@ -30,18 +33,51 @@ dependencies {
 }
 ```
 
-- Standalone server-client: [Binaries Builds](https://github.com/tuhuynh27/jiny/tree/master/keva/builds)
+Or download .jar file [here](https://github.com/tuhuynh27/jiny/raw/master/keva/builds/jar/keva-store.jar), move that .jar file to `./libs` and include this to `build.gradle`:
+
+```groovy
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+}
+```
+
+Then you can use it:
+
+```java
+import com.jinyframework.keva.store.NoHeapStore;
+import com.jinyframework.keva.store.NoHeapStoreManager;
+
+// Create store initial with 1843MB memory
+NoHeapStoreManager manager = new NoHeapStoreManager();
+manager.createStore("Performance-Test", NoHeapStore.Storage.IN_MEMORY, 1843);
+
+// Get store instance
+NoHeapStore noHeapStore = manager.getStore("Performance-Test");
+
+// Operations on store
+noHeapStore.putString("key", "value");
+noHeapStore.getString("key"); // Returns "value"
+```
+
+### Standalone server-client
+
+Visit [Binaries Builds](https://github.com/tuhuynh27/jiny/tree/master/keva/builds)
 
 ## Usage
 
 ### PING
+
 - Returns "PONG". Often used to check connection to server.
+
 ```
 localhost/127.0.0.1:6767> ping
 PONG
 ```
+
 ### GET key
+
 - Returns value of key. If key or value doesn't exist, returns "null".
+
 ```
 localhost/127.0.0.1:6767> get mykey
 null
@@ -50,14 +86,20 @@ localhost/127.0.0.1:6767> set mykey myvalue
 localhost/127.0.0.1:6767> get mykey
 myvalue
 ```
+
 ### SET key value
+
 - Set value for key. Returns 1 if successful, 0 otherwise.
+
 ```
 localhost/127.0.0.1:6767> set mykey myvalue
 1
 ```
+
 ### DEL key
+
 - Remove the key value pair. Returns 1 if successful, 0 otherwise.
+
 ```
 localhost/127.0.0.1:6767> set a b
 1
@@ -68,14 +110,20 @@ localhost/127.0.0.1:6767> del a
 localhost/127.0.0.1:6767> get a
 null
 ```
+
 ### EXPIRE key expireTimeInMilliSecond
+
 - Set expire time for key. Returns 1 if successful, 0 otherwise.
+
 ```
 localhost/127.0.0.1:6767> expire mykey 1000
 1
 ```
+
 ### INFO
+
 - Returns information about the server.
+
 ```
 localhost/127.0.0.1:6767> info
 {threads:=6, clients:=1}
@@ -87,7 +135,8 @@ Want to file a bug, contribute some code, or improve documentation? Excellent!
 
 First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.html).
 
-Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/huynhminhtufu/jiny/issues) and help us out!
+Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/huynhminhtufu/jiny/issues) and help
+us out!
 
 Run server:
 
