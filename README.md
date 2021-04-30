@@ -9,10 +9,10 @@ Keva Server provides access to mutable data structures via a set of commands, wh
 with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in
 a shared way.
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/huynhminhtufu/jiny/Java%20CI%20runner/master?label=build&style=flat-square)
-![Lines of code](https://img.shields.io/tokei/lines/github/huynhminhtufu/jiny?style=flat-square)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/huynhminhtufu/jiny?style=flat-square)
-![GitHub](https://img.shields.io/github/license/huynhminhtufu/jiny?style=flat-square)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/tuhuynh27/keva/Java%20CI%20runner/master?label=build&style=flat-square)
+![Lines of code](https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/tuhuynh27/keva?style=flat-square)
+![GitHub](https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square)
 ![Maven Central](https://img.shields.io/maven-central/v/com.jinyframework/core?style=flat-square)
 
 ## Features
@@ -135,33 +135,41 @@ Want to file a bug, contribute some code, or improve documentation? Excellent!
 
 First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.html).
 
-Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/huynhminhtufu/jiny/issues) and help
+Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/tuhuynh27/keva/issues) and help
 us out!
+
+To install and work on Keva locally (`keva` is a git submodule of `jiny`):
+
+```
+$ git clone --recursive git@github.com:tuhuynh27/jiny.git
+$ cd jiny
+$ ./gradlew dependencies
+```
 
 Run server:
 
 ```
-./gradlew --no-daemon --quiet --console plain :keva:server:run
+$ ./gradlew --no-daemon --quiet --console plain :keva:server:run
 ```
 
 Run client:
 
 ```
-./gradlew --no-daemon --quiet --console plain :keva:client:run
+$ ./gradlew --no-daemon --quiet --console plain :keva:client:run
 ```
 
 Build server:
 
 ```
-./gradlew :keva:server:shadowJar
+$ ./gradlew :keva:server:shadowJar
 ```
 
 Build client:
 
 ```
-./gradlew :keva:client:shadowJar
+$ ./gradlew :keva:client:shadowJar
 ```
 
 ## License
 
-[Apache License 2.0](https://github.com/huynhminhtufu/jiny/blob/master/LICENSE)
+[Apache License 2.0](https://github.com/tuhuynh27/keva/blob/master/LICENSE)
