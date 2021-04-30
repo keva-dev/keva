@@ -1,0 +1,6 @@
+rootProject.name = 'keva'
+
+include 'client'
+include 'server'
+include 'store'
+include 'performance'

@@ -1,0 +1,13 @@
+.idea/
+build/
+.gradle/
+.DS_Store
+gradle.properties
+
+testproject/
+run.sh
+
+dump.keva
+KevaData
+KevaDataIndex
+keva.test.properties
