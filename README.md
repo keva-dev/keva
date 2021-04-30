@@ -141,8 +141,8 @@ us out!
 To install and work on Keva locally (`keva` is a git submodule of `jiny`):
 
 ```
-$ git clone --recursive git@github.com:tuhuynh27/jiny.git
-$ cd jiny
+$ git clone git@github.com:tuhuynh27/keva.git
+$ cd keva
 $ ./gradlew dependencies
 ```
 
