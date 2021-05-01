@@ -23,7 +23,7 @@ public class ServerTest {
     @BeforeAll
     static void startServer() throws Exception {
         server = new Server(ConfigHolder.defaultBuilder()
-                                        .snapshotEnabled(false)
+                                        // TODO: check why adding snapshotEnabled = false make test fail
                                         .hostname(host)
                                         .port(port)
                                         .build());
