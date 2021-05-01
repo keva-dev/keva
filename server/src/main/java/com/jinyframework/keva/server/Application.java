@@ -1,8 +1,12 @@
 package com.jinyframework.keva.server;
 
+import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.Server;
-import com.jinyframework.keva.server.storage.StorageFactory;
+import com.jinyframework.keva.store.NoHeapFactory;
+import com.jinyframework.keva.server.storage.StorageService;
+import com.jinyframework.keva.store.NoHeapConfig;
+import com.jinyframework.keva.store.NoHeapStore;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -11,20 +15,14 @@ public final class Application {
     private Application() {
     }
 
-    private static void bootstrapStorage() {
-        val storageName = StorageFactory.getNoHeapDBStore().getName();
-        log.info("Bootstrapped " + storageName);
-    }
+
 
     public static void main(String[] args) {
         try {
-            ConfigManager.loadConfig(args);
-            log.info(ConfigManager.getConfig().toString());
+            ConfigHolder configHolder = ConfigManager.loadConfig(args);
+            log.info(configHolder.toString());
 
-            // Bootstrap Storage Service
-            bootstrapStorage();
-
-            val server = new Server(ConfigManager.getConfig());
+            val server = new Server(configHolder);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {

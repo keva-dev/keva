@@ -22,10 +22,11 @@ public class ServerTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = new Server(ConfigHolder.builder()
-                .hostname(host)
-                .port(port)
-                .build());
+        server = new Server(ConfigHolder.defaultBuilder()
+                                        .snapshotEnabled(false)
+                                        .hostname(host)
+                                        .port(port)
+                                        .build());
         new Thread(() -> {
             try {
                 server.run();
@@ -74,9 +75,9 @@ public class ServerTest {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
             val getNull = client.exchange("get notexist");
-            assertTrue("1".contentEquals(setAbc));
-            assertTrue("123".contentEquals(getAbc));
-            assertTrue("null".contentEquals(getNull));
+            assertEquals("1", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals("null", getNull);
         } catch (Exception e) {
             fail(e);
         }

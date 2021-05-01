@@ -1,8 +1,8 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.ServiceFactory;
+import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.command.CommandService;
-import com.jinyframework.keva.server.storage.StorageFactory;
+import com.jinyframework.keva.server.storage.SocketMapInstance;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -15,9 +15,9 @@ import java.util.Map;
 
 @Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
-    private final CommandService commandService = ServiceFactory.getCommandService();
+    private final CommandService commandService = ServiceInstance.getCommandService();
 
-    private final Map<String, ServerSocket> socketMap = StorageFactory.getSocketHashMap();
+    private final Map<String, ServerSocket> socketMap = SocketMapInstance.getSocketHashMap();
 
     @Override
     public void handleConnection(ServerSocket serverSocket) {
@@ -69,7 +69,8 @@ public class ConnectionServiceImpl implements ConnectionService {
                         log.error("Error while closing socket {}: {}", serverSocket.getId(), e);
                     }
                     socketMap.remove(serverSocket.getId());
-                    log.info("{} {} closed from timeout", serverSocket.getSocket().getRemoteSocketAddress(), serverSocket.getId());
+                    log.info("{} {} closed from timeout", serverSocket.getSocket()
+                                                                      .getRemoteSocketAddress(), serverSocket.getId());
                 }
             });
         };
