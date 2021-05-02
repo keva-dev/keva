@@ -16,7 +16,7 @@ public final class NoHeapFactory {
         val heapSizeInMegabytes = config.getHeapSize();
         db.createStore("Keva",
                        shouldPersist ? NoHeapStore.Storage.PERSISTED : NoHeapStore.Storage.IN_MEMORY,
-                       heapSizeInMegabytes, config.getSnapshotLocation());
+                       heapSizeInMegabytes, config.getSnapshotLocation(), shouldPersist);
         return db.getStore("Keva");
     }
 }

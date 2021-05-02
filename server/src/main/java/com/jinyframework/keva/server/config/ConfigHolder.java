@@ -31,7 +31,7 @@ public class ConfigHolder {
     @CliProp(name = "ht", type = CliPropType.VAL)
     private Long heartbeatTimeout;
 
-    @ConfigProp(name = "snapshot_location", defaultVal = "./")
+    @ConfigProp(name = "snapshot_location", defaultVal = "")
     @CliProp(name = "sl", type = CliPropType.VAL)
     private String snapshotLocation;
 
@@ -85,7 +85,7 @@ public class ConfigHolder {
 
     public static ConfigHolderBuilder defaultBuilder() {
         return builder()
-                .snapshotLocation("./")
+                .snapshotLocation("")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
@@ -96,7 +96,7 @@ public class ConfigHolder {
 
     public static ConfigHolder makeDefaultConfig() {
         return builder()
-                .snapshotLocation("./")
+                .snapshotLocation("")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)

@@ -39,7 +39,8 @@ public class ConnectionServiceImpl implements ConnectionService {
                         }
                         serverSocket.getLastOnlineLong().set(System.currentTimeMillis());
                         log.info("{} sent {}", serverSocket.getId(), line);
-                        commandService.handleCommand(socketOut, line);
+                        Object res = commandService.handleCommand(socketOut, line);
+                        log.info("{} received {}", serverSocket.getId(), res);
                     }
                 }
             }

@@ -15,8 +15,6 @@ public final class Application {
     private Application() {
     }
 
-
-
     public static void main(String[] args) {
         try {
             ConfigHolder configHolder = ConfigManager.loadConfig(args);

@@ -27,7 +27,7 @@ public class ServerTest {
         if (conf.exists()) {
             val deleted = conf.delete();
             if (!deleted) {
-                log.warn("Failed to delete file {}",name);
+                log.warn("Failed to delete file {}", name);
             }
         }
     }
@@ -40,6 +40,7 @@ public class ServerTest {
 
         server = new Server(ConfigHolder.defaultBuilder()
                                         // TODO: check why adding snapshotEnabled = false make test fail
+                                        .snapshotEnabled(false)
                                         .hostname(host)
                                         .port(port)
                                         .build());

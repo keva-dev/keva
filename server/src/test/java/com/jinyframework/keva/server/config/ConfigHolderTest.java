@@ -18,7 +18,7 @@ class ConfigHolderTest {
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
         assertEquals(120000L, def.getHeartbeatTimeout());
-        assertEquals("./", def.getSnapshotLocation());
+        assertEquals("", def.getSnapshotLocation());
         assertEquals(64, def.getHeapSize());
     }
 
@@ -30,7 +30,7 @@ class ConfigHolderTest {
     }
 
     @Test
-    void fromProperties() throws Exception {
+    void fromProperties() {
         val props = new Properties();
         props.setProperty("hostname", "host");
         props.setProperty("port", "123123");
@@ -51,7 +51,7 @@ class ConfigHolderTest {
     }
 
     @Test
-    void fromEmptyArgs() throws Exception {
+    void fromEmptyArgs() {
         val emptyArgs = new ArgsHolder();
         val emptyConfig = ConfigHolder.fromArgs(emptyArgs);
         assertNull(emptyConfig.getHostname());
@@ -64,7 +64,7 @@ class ConfigHolderTest {
     }
 
     @Test
-    void fromArgs() throws Exception {
+    void fromArgs() {
         val argsHolder = new ArgsHolder();
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
