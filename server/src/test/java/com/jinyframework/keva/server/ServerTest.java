@@ -2,6 +2,7 @@ package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.Server;
+import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,13 +18,29 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 public class ServerTest {
     static String host = "localhost";
-    static int port = 8787;
+    static int port = PortUtil.getAvailablePort();
     static Server server;
     static SocketClient client;
 
+    private static void deleteFile(String name) {
+        val conf = new File(name);
+        if (conf.exists()) {
+            val deleted = conf.delete();
+            if (!deleted) {
+                log.warn("Failed to delete file {}", name);
+            }
+        }
+    }
+
     @BeforeAll
     static void startServer() throws Exception {
-        server = new Server(ConfigHolder.builder()
+        deleteFile("./keva.test.properties");
+        deleteFile("./KevaData");
+        deleteFile("./KevaDataIndex");
+
+        server = new Server(ConfigHolder.defaultBuilder()
+                // TODO: check why adding snapshotEnabled = false make test fail
+                .snapshotEnabled(false)
                 .hostname(host)
                 .port(port)
                 .build());
@@ -30,7 +48,7 @@ public class ServerTest {
             try {
                 server.run();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
                 System.exit(1);
             }
         }).start();
@@ -53,6 +71,7 @@ public class ServerTest {
         try {
             val pong = client.exchange("ping");
             assertTrue("PONG".contentEquals(pong));
+            assertEquals("PONG", pong);
         } catch (Exception e) {
             fail(e);
         }
@@ -69,14 +88,22 @@ public class ServerTest {
     }
 
     @Test
+    void getSetNull() {
+        try {
+            val getNull = client.exchange("get anotherkey");
+            assertEquals("null", getNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void getSet() {
         try {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
-            val getNull = client.exchange("get notexist");
-            assertTrue("1".contentEquals(setAbc));
-            assertTrue("123".contentEquals(getAbc));
-            assertTrue("null".contentEquals(getNull));
+            assertEquals("1", setAbc);
+            assertEquals("123", getAbc);
         } catch (Exception e) {
             fail(e);
         }
@@ -89,10 +116,10 @@ public class ServerTest {
             val getAbc = client.exchange("get abc");
             val delAbc = client.exchange("del abc");
             val getAbcNull = client.exchange("get abc");
-            assertTrue("1".contentEquals(setAbc));
-            assertTrue("123".contentEquals(getAbc));
-            assertTrue("1".contentEquals(delAbc));
-            assertTrue("null".contentEquals(getAbcNull));
+            assertEquals("1", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals("1", delAbc);
+            assertEquals("null", getAbcNull);
         } catch (Exception e) {
             fail(e);
         }
@@ -104,12 +131,12 @@ public class ServerTest {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
             val expireAbc = client.exchange("expire abc 1000");
-            assertTrue("1".contentEquals(setAbc));
-            assertTrue("123".contentEquals(getAbc));
-            assertTrue("1".contentEquals(expireAbc));
+            assertEquals("1", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals("1", expireAbc);
             Thread.sleep(1500);
             val getAbcNull = client.exchange("get abc");
-            assertTrue("null".contentEquals(getAbcNull));
+            assertEquals("null", getAbcNull);
         } catch (Exception e) {
             fail(e);
         }

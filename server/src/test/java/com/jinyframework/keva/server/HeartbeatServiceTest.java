@@ -23,7 +23,7 @@ public class HeartbeatServiceTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = new Server(ConfigHolder.builder()
+        server = new Server(ConfigHolder.defaultBuilder()
                 .hostname(host)
                 .port(port)
                 .heartbeatEnabled(true)

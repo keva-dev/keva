@@ -26,7 +26,6 @@ public class SnapshotServiceTest {
                 .snapshotLocation("./")
                 .heapSize(8)
                 .build();
-        ConfigManager.setConfig(config);
         val server = new Server(config);
         new Thread(() -> {
             try {

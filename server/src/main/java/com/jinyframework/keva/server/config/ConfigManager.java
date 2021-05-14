@@ -5,42 +5,32 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
 @Slf4j
 public final class ConfigManager {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
-    private static ConfigHolder configHolder;
 
     private ConfigManager() {
     }
 
-    public static ConfigHolder getConfig() {
-        return configHolder;
-    }
-
-    public static void setConfig(ConfigHolder config) {
-        configHolder = config;
-    }
-
-    public static void loadConfig(String[] args) throws Exception {
+    public static ConfigHolder loadConfig(String[] args) throws IOException {
+        ConfigHolder returnConf = ConfigHolder.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
         log.info(config.toString());
         val overrider = ConfigHolder.fromArgs(config);
 
         val configFilePath = config.getArgVal("f");
         if (configFilePath != null) {
-            loadConfigFromFile(configFilePath);
-        } else {
-            // init using with default values
-            setConfig(ConfigHolder.fromProperties(new Properties()));
+            returnConf = loadConfigFromFile(configFilePath);
         }
 
-        configHolder.merge(overrider);
+        return returnConf.merge(overrider);
     }
 
-    public static void loadConfigFromFile(String filePath) throws Exception {
+    public static ConfigHolder loadConfigFromFile(String filePath) throws IOException {
         if (filePath.isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
@@ -49,6 +39,6 @@ public final class ConfigManager {
             props.load(file);
         }
 
-        configHolder = ConfigHolder.fromProperties(props);
+        return ConfigHolder.fromProperties(props);
     }
 }

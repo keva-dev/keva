@@ -43,6 +43,20 @@ public class NoHeapStoreManager {
         return true;
     }
 
+    public boolean createStore(String name,
+                               NoHeapStore.Storage storageType,
+                               int size,
+                               String homeDirectory,
+                               boolean reuseExisting) {
+        NoHeapStoreImpl noHeapDB = new
+                NoHeapStoreImpl(homeDirectory, name, storageType,
+                                size * MEGABYTE, reuseExisting);
+
+        stores.put(name, noHeapDB);
+
+        return true;
+    }
+
     public NoHeapStore getStore(String storeName) {
         return this.stores.get(storeName);
     }

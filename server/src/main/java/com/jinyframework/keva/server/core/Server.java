@@ -1,7 +1,10 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.ServiceFactory;
+import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.store.NoHeapConfig;
+import com.jinyframework.keva.store.NoHeapFactory;
+import com.jinyframework.keva.store.NoHeapStore;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -32,6 +35,19 @@ public class Server {
         this.config = config;
     }
 
+    private void bootstrapStorage() {
+        val noHeapConfig = NoHeapConfig.builder()
+                                       .heapSize(config.getHeapSize())
+                                       .snapshotEnabled(config.getSnapshotEnabled())
+                                       .snapshotLocation(config.getSnapshotLocation())
+                                       .build();
+        NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
+        ServiceInstance.getStorageService().setStore(noHeapStore);
+
+        val storageName = noHeapStore.getName();
+        log.info("Bootstrapped " + storageName);
+    }
+
     private void startServer() throws IOException {
         val host = config.getHostname();
         val port = config.getPort();
@@ -56,14 +72,16 @@ public class Server {
         val heartbeatInterval = heartbeatTimeout / 2;
 
         val scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        scheduledExecutor.scheduleAtFixedRate(ServiceFactory.getConnectionService().getHeartbeatRunnable(heartbeatTimeout),
-                heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
+        scheduledExecutor.scheduleAtFixedRate(ServiceInstance.getConnectionService()
+                                                             .getHeartbeatRunnable(heartbeatTimeout),
+                                              heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
         log.info("Heartbeat service started");
     }
 
     public void run() throws IOException {
-        startServer();
+        bootstrapStorage();
         startHeartbeat();
+        startServer();
         while (!Thread.interrupted() && !serverStopping.get()) {
             try {
                 val socket = serverSocket.accept();
@@ -73,12 +91,12 @@ public class Server {
                 }
                 executor.execute(() -> {
                     val kevaSocket = ServerSocket.builder()
-                            .socket(socket)
-                            .id(UUID.randomUUID().toString())
-                            .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))
-                            .alive(new AtomicBoolean(true))
-                            .build();
-                    ServiceFactory.getConnectionService().handleConnection(kevaSocket);
+                                                 .socket(socket)
+                                                 .id(UUID.randomUUID().toString())
+                                                 .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))
+                                                 .alive(new AtomicBoolean(true))
+                                                 .build();
+                    ServiceInstance.getConnectionService().handleConnection(kevaSocket);
                 });
             } catch (SocketException | SocketTimeoutException ignore) {
             }
