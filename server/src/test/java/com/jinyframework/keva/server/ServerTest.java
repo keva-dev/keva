@@ -87,14 +87,22 @@ public class ServerTest {
     }
 
     @Test
+    void getSetNull() {
+        try {
+            val getNull = client.exchange("get anotherkey");
+            assertEquals("null", getNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void getSet() {
         try {
             val setAbc = client.exchange("set abc 123");
             val getAbc = client.exchange("get abc");
-            val getNull = client.exchange("get notexist");
             assertEquals("1", setAbc);
             assertEquals("123", getAbc);
-            assertEquals("null", getNull);
         } catch (Exception e) {
             fail(e);
         }
