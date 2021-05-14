@@ -39,16 +39,16 @@ public class ServerTest {
         deleteFile("./KevaDataIndex");
 
         server = new Server(ConfigHolder.defaultBuilder()
-                                        // TODO: check why adding snapshotEnabled = false make test fail
-                                        .snapshotEnabled(false)
-                                        .hostname(host)
-                                        .port(port)
-                                        .build());
+                // TODO: check why adding snapshotEnabled = false make test fail
+                .snapshotEnabled(false)
+                .hostname(host)
+                .port(port)
+                .build());
         new Thread(() -> {
             try {
                 server.run();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getMessage());
                 System.exit(1);
             }
         }).start();
@@ -71,6 +71,7 @@ public class ServerTest {
         try {
             val pong = client.exchange("ping");
             assertTrue("PONG".contentEquals(pong));
+            assertEquals("PONG", pong);
         } catch (Exception e) {
             fail(e);
         }

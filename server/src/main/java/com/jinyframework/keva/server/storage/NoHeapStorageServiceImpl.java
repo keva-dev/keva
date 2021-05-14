@@ -21,7 +21,10 @@ public class NoHeapStorageServiceImpl implements StorageService {
         final Future<Boolean> res = executor.submit(() -> store.putString(key, val));
         try {
             return res.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (ExecutionException e) {
             return false;
         }
     }
@@ -31,7 +34,10 @@ public class NoHeapStorageServiceImpl implements StorageService {
         final Future<String> res = executor.submit(() -> store.getString(key));
         try {
             return res.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        } catch (ExecutionException e) {
             return null;
         }
     }
@@ -41,7 +47,10 @@ public class NoHeapStorageServiceImpl implements StorageService {
         final Future<Boolean> res = executor.submit(() -> store.remove(key));
         try {
             return res.get();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (ExecutionException e) {
             return false;
         }
     }
