@@ -17,7 +17,7 @@ public final class Application {
 
     public static void main(String[] args) {
         try {
-            ConfigHolder configHolder = ConfigManager.loadConfig(args);
+            final ConfigHolder configHolder = ConfigManager.loadConfig(args);
             log.info(configHolder.toString());
 
             val server = new Server(configHolder);

@@ -4,7 +4,10 @@ import com.jinyframework.keva.server.core.ServerSocket;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SocketMapInstance {
+public final class SocketMapInstance {
+    private SocketMapInstance() {
+    }
+
     private static final class SocketHashMapHolder {
         private static final ConcurrentHashMap<String, ServerSocket> INSTANCE = new ConcurrentHashMap<>();
     }

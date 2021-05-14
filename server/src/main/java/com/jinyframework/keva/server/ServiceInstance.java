@@ -10,6 +10,9 @@ import lombok.Setter;
 
 @Setter
 public final class ServiceInstance {
+    private ServiceInstance() {
+    }
+
     private static final class ConnectionServiceHolder {
         private static final ConnectionService INSTANCE = new ConnectionServiceImpl();
     }

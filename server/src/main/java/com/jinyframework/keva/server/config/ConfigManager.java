@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -15,7 +16,7 @@ public final class ConfigManager {
     private ConfigManager() {
     }
 
-    public static ConfigHolder loadConfig(String[] args) throws Exception {
+    public static ConfigHolder loadConfig(String[] args) throws IOException {
         ConfigHolder returnConf = ConfigHolder.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
         log.info(config.toString());
@@ -29,7 +30,7 @@ public final class ConfigManager {
         return returnConf.merge(overrider);
     }
 
-    public static ConfigHolder loadConfigFromFile(String filePath) throws Exception {
+    public static ConfigHolder loadConfigFromFile(String filePath) throws IOException {
         if (filePath.isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
