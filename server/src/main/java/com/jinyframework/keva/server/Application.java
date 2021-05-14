@@ -3,10 +3,6 @@ package com.jinyframework.keva.server;
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.Server;
-import com.jinyframework.keva.store.NoHeapFactory;
-import com.jinyframework.keva.server.storage.StorageService;
-import com.jinyframework.keva.store.NoHeapConfig;
-import com.jinyframework.keva.store.NoHeapStore;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
