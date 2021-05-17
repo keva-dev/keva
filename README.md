@@ -139,7 +139,7 @@ First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.htm
 Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/tuhuynh27/keva/issues) and help
 us out!
 
-To install and work on Keva locally (`keva` is a git submodule of `jiny`):
+To install and work on Keva locally:
 
 ```
 $ git clone git@github.com:tuhuynh27/keva.git
@@ -153,10 +153,10 @@ Run server:
 $ ./gradlew --no-daemon --quiet --console plain :server:run
 ```
 
-Run client:
+Run CLI client:
 
 ```
-$ ./gradlew --no-daemon --quiet --console plain :client:run
+$ ./gradlew --no-daemon --quiet --console plain :cli-client:run
 ```
 
 Build server:
@@ -165,10 +165,10 @@ Build server:
 $ ./gradlew :server:shadowJar
 ```
 
-Build client:
+Build CLI client:
 
 ```
-$ ./gradlew :client:shadowJar
+$ ./gradlew :cli-client:shadowJar
 ```
 
 ## License
