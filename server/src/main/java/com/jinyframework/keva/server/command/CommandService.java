@@ -9,5 +9,5 @@ public interface CommandService {
         return new ArrayList<>(Arrays.asList(line.split(" ")));
     }
 
-    void handleCommand(PrintWriter socketOut, String line);
+    Object handleCommand(PrintWriter socketOut, String line);
 }

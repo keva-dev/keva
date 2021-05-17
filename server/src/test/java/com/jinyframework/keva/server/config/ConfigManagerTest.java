@@ -13,26 +13,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 class ConfigManagerTest {
     @Test
-    void getSetConfig() {
-        val def = makeDefaultConfig();
-        ConfigManager.setConfig(def);
-        val actual = ConfigManager.getConfig();
-        assertEquals(def, actual);
-    }
-
-    @Test
     void loadConfigArgs() throws Exception {
         String[] args = {
                 ""
         };
-        ConfigManager.loadConfig(args);
+        ConfigHolder configDef = ConfigManager.loadConfig(args);
         val def = makeDefaultConfig();
-        assertEquals(def, ConfigManager.getConfig());
+        assertEquals(def, configDef);
         args = new String[]{
                 "-p", "123123"
         };
-        ConfigManager.loadConfig(args);
-        assertEquals(123123, ConfigManager.getConfig().getPort());
+        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
+        assertEquals(123123, configOverriden.getPort());
     }
 
     @Test
@@ -57,9 +49,9 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath
         };
-        ConfigManager.loadConfig(args);
-        assertEquals(123123, ConfigManager.getConfig().getPort());
-        assertFalse(ConfigManager.getConfig().getHeartbeatEnabled());
+        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
+        assertEquals(123123, configOverriden.getPort());
+        assertFalse(configOverriden.getHeartbeatEnabled());
     }
 
     @Test
@@ -84,8 +76,8 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath, "-p", "123"
         };
-        ConfigManager.loadConfig(args);
-        assertEquals(123, ConfigManager.getConfig().getPort());
-        assertFalse(ConfigManager.getConfig().getHeartbeatEnabled());
+        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
+        assertEquals(123, configOverriden.getPort());
+        assertFalse(configOverriden.getHeartbeatEnabled());
     }
 }

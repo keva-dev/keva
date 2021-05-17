@@ -13,7 +13,7 @@ public class CommandServiceImpl implements CommandService {
     private final Map<CommandName, CommandHandler> commandHandlerMap = getHandlerMap();
 
     @Override
-    public void handleCommand(PrintWriter socketOut, String line) {
+    public Object handleCommand(PrintWriter socketOut, String line) {
         Object output;
         try {
             val args = CommandService.parseTokens(line);
@@ -32,5 +32,6 @@ public class CommandServiceImpl implements CommandService {
         }
         socketOut.println(output);
         socketOut.flush();
+        return output;
     }
 }

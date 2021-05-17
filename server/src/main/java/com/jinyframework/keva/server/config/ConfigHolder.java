@@ -83,6 +83,17 @@ public class ConfigHolder {
         return clazz.getConstructor(String.class).newInstance(s);
     }
 
+    public static ConfigHolderBuilder defaultBuilder() {
+        return builder()
+                .snapshotLocation("")
+                .hostname("localhost")
+                .port(6767)
+                .heapSize(64)
+                .heartbeatEnabled(true)
+                .heartbeatTimeout(120000L)
+                .snapshotEnabled(true);
+    }
+
     public static ConfigHolder makeDefaultConfig() {
         return builder()
                 .snapshotLocation("")
@@ -96,7 +107,7 @@ public class ConfigHolder {
     }
 
     @SneakyThrows
-    public void merge(ConfigHolder overrideHolder) {
+    public ConfigHolder merge(ConfigHolder overrideHolder) {
         if (overrideHolder != null && !equals(overrideHolder)) {
             for (val field : overrideHolder.getClass().getDeclaredFields()) {
                 val overrideVal = field.get(overrideHolder);
@@ -104,6 +115,8 @@ public class ConfigHolder {
                     field.set(this, overrideVal);
                 }
             }
+            return this;
         }
+        return this;
     }
 }
