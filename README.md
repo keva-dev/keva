@@ -2,14 +2,14 @@
   <img width="150" src="https://i.imgur.com/OpG00Ct.png">
 </p>
 
-Jiny Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva
+Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva
 provides value types such as strings, object, integer, long, double, float.
 
 Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model
 with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in
 a shared way.
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/tuhuynh27/keva/Java%20CI%20runner/master?label=build&style=flat-square)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/tuhuynh27/keva/Build/master?label=build&style=flat-square)
 ![Lines of code](https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/tuhuynh27/keva?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square)
@@ -23,7 +23,9 @@ a shared way.
 
 ## Install
 
-### Use embedded in app as a library:
+There're 2 ways to use Keva: Embedded in a Java app / Standalone Server
+
+### Use embedded in Java app as a library:
 
 Include this to `build.gradle`
 
@@ -44,15 +46,14 @@ dependencies {
 Then you can use it:
 
 ```java
-import com.jinyframework.keva.store.NoHeapStore;
-import com.jinyframework.keva.store.NoHeapStoreManager;
+import com.jinyframework.keva.store.*;
 
 // Create store initial with 1843MB memory
 NoHeapStoreManager manager = new NoHeapStoreManager();
-manager.createStore("Performance-Test", NoHeapStore.Storage.IN_MEMORY, 1843);
+manager.createStore("StoreSample", NoHeapStore.Storage.IN_MEMORY, 256);
 
 // Get store instance
-NoHeapStore noHeapStore = manager.getStore("Performance-Test");
+NoHeapStore noHeapStore = manager.getStore("StoreSample");
 
 // Operations on store
 noHeapStore.putString("key", "value");
