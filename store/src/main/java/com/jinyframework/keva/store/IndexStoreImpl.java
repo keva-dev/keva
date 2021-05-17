@@ -304,7 +304,7 @@ public class IndexStoreImpl implements IndexStore {
             offset = getHashBucket(key.hashCode());
             indexBuffer.position(offset);
             byte occupied = indexBuffer.get();
-            // "occupied" is a active flag of every record, type: byte (0 | 1)
+            // "occupied" is an active flag of every record, type: byte (0 | 1)
             // 0 -> inactive (removed)
             // 1 -> active
             if (occupied == 0) {
