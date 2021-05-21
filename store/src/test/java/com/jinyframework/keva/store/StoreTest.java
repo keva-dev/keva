@@ -36,7 +36,7 @@ public class StoreTest {
         val getAbc = noHeapStore.getString(testName + "abc");
         val getNull = noHeapStore.getString(testName + "notExisted");
         assertTrue(setAbc);
-        assertTrue("123".contentEquals(getAbc));
+        assertEquals("123", getAbc);
         assertNull(getNull);
     }
 
@@ -44,9 +44,9 @@ public class StoreTest {
     void reAssignString() {
         String testName = "reAssignString";
         noHeapStore.putString(testName + "key1", "val1");
-        assertTrue("val1".contentEquals(noHeapStore.getString(testName + "key1")));
+        assertEquals("val1", noHeapStore.getString(testName + "key1"));
         noHeapStore.putString(testName + "key1", "val2");
-        assertTrue("val2".contentEquals(noHeapStore.getString(testName + "key1")));
+        assertEquals("val2", noHeapStore.getString(testName + "key1"));
         noHeapStore.remove(testName + "key1");
         assertNull(noHeapStore.getString(testName + "key1"));
     }
@@ -82,7 +82,7 @@ public class StoreTest {
                                 .build();
         noHeapStore.putObject(testName + "key", testObj);
         val got = (TestObject) noHeapStore.getObject(testName + "key");
-        assertTrue("keva@mail".contentEquals(got.email));
+        assertEquals("keva@mail", got.email);
 
         val testObj2 = TestObject.builder()
                                 .email("keva2@mail")
@@ -90,12 +90,12 @@ public class StoreTest {
                                 .build();
         noHeapStore.putObject(testName + "key", testObj2);
         val got2 = (TestObject) noHeapStore.getObject(testName + "key");
-        assertTrue("keva2@mail".contentEquals(got2.email));
+        assertEquals("keva2@mail", got2.email);
 
         noHeapStore.remove("key");
         assertNull(noHeapStore.getInteger(testName + "key"));
 
-        assertTrue("keva".contentEquals(got.name));
+        assertEquals("keva", got.name);
     }
 
     @Builder
