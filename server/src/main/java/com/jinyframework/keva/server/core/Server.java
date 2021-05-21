@@ -127,6 +127,7 @@ public class Server implements IServer {
             graceful = executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
         if (!graceful) {
             log.error("Graceful shutdown timed out");
