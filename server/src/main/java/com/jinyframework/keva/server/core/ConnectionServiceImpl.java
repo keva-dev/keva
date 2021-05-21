@@ -39,7 +39,9 @@ public class ConnectionServiceImpl implements ConnectionService {
                         }
                         serverSocket.getLastOnlineLong().set(System.currentTimeMillis());
                         log.info("{} sent {}", serverSocket.getId(), line);
-                        Object res = commandService.handleCommand(socketOut, line);
+                        final Object res = commandService.handleCommand(line);
+                        socketOut.println(res);
+                        socketOut.flush();
                         log.info("{} received {}", serverSocket.getId(), res);
                     }
                 }
@@ -71,7 +73,7 @@ public class ConnectionServiceImpl implements ConnectionService {
                     }
                     socketMap.remove(serverSocket.getId());
                     log.info("{} {} closed from timeout", serverSocket.getSocket()
-                                                                      .getRemoteSocketAddress(), serverSocket.getId());
+                            .getRemoteSocketAddress(), serverSocket.getId());
                 }
             });
         };
