@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -22,7 +21,7 @@ type ConnPool struct {
 	totalManagedConns int //this counter is temporary and not accurate
 	totalIdleConns    int
 	sema              semaphore
-	connsMu           *sync.Mutex
+	connsMu           *mutex
 	lastDialError     atomic.Value
 	closedChan        chan struct{}
 }
@@ -69,7 +68,7 @@ func NewConnPool(opt Options) (*ConnPool, error) {
 		conns:      make(map[string]*Conn),
 		idleConns:  make([]*Conn, 0, opt.PoolSize),
 		closedChan: make(chan struct{}),
-		connsMu:    new(sync.Mutex),
+		connsMu:    newMutex(),
 		sema:       make(chan struct{}, opt.PoolSize),
 	}
 	p.connsMu.Lock()
@@ -175,30 +174,6 @@ func (p *ConnPool) connReaper() {
 		case <-p.closedChan:
 			return
 		}
-	}
-}
-
-//must used with lock
-func (p *ConnPool) ensureMinIdleConns() {
-	if p.opt.MinIdleConn < 0 {
-		return
-	}
-	totalErrCount := uint32(0)
-
-	for p.totalManagedConns < p.opt.PoolSize && p.totalIdleConns < p.opt.MinIdleConn {
-		p.totalManagedConns++ //TODO: is this counter necessary
-		p.totalIdleConns++
-		go func() {
-			err := p.addIdleConn(&totalErrCount)
-
-			//min idle may not be guaranteed
-			if err != nil {
-				p.connsMu.Lock()
-				p.totalManagedConns--
-				p.totalIdleConns--
-				p.connsMu.Unlock()
-			}
-		}()
 	}
 }
 
