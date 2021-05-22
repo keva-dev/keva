@@ -88,10 +88,16 @@ func TestExpire(t *testing.T) {
 }
 
 func TestPing(t *testing.T) {
-
 	cl := setupDefault(t)
 	defer cl.Close()
 	err := cl.Ping()
 	assert.NoError(t, err)
 
+}
+
+func TestInfo(t *testing.T) {
+	cl := setupDefault(t)
+	defer cl.Close()
+	_, err := cl.Info()
+	assert.NoError(t, err)
 }

@@ -129,7 +129,7 @@ func (p *ConnPool) Get() (*Conn, error) {
 	defer p.connsMu.Unlock()
 
 	//Pool is full
-	if p.totalManagedConns > p.opt.PoolSize {
+	if p.totalManagedConns >= p.opt.PoolSize {
 		c := newUnmanagedConnFromNet(netconn) // will not be put back to pool later
 		return c, nil
 	} else {
@@ -206,8 +206,8 @@ func (p *ConnPool) addIdleConn(totalErr *uint32) error {
 		atomic.AddUint32(totalErr, 1)
 		return err
 	}
-	p.connsMu.Lock()
 	c := newManagedConnFromNet(netconn)
+	p.connsMu.Lock()
 	p.conns[c.id] = c
 	p.idleConns = append(p.idleConns, c)
 	//do not increment meta counter here

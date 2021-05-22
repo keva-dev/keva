@@ -2,7 +2,9 @@
 
 package pool
 
-import "sync"
+import (
+	"sync"
+)
 
 func (p *ConnPool) ensureMinIdleConns() {
 	if p.opt.MinIdleConn < 0 {

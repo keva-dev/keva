@@ -58,10 +58,10 @@ func (c *Client) Close() error {
 
 func (c *Client) connectionIntercept(f func(*pool.Conn) error) error {
 	conn, err := c.pool.Get()
-	defer c.pool.Put(conn)
 	if err != nil {
 		return err
 	}
+	defer c.pool.Put(conn)
 	return f(conn)
 }
 
@@ -127,9 +127,9 @@ func (c *Client) Info() (string, error) {
 	}
 	return comd.result, nil
 }
-func (c *Client) Expire(key string,d time.Duration) (string, error) {
+func (c *Client) Expire(key string, d time.Duration) (string, error) {
 	comd := &expireCmd{
-		input: []string{fmt.Sprintf("%s %d",key, d.Milliseconds())},
+		input: []string{fmt.Sprintf("%s %d", key, d.Milliseconds())},
 	}
 	err := c.connectionIntercept(func(conn *pool.Conn) error {
 		return c.cmder.execute(conn, comd)
