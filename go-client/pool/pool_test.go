@@ -2,6 +2,7 @@ package pool
 
 import (
 	"context"
+	"errors"
 	"net"
 	"sync"
 	"sync/atomic"
@@ -234,12 +235,12 @@ func TestUnmanagedConnRemovedOnPutback(t *testing.T) {
 func TestRemoveConn(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
-	const poolSize = 11 // make semaphore extra 1 connection
+	const poolSize = 10
 	const minIdle = 10
 	closedConnL := new(sync.Mutex)
 	var closedConns []*Conn
 	connPool, err := NewConnPool(Options{
-		Dialer:             dummyDialer, //11st connection will take long to establish
+		Dialer:             dummyDialer,
 		PoolSize:           poolSize,
 		IdleTimeout:        idleTimeout,
 		MinIdleConn:        minIdle,
@@ -270,4 +271,172 @@ func TestRemoveConn(t *testing.T) {
 	for _, con := range connPool.idleConns {
 		assert.NotEqual(t, cn.id, con.id)
 	}
+}
+
+func TestPoolClose(t *testing.T) {
+	const idleTimeout = 5 * time.Minute
+	const maxAge = time.Hour
+	const poolSize = 10
+	const minIdle = 10
+	t.Run("Functionality", func(t *testing.T) {
+		closedConnL := new(sync.Mutex)
+		closedConns := map[string]bool{}
+		connPool, err := NewConnPool(Options{
+			Dialer:             dummyDialer,
+			PoolSize:           poolSize,
+			IdleTimeout:        idleTimeout,
+			MinIdleConn:        minIdle,
+			MaxConnAge:         maxAge,
+			PoolTimeout:        time.Second,
+			IdleCheckFrequency: time.Hour,
+			OnConnClosed: func(cn *Conn) error {
+				closedConnL.Lock()
+				closedConns[cn.id] = true
+				closedConnL.Unlock()
+				return nil
+			},
+		})
+		assert.NoError(t, err)
+		eventually(t, func() bool {
+			return connPool.TotalConns() == minIdle
+		})
+		ids := []string{}
+		connPool.connsMu.Lock()
+		for _, cn := range connPool.idleConns {
+			ids = append(ids, cn.id)
+		}
+		connPool.connsMu.Unlock()
+		connPool.Close()
+		assert.Equal(t, 0, len(connPool.conns))
+		assert.Equal(t, len(ids), len(closedConns))
+		for _, id := range ids {
+			_, exist := closedConns[id]
+			assert.True(t, exist)
+		}
+	})
+	t.Run("Put to closed pool", func(t *testing.T) {
+		closedConnL := new(sync.Mutex)
+		closedConns := map[string]bool{}
+		connPool, err := NewConnPool(Options{
+			Dialer:             dummyDialer,
+			PoolSize:           poolSize,
+			IdleTimeout:        idleTimeout,
+			MinIdleConn:        minIdle,
+			MaxConnAge:         maxAge,
+			PoolTimeout:        time.Second,
+			IdleCheckFrequency: time.Hour,
+			OnConnClosed: func(cn *Conn) error {
+				closedConnL.Lock()
+				closedConns[cn.id] = true
+				closedConnL.Unlock()
+				return nil
+			},
+		})
+		assert.NoError(t, err)
+		eventually(t, func() bool {
+			return connPool.TotalConns() == minIdle
+		})
+		oneConn, err := connPool.Get()
+		assert.NoError(t, err)
+		connPool.Close()
+		connPool.Put(oneConn)
+		_, exist := closedConns[oneConn.id]
+		assert.True(t, exist)
+		assert.Panics(t, func() {
+			connPool.Get()
+		})
+	})
+}
+
+func TestPoolTimeout(t *testing.T) {
+	const idleTimeout = 5 * time.Minute
+	const maxAge = time.Hour
+	const poolSize = 10
+	const minIdle = 10
+	connPool, err := NewConnPool(Options{
+		Dialer:             dummyDialer,
+		PoolSize:           poolSize,
+		IdleTimeout:        idleTimeout,
+		MinIdleConn:        minIdle,
+		MaxConnAge:         maxAge,
+		PoolTimeout:        time.Second,
+		IdleCheckFrequency: time.Hour,
+	})
+	assert.NoError(t, err)
+	eventually(t, func() bool {
+		return connPool.TotalConns() == minIdle
+	})
+	for i := 0; i < poolSize; i++ {
+		connPool.Get()
+	}
+	_, err = connPool.Get()
+	assert.ErrorIs(t, err, ErrPoolTimeout)
+}
+
+func errorDialer(ctx context.Context) (net.Conn, error) {
+	return nil, dummyError
+}
+
+func errorDialerRecoverAfter(retries int32) (func(context.Context) (net.Conn, error), chan struct{}) {
+	local := int32(0)
+	stableSignal := make(chan struct{})
+	once := sync.Once{}
+	return func(ctx context.Context) (net.Conn, error) {
+		if atomic.AddInt32(&local, 1) > retries {
+			once.Do(func() {
+				stableSignal <- struct{}{}
+			})
+			return &net.TCPConn{}, nil
+		}
+		return nil, dummyError
+	}, stableSignal
+}
+
+var (
+	dummyError = errors.New("dummy error")
+)
+
+func TestDialError(t *testing.T) {
+	const idleTimeout = 5 * time.Minute
+	const maxAge = time.Hour
+	const poolSize = 10
+	const minIdle = 10
+
+	t.Run("Dial error return", func(t *testing.T) {
+		connPool, err := NewConnPool(Options{
+			Dialer:             errorDialer,
+			PoolSize:           poolSize,
+			IdleTimeout:        idleTimeout,
+			MinIdleConn:        minIdle,
+			MaxConnAge:         maxAge,
+			PoolTimeout:        time.Second,
+			IdleCheckFrequency: time.Hour,
+		})
+		assert.NoError(t, err)
+		_, err = connPool.Get()
+		assert.ErrorIs(t, err, dummyError)
+	})
+	t.Run("Temporary error recoverable", func(t *testing.T) {
+		dialer, stableSignaler := errorDialerRecoverAfter(poolSize)
+		connPool, err := NewConnPool(Options{
+			Dialer:             dialer,
+			PoolSize:           poolSize,
+			IdleTimeout:        idleTimeout,
+			MinIdleConn:        minIdle,
+			MaxConnAge:         maxAge,
+			PoolTimeout:        time.Second,
+			IdleCheckFrequency: time.Hour,
+		})
+		assert.NoError(t, err)
+		<-stableSignaler
+		_, err = connPool.Get() //dialer is stable, get expect no error
+		assert.NoError(t, err)
+
+		lastErr := connPool.getLastDialError()
+		assert.ErrorIs(t, lastErr, dummyError)
+		totalErr := atomic.LoadUint32(&connPool.runtime.totalErr)
+		assert.Equal(t, 0, int(totalErr))
+
+	})
+
 }

@@ -6,14 +6,17 @@ import (
 	"net"
 	"sync/atomic"
 	"time"
+
+	"github.com/duongcongtoai/kevago/log"
 )
 
-var (
-	maxErrConnect = 10
-)
-
-//ConnPool connectin pool to keva
-//TODO: expose metrics
+/*
+TODO:
+- expose metric
+- add internal lock
+- add test for error cases
+*/
+//ConnPool connection pool for keva
 type ConnPool struct {
 	opt               Options
 	idleConns         []*Conn //TODO: consider between stack and queue based pool
@@ -22,8 +25,13 @@ type ConnPool struct {
 	totalIdleConns    int
 	sema              semaphore
 	connsMu           *mutex
-	lastDialError     atomic.Value
 	closedChan        chan struct{}
+	log               log.Logging
+
+	runtime struct {
+		totalErr      uint32
+		lastDialError atomic.Value
+	}
 }
 
 //TotalConn to expose metric
@@ -70,6 +78,7 @@ func NewConnPool(opt Options) (*ConnPool, error) {
 		closedChan: make(chan struct{}),
 		connsMu:    newMutex(),
 		sema:       make(chan struct{}, opt.PoolSize),
+		log:        log.Logger,
 	}
 	p.connsMu.Lock()
 	p.ensureMinIdleConns()
@@ -92,8 +101,21 @@ func (p *ConnPool) popIdle() *Conn {
 	return cn
 }
 
-//TODO
-func (p *ConnPool) Close() {}
+func (p *ConnPool) Close() {
+	p.connsMu.Lock()
+	for _, cn := range p.idleConns {
+		p.closeConn(cn)
+	}
+	p.idleConns = nil
+	for _, cn := range p.conns {
+		delete(p.conns, cn.id)
+	}
+	p.totalManagedConns = 0
+	p.totalIdleConns = 0
+	p.connsMu.Unlock()
+	close(p.closedChan)
+	close(p.sema)
+}
 
 func (p *ConnPool) Get() (*Conn, error) {
 	err := p.sema.acquireWithTimeout(p.opt.PoolTimeout)
@@ -120,11 +142,12 @@ func (p *ConnPool) Get() (*Conn, error) {
 		return cn, nil
 	}
 
-	netconn, err := p.opt.Dialer(context.Background())
+	//prevent spammy dialing
+	netconn, err := p.dialIfErrorLazyRetry()
 	if err != nil {
-		p.sema.release()
 		return nil, err
 	}
+
 	p.connsMu.Lock()
 	defer p.connsMu.Unlock()
 
@@ -141,13 +164,42 @@ func (p *ConnPool) Get() (*Conn, error) {
 	}
 }
 
+func (p *ConnPool) tryDialUntilSuccess() {
+	for {
+		if p.closed() {
+			return
+		}
+		conn, err := p.opt.Dialer(context.Background())
+		if err != nil {
+			p.runtime.lastDialError.Store(err)
+			time.Sleep(time.Second)
+			continue
+		}
+		atomic.StoreUint32(&p.runtime.totalErr, 0)
+		conn.Close()
+		return
+	}
+}
+
 func (p *ConnPool) Put(c *Conn) {
+	if p.closed() {
+		p.closeConn(c)
+		return
+	}
+
 	//TODO: check leftover read byte in socket
+	if c.r.Buffered() > 0 {
+		p.closeConn(c)
+		p.sema.release()
+		return
+	}
+
 	if !c.managed {
 		p.closeConn(c)
 		p.sema.release()
 		return
 	}
+
 	p.connsMu.Lock()
 	p.idleConns = append(p.idleConns, c)
 	p.totalIdleConns++
@@ -156,8 +208,12 @@ func (p *ConnPool) Put(c *Conn) {
 }
 
 func (p *ConnPool) closed() bool {
-	_, stillOpen := <-p.closedChan
-	return !stillOpen
+	select {
+	case <-p.closedChan:
+		return true
+	default:
+		return false
+	}
 }
 
 func (p *ConnPool) connReaper() {
@@ -167,6 +223,7 @@ func (p *ConnPool) connReaper() {
 	for {
 		select {
 		case <-ticker.C:
+			//in case time is clutch
 			if p.closed() {
 				return
 			}
@@ -178,7 +235,7 @@ func (p *ConnPool) connReaper() {
 }
 
 func (p *ConnPool) getLastDialError() error {
-	return p.lastDialError.Load().(error)
+	return p.runtime.lastDialError.Load().(error)
 }
 
 //RemoveConn input connection should never be an idle connection
@@ -196,16 +253,33 @@ func (p *ConnPool) RemoveConn(c *Conn) {
 	p.closeConn(c)
 }
 
-func (p *ConnPool) addIdleConn(totalErr *uint32) error {
-	if atomic.LoadUint32(totalErr) >= uint32(maxErrConnect) {
-		return p.getLastDialError()
+func (p *ConnPool) dialIfErrorLazyRetry() (net.Conn, error) {
+	if atomic.LoadUint32(&p.runtime.totalErr) >= uint32(p.opt.PoolSize) {
+		return nil, p.getLastDialError()
 	}
+
 	netconn, err := p.opt.Dialer(context.Background())
 	if err != nil {
-		p.lastDialError.Store(err)
-		atomic.AddUint32(totalErr, 1)
+		p.runtime.lastDialError.Store(err)
+		//ensure only one goroutines execute this retry
+		if atomic.AddUint32(&p.runtime.totalErr, 1) == uint32(p.opt.PoolSize) {
+			go p.tryDialUntilSuccess()
+		}
+		return nil, err
+	}
+	return netconn, nil
+}
+
+func (p *ConnPool) addIdleConn() error {
+	//prevent spammy dialing
+	if atomic.LoadUint32(&p.runtime.totalErr) >= uint32(p.opt.PoolSize) {
+		return p.getLastDialError()
+	}
+	netconn, err := p.dialIfErrorLazyRetry()
+	if err != nil {
 		return err
 	}
+
 	c := newManagedConnFromNet(netconn)
 	p.connsMu.Lock()
 	p.conns[c.id] = c
