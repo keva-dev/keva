@@ -1,6 +1,6 @@
 rootProject.name = 'keva'
 
-include 'client'
+include 'cli-client'
 include 'server'
 include 'store'
-include 'performance'
+include 'benchmarks:performance'
