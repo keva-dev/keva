@@ -23,4 +23,3 @@ run{
 application {
     mainClassName = 'com.jinyframework.keva.client.Application'
 }
-
