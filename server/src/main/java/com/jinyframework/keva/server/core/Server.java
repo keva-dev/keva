@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
-public class Server {
+public class Server implements IServer {
     private static final long HEARTBEAT_TIMEOUT = 60000;
     private static final int SHUTDOWN_TIMEOUT = 5;
 
@@ -35,20 +35,20 @@ public class Server {
         this.config = config;
     }
 
-    private void bootstrapStorage() {
+    private void initStorage() {
         val noHeapConfig = NoHeapConfig.builder()
-                                       .heapSize(config.getHeapSize())
-                                       .snapshotEnabled(config.getSnapshotEnabled())
-                                       .snapshotLocation(config.getSnapshotLocation())
-                                       .build();
-        NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
+                .heapSize(config.getHeapSize())
+                .snapshotEnabled(config.getSnapshotEnabled())
+                .snapshotLocation(config.getSnapshotLocation())
+                .build();
+        final NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
         ServiceInstance.getStorageService().setStore(noHeapStore);
 
         val storageName = noHeapStore.getName();
         log.info("Bootstrapped " + storageName);
     }
 
-    private void startServer() throws IOException {
+    private void initServer() throws IOException {
         val host = config.getHostname();
         val port = config.getPort();
         executor = Executors.newCachedThreadPool();
@@ -61,7 +61,7 @@ public class Server {
         log.info("Database server started on {}:{}", host, port);
     }
 
-    private void startHeartbeat() {
+    private void initHeartbeat() {
         if (config == null || config.getHeartbeatEnabled() == null || !config.getHeartbeatEnabled()) {
             return;
         }
@@ -73,15 +73,20 @@ public class Server {
 
         val scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutor.scheduleAtFixedRate(ServiceInstance.getConnectionService()
-                                                             .getHeartbeatRunnable(heartbeatTimeout),
-                                              heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
+                        .getHeartbeatRunnable(heartbeatTimeout),
+                heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
         log.info("Heartbeat service started");
     }
 
-    public void run() throws IOException {
-        bootstrapStorage();
-        startHeartbeat();
-        startServer();
+    @Override
+    public void run() {
+        initStorage();
+        initHeartbeat();
+        try {
+            initServer();
+        } catch (IOException e) {
+            log.error("Failed to initialize server", e);
+        }
         while (!Thread.interrupted() && !serverStopping.get()) {
             try {
                 val socket = serverSocket.accept();
@@ -91,26 +96,39 @@ public class Server {
                 }
                 executor.execute(() -> {
                     val kevaSocket = ServerSocket.builder()
-                                                 .socket(socket)
-                                                 .id(UUID.randomUUID().toString())
-                                                 .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))
-                                                 .alive(new AtomicBoolean(true))
-                                                 .build();
+                            .socket(socket)
+                            .id(UUID.randomUUID().toString())
+                            .lastOnlineLong(new AtomicLong(System.currentTimeMillis()))
+                            .alive(new AtomicBoolean(true))
+                            .build();
                     ServiceInstance.getConnectionService().handleConnection(kevaSocket);
                 });
             } catch (SocketException | SocketTimeoutException ignore) {
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
             }
         }
         serverStopped.set(true);
     }
 
-    public void shutdown() throws Exception {
+    @Override
+    public void shutdown() {
         serverStopping.set(true);
         if (serverSocket != null && !serverSocket.isClosed() && serverStopped.get()) {
-            serverSocket.close();
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
         }
         executor.shutdown();
-        val graceful = executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+        boolean graceful = false;
+        try {
+            graceful = executor.awaitTermination(SHUTDOWN_TIMEOUT, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
+        }
         if (!graceful) {
             log.error("Graceful shutdown timed out");
         }
