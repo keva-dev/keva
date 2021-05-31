@@ -5,6 +5,10 @@ import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractServerTest {
@@ -82,6 +86,40 @@ public abstract class AbstractServerTest {
             Thread.sleep(1500);
             val getAbcNull = client.exchange("get abc");
             assertEquals("null", getAbcNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void multiClientGet() {
+        try {
+            val setAbc = client.exchange("set abc 123");
+            assertEquals("1", setAbc);
+        } catch (Exception e) {
+            fail(e);
+        }
+
+        final List<Callable<Object>> tasks = new ArrayList<>();
+        final ExecutorService executor = Executors.newFixedThreadPool(2);
+        for (int i = 0; i < 3; i++) {
+            final int finalI = i;
+            tasks.add(() ->
+            {
+                System.out.println("task: " + finalI);
+                return client.exchange("get abc");
+            });
+        }
+        try {
+            final List<Future<Object>> futures = executor.invokeAll(tasks, 2, TimeUnit.SECONDS);
+            assertFalse(futures.isEmpty());
+            for (Future<Object> future : futures) {
+                assertTrue(future.isDone());
+                assertFalse(future.isCancelled());
+                assertEquals("123",future.get().toString());
+            }
+
+            System.out.println(futures.size());
         } catch (Exception e) {
             fail(e);
         }

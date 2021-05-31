@@ -15,13 +15,14 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NioServer implements IServer {
 
     private final ConfigHolder config;
     private AsynchronousServerSocketChannel server;
-    private ExecutorService executor;
+    private final ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
 
     public NioServer(ConfigHolder config) {
         this.config = config;
@@ -41,7 +42,6 @@ public class NioServer implements IServer {
     }
 
     private void initServer() throws IOException {
-        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
         final AsynchronousChannelGroup group = AsynchronousChannelGroup.withThreadPool(executor);
         server = AsynchronousServerSocketChannel.open(group);
         server.bind(new InetSocketAddress(config.getHostname(), config.getPort()));
@@ -65,12 +65,21 @@ public class NioServer implements IServer {
 
     @Override
     public void shutdown() {
-        if (server.isOpen()) {
-            try {
-                server.close();
-            } catch (IOException e) {
-                log.warn(e.getMessage(), e);
-            }
+        try {
+            server.close();
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+        }
+        executor.shutdown();
+        boolean graceful = false;
+        try {
+            graceful = executor.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
+        }
+        if (!graceful) {
+            log.error("Graceful shutdown timed out");
         }
         log.info("Database server stopped");
     }
