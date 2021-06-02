@@ -298,13 +298,18 @@ public class IndexStoreImpl implements IndexStore {
     }
 
     protected int getHashBucketOffset(String key) {
-        int offset = -1;
+        int offset = -1; // Set default value to -1 means key not exist
 
         try {
             offset = getHashBucket(key.hashCode());
             indexBuffer.position(offset);
             byte occupied = indexBuffer.get();
-            if (occupied > 0) {
+            // "occupied" is an active flag of every record, type: byte (0 | 1)
+            // 0 -> inactive (removed)
+            // 1 -> active
+            if (occupied == 0) {
+                return -1;
+            } else {
                 offset = findBucket(key.hashCode(), offset, true);
             }
         } catch (Exception e) {
@@ -317,6 +322,7 @@ public class IndexStoreImpl implements IndexStore {
     @Override
     public Long get(String key) {
         int offset = getHashBucketOffset(key);
+
         if (offset == -1) {
             // key not found
             return -1L;
