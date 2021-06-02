@@ -3,16 +3,18 @@ package com.jinyframework.keva.chronicle;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 class Main {
     public static void main(String[] args) {
-        ChronicleMap<String, String> chronicleMap = ChronicleMapBuilder
+        @Cleanup ChronicleMap<String, String> chronicleMap = ChronicleMapBuilder
                 .of(String.class, String.class)
                 .name("demo")
                 .entries(100).averageKey("this-is-test-key").averageValue("this-is-average-val")
                 .create();
+
         chronicleMap.put("test", "Hello World");
 
         log.info("Test is: " + chronicleMap.get("test"));
