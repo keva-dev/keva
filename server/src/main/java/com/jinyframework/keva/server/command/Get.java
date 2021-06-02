@@ -10,6 +10,6 @@ public class Get implements CommandHandler {
 
     @Override
     public Object handle(List<String> args) {
-        return storageService.getString(args.get(0));
+        return storageService.get(args.get(0));
     }
 }

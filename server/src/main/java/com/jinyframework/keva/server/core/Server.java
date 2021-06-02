@@ -1,13 +1,5 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.ServiceInstance;
-import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.store.NoHeapConfig;
-import com.jinyframework.keva.store.NoHeapFactory;
-import com.jinyframework.keva.store.NoHeapStore;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -18,6 +10,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+
+import com.jinyframework.keva.engine.ChronicleStringKevaMap;
+import com.jinyframework.keva.server.ServiceInstance;
+import com.jinyframework.keva.server.config.ConfigHolder;
+
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 @Slf4j
 public class Server implements IServer {
@@ -36,16 +35,17 @@ public class Server implements IServer {
     }
 
     private void initStorage() {
-        val noHeapConfig = NoHeapConfig.builder()
-                .heapSize(config.getHeapSize())
-                .snapshotEnabled(config.getSnapshotEnabled())
-                .snapshotLocation(config.getSnapshotLocation())
-                .build();
-        final NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
-        ServiceInstance.getStorageService().setStore(noHeapStore);
-
-        val storageName = noHeapStore.getName();
-        log.info("Bootstrapped " + storageName);
+        val filePath = config.getSnapshotLocation();
+        try {
+            val chronicleStringKevaMap = !config.getSnapshotEnabled() ?
+                                         new ChronicleStringKevaMap() :
+                                         new ChronicleStringKevaMap(filePath);
+            ServiceInstance.getStorageService().setEngine(chronicleStringKevaMap);
+            log.info("Bootstrapped engine");
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            System.exit(1);
+        }
     }
 
     private void initServer() throws IOException {

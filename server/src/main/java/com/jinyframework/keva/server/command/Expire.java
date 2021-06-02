@@ -11,7 +11,6 @@ public class Expire implements CommandHandler {
     private final Timer timer = new Timer();
     private final StorageService storageService = ServiceInstance.getStorageService();
 
-
     @Override
     public Object handle(List<String> args) {
         try {

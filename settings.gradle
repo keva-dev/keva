@@ -1,7 +1,9 @@
 rootProject.name = 'keva'
 
 include 'cli-client'
+include 'engine'
 include 'server'
-include 'store'
+
+// Legacy modules
 include 'legacy:store'
 include 'legacy:benchmarks:performance'

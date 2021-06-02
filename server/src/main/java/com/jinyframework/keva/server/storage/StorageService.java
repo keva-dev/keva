@@ -1,14 +1,13 @@
 package com.jinyframework.keva.server.storage;
 
-import com.jinyframework.keva.store.NoHeapStore;
+import com.jinyframework.keva.engine.KevaMap;
 
 public interface StorageService {
-    // setter dep injection
-    public void setStore(NoHeapStore store);
+    public void setEngine(KevaMap<String, String> engine);
 
-    public boolean putString(String key, String val);
+    public String put(String key, String val);
 
-    public String getString(String key);
+    public String get(String key);
 
-    public boolean remove(String key);
+    public String remove(String key);
 }

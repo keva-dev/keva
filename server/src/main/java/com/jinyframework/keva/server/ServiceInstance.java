@@ -4,7 +4,7 @@ import com.jinyframework.keva.server.command.CommandService;
 import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.core.ConnectionServiceImpl;
-import com.jinyframework.keva.server.storage.NoHeapStorageServiceImpl;
+import com.jinyframework.keva.server.storage.StorageServiceImpl;
 import com.jinyframework.keva.server.storage.StorageService;
 import lombok.Setter;
 
@@ -22,7 +22,7 @@ public final class ServiceInstance {
     }
 
     private static final class StorageServiceHolder {
-        private static final StorageService INSTANCE = new NoHeapStorageServiceImpl();
+        private static final StorageService INSTANCE = new StorageServiceImpl();
     }
 
     public static ConnectionService getConnectionService() {

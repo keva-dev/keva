@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    compile project(':store')
+    compile project(':legacy:store')
 
     compile group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
     compile group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'

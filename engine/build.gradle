@@ -1,0 +1,82 @@
+plugins {
+    id 'com.adarshr.test-logger' version '2.1.0'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+configurations {
+    extraLibs
+}
+
+dependencies {
+    implementation 'net.openhft:chronicle-map:3.21ea60'
+    extraLibs group: 'net.openhft', name: 'chronicle-map', version: '3.21ea60'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'keva-engine'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Jiny Keva'
+                description = 'Performant & low-latency in-memory data structure store, used as a database or cache'
+                url = 'https://jinyframework.com/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://github.com/huynhminhtufu/jiny/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tuhuynh27'
+                        name = 'Tu Huynh'
+                        email = 'huynhminhtufu@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/huynhminhtufu/jiny.git'
+                    developerConnection = 'scm:git:ssh://github.com:huynhminhtu/jiny.git'
+                    url = 'https://github.com/huynhminhtufu/jiny/'
+                }
+            }
+        }
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
+}
+
+jar {
+    from {
+        configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
