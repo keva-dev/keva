@@ -3,7 +3,6 @@ package com.jinyframework.keva.server.command;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-import java.io.PrintWriter;
 import java.util.Map;
 
 import static com.jinyframework.keva.server.command.CommandRegistrar.getHandlerMap;
@@ -13,7 +12,7 @@ public class CommandServiceImpl implements CommandService {
     private final Map<CommandName, CommandHandler> commandHandlerMap = getHandlerMap();
 
     @Override
-    public Object handleCommand(PrintWriter socketOut, String line) {
+    public Object handleCommand(String line) {
         Object output;
         try {
             val args = CommandService.parseTokens(line);
@@ -30,8 +29,6 @@ public class CommandServiceImpl implements CommandService {
             log.error("Error while handling command: ", e);
             output = "ERROR";
         }
-        socketOut.println(output);
-        socketOut.flush();
         return output;
     }
 }
