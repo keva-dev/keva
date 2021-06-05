@@ -9,6 +9,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 @Slf4j
+@Deprecated
 public class AcceptSocketHandler implements CompletionHandler<AsynchronousSocketChannel, Object> {
     private final AsynchronousServerSocketChannel server;
 

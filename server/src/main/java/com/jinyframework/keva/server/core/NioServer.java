@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@Deprecated
 public class NioServer implements IServer {
 
     private final ConfigHolder config;

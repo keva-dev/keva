@@ -7,6 +7,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 @Slf4j
+@Deprecated
 public class WriteSocketHandler implements CompletionHandler<Integer, Object> {
     private final AsynchronousSocketChannel socketChannel;
     private final ByteBuffer buffer;

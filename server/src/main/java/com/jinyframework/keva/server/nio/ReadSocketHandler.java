@@ -9,6 +9,7 @@ import java.nio.channels.CompletionHandler;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
+@Deprecated
 public class ReadSocketHandler implements CompletionHandler<Integer, StringBuffer> {
     private final AsynchronousSocketChannel socketChannel;
     private final ByteBuffer buffer;
