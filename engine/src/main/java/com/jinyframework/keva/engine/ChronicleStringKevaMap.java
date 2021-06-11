@@ -3,6 +3,7 @@ package com.jinyframework.keva.engine;
 import java.io.File;
 import java.io.IOException;
 
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
@@ -28,16 +29,9 @@ public class ChronicleStringKevaMap implements KevaMap<String, String>, AutoClos
 
     public ChronicleStringKevaMap(String snapshotLocation) throws IOException {
         // First create the directory
-        File filePath = new File(snapshotLocation +
-                                 (snapshotLocation.isEmpty() ? "" : File.separator)
-                                 + "keva.dump");
-        if (filePath.exists()) {
-            this.chronicleStringMap = initBuilder()
-                    .recoverPersistedTo(filePath, true);
-        } else {
-            this.chronicleStringMap = initBuilder()
-                    .createPersistedTo(filePath);
-        }
+        File file = new File("./data.cm3");
+        this.chronicleStringMap = initBuilder()
+                .createOrRecoverPersistedTo(file);
     }
 
     @Override

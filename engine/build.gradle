@@ -1,5 +1,6 @@
 plugins {
     id 'com.adarshr.test-logger' version '2.1.0'
+    id 'application'
 }
 
 java {
@@ -12,8 +13,11 @@ configurations {
 }
 
 dependencies {
-    implementation 'net.openhft:chronicle-map:3.21ea60'
-    extraLibs group: 'net.openhft', name: 'chronicle-map', version: '3.21ea60'
+    implementation 'net.openhft:chronicle-map:3.17.0'
+    extraLibs group: 'net.openhft', name: 'chronicle-map', version: '3.17.0'
+
+    compile group: 'ch.qos.logback', name:'logback-classic', version: '1.0.9'
+    compile group: 'ch.qos.logback', name:'logback-core', version: '1.0.9'
 }
 
 publishing {
@@ -79,4 +83,8 @@ jar {
     from {
         configurations.extraLibs.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+application {
+    mainClassName = 'com.jinyframework.keva.engine.AppTest'
 }
