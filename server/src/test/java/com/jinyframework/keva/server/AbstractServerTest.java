@@ -157,7 +157,7 @@ public abstract class AbstractServerTest {
     }
 
     @Test
-    @Timeout(5)
+    @Timeout(20)
     void getSetLongerString() {
         try {
             final int aMB = 1024 * 1024;

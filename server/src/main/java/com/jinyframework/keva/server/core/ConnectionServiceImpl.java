@@ -38,11 +38,11 @@ public class ConnectionServiceImpl implements ConnectionService {
                             break;
                         }
                         serverSocket.getLastOnlineLong().set(System.currentTimeMillis());
-                        log.info("{} sent {}", serverSocket.getId(), line);
+                        log.debug("{} sent {}", serverSocket.getId(), line);
                         final Object res = commandService.handleCommand(line);
                         socketOut.println(res);
                         socketOut.flush();
-                        log.info("{} received {}", serverSocket.getId(), res);
+                        log.debug("{} received {}", serverSocket.getId(), res);
                     }
                 }
             }

@@ -2,7 +2,6 @@ package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.NettyServer;
-import com.jinyframework.keva.server.core.NioServer;
 import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;

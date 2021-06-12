@@ -18,7 +18,7 @@ class ConfigHolderTest {
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
         assertEquals(120000L, def.getHeartbeatTimeout());
-        assertEquals("", def.getSnapshotLocation());
+        assertEquals("./", def.getSnapshotLocation());
         assertEquals(64, def.getHeapSize());
     }
 
