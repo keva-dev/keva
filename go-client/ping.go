@@ -3,7 +3,7 @@ package kevago
 import (
 	"fmt"
 
-	"github.com/duongcongtoai/kevago/proto"
+	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
 type pingCmd struct {

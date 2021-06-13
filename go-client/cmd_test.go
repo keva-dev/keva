@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/duongcongtoai/kevago/pool"
 	"github.com/stretchr/testify/assert"
+	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
 func setupDefault(t *testing.T) *Client {
@@ -26,7 +26,7 @@ func setupDefault(t *testing.T) *Client {
 		MaxConnAge:         time.Minute * 10,
 		IdleCheckFrequency: time.Minute * 5,
 	}
-	cl, err := NewClient(Config{
+	cl, err := NewClient(ClientOptions{
 		Pool: popt,
 	})
 	if err != nil {
