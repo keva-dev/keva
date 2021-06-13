@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/duongcongtoai/kevago/log"
+	"github.com/tuhuynh27/keva/go-client/log"
 )
 
 /*

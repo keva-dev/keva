@@ -1,4 +1,4 @@
-module github.com/duongcongtoai/kevago
+module github.com/tuhuynh27/keva/go-client
 
 go 1.14
 

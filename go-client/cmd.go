@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/duongcongtoai/kevago/pool"
-	"github.com/duongcongtoai/kevago/proto"
+	"github.com/tuhuynh27/keva/go-client/pool"
+	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
 type commander struct {

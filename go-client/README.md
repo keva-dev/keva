@@ -1,9 +1,9 @@
-# KEVAGO - A dead simple Go client for Keva
+# KevaGo - A dead simple Go client for Keva
 
-## Usage
+## Quickstart
 
 Create a client to Keva server, which under the hood holds a connection pool.
-Each time a command is called, client gets a connecton from pool and use it.
+Each time a command being called, client gets a connection from pool and use it.
 
 ```go
 poolOpts := pool.Options{

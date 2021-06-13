@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/duongcongtoai/kevago/pool"
+	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
 // 	"context"
