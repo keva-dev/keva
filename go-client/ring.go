@@ -1,7 +1,9 @@
 package kevago
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -13,7 +15,17 @@ type RingOptions struct {
 	HealthCheckFrequency time.Duration
 	Addresses            []string
 	HashAlgorithm        HashAlgo
-	ClientOpts           ClientOptions
+
+	ClientOptions RingClientOpt
+}
+type RingClientOpt struct {
+	PoolTimeout        time.Duration
+	PoolSize           int
+	MinIdleConn        int
+	Dialer             func(ctx context.Context, addr string) (net.Conn, error)
+	IdleTimeout        time.Duration
+	MaxConnAge         time.Duration
+	IdleCheckFrequency time.Duration
 }
 
 type HashAlgo string
@@ -42,7 +54,32 @@ type shardClient struct {
 	downCount int32
 }
 
-func NewRing(opts RingOptions) error {
+func NewDefaultRing(addr []string) (*Ring, error) {
+	defaultOpts := RingOptions{
+		HealthCheckFrequency: 30 * time.Second,
+		HashAlgorithm:        Rendezvous,
+		ClientOptions: RingClientOpt{
+			PoolTimeout: time.Second, // max time to wait to get new connection from pool
+			PoolSize:    20,          // max number of connection can get from the pool
+			MinIdleConn: 5,
+			Dialer: func(ctx context.Context, addr string) (net.Conn, error) { //Must define dialer func
+				conn, err := net.Dial("tcp", addr)
+				if err != nil {
+					return nil, err
+				}
+				return conn, err
+			},
+			IdleTimeout:        time.Minute * 5,  // if connection lives longer than 5 minutes, it is removable
+			MaxConnAge:         time.Minute * 10, // all connections cannot live longer than this
+			IdleCheckFrequency: time.Minute * 5,  // reap staled connections after 5 minutes
+		},
+	}
+	defaultOpts.Addresses = addr
+	return NewRing(defaultOpts)
+}
+
+// NewRing return a Ring behaves like a single client, with consistent hashing
+func NewRing(opts RingOptions) (*Ring, error) {
 	r := &Ring{
 		opts: opts,
 		mu:   sync.RWMutex{},
@@ -53,13 +90,26 @@ func NewRing(opts RingOptions) error {
 			return newRendezvous(addrs)
 		}
 	default:
-		return fmt.Errorf("unsupported hash algorithm: %s", opts.HashAlgorithm)
+		return nil, fmt.Errorf("unsupported hash algorithm: %s", opts.HashAlgorithm)
 	}
 	allShards := make(map[string]*shardClient)
+	clientOpt := opts.ClientOptions
 	for _, addr := range opts.Addresses {
-		client, err := NewClient(opts.ClientOpts)
+		clientOpt := ClientOptions{
+			Pool: pool.Options{
+				Address:            addr,
+				PoolTimeout:        clientOpt.PoolTimeout,
+				PoolSize:           clientOpt.PoolSize,
+				MinIdleConn:        clientOpt.MinIdleConn,
+				Dialer:             clientOpt.Dialer,
+				IdleTimeout:        clientOpt.IdleTimeout,
+				MaxConnAge:         clientOpt.MaxConnAge,
+				IdleCheckFrequency: clientOpt.IdleCheckFrequency,
+			},
+		}
+		client, err := NewClient(clientOpt)
 		if err != nil {
-			return fmt.Errorf("failed to create client for address %s: %s", addr, err)
+			return nil, fmt.Errorf("failed to create client for address %s: %s", addr, err)
 		}
 		allShards[addr] = &shardClient{
 			downCount: 0,
@@ -70,12 +120,22 @@ func NewRing(opts RingOptions) error {
 	r.updateAliveShards()
 	go r.healthCheckByInterval(opts.HealthCheckFrequency)
 	r.commandAdaptor = r.cmdWithConsistentHash
+	return r, nil
+}
+
+func (r *Ring) Close() error {
 	return nil
+	//TODO
 }
 
 func (r *Ring) cmdWithConsistentHash(cmd Cmd) error {
 	r.mu.RLock()
-	addr := r.consistentHash.Lookup(cmd.Args()[0])
+	args := cmd.Args()
+	if len(args) == 0 {
+		return fmt.Errorf("command with no argument is not supported by ring just yet")
+	}
+	addr := r.consistentHash.Lookup(args[0])
+	fmt.Printf("arg: %s hashed into: %s\n", args[0], addr)
 	correctShard, ok := r.allShards[addr]
 	r.mu.RUnlock()
 	if !ok {

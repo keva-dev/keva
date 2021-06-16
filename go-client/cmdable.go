@@ -1,7 +1,7 @@
 package kevago
 
 import (
-	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -45,7 +45,7 @@ func (c commandAdaptor) Info() (string, error) {
 }
 func (c commandAdaptor) Expire(key string, d time.Duration) (string, error) {
 	comd := &expireCmd{
-		input: []string{fmt.Sprintf("%s %d", key, d.Milliseconds())},
+		input: []string{key, strconv.Itoa(int(d.Milliseconds()))},
 	}
 	err := c(comd)
 	return comd.result, err

@@ -1,43 +1,20 @@
 package kevago
 
 import (
-	"context"
-	"net"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
-func setupDefault(t *testing.T) *Client {
-	popt := pool.Options{
-		PoolTimeout: time.Second,
-		PoolSize:    20,
-		MinIdleConn: 5,
-		Address:     "localhost:6767",
-		Dialer: func(ctx context.Context, addr string) (net.Conn, error) {
-			conn, err := net.Dial("tcp", addr)
-			if err != nil {
-				return nil, err
-			}
-			return conn, err
-		},
-		IdleTimeout:        time.Minute * 5,
-		MaxConnAge:         time.Minute * 10,
-		IdleCheckFrequency: time.Minute * 5,
-	}
-	cl, err := NewClient(ClientOptions{
-		Pool: popt,
-	})
-	if err != nil {
-		t.FailNow()
-	}
-	return cl
+func setupDefaultRing(t *testing.T) *Ring {
+	r, err := NewDefaultRing([]string{"localhost:6767", "localhost:6768"})
+	assert.NoError(t, err)
+	return r
 }
 
-func TestCRUD(t *testing.T) {
-	cl := setupDefault(t)
+func TestRingCRUD(t *testing.T) {
+	cl := setupDefaultRing(t)
 	defer cl.Close()
 
 	ret, err := cl.Get("key1")
@@ -61,8 +38,8 @@ func TestCRUD(t *testing.T) {
 	assert.Equal(t, "null", ret)
 }
 
-func TestExpire(t *testing.T) {
-	cl := setupDefault(t)
+func TestRingExpire(t *testing.T) {
+	cl := setupDefaultRing(t)
 	defer cl.Close()
 
 	ret, err := cl.Get("key2")
@@ -88,17 +65,17 @@ func TestExpire(t *testing.T) {
 
 }
 
-func TestPing(t *testing.T) {
-	cl := setupDefault(t)
-	defer cl.Close()
-	err := cl.Ping()
-	assert.NoError(t, err)
+// func TestRingPing(t *testing.T) {
+// 	cl := setupDefaultRing(t)
+// 	defer cl.Close()
+// 	err := cl.Ping()
+// 	assert.NoError(t, err)
 
-}
+// }
 
-func TestInfo(t *testing.T) {
-	cl := setupDefault(t)
-	defer cl.Close()
-	_, err := cl.Info()
-	assert.NoError(t, err)
-}
+// func TestRingInfo(t *testing.T) {
+// 	cl := setupDefaultRing(t)
+// 	defer cl.Close()
+// 	_, err := cl.Info()
+// 	assert.NoError(t, err)
+// }
