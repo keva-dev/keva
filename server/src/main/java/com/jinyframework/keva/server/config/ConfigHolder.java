@@ -11,10 +11,6 @@ import java.util.Properties;
 @ToString
 @EqualsAndHashCode
 public class ConfigHolder {
-    @ConfigProp(name = "heartbeat_enabled", defaultVal = "true")
-    @CliProp(name = "hb", type = CliPropType.FLAG)
-    private Boolean heartbeatEnabled;
-
     @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
     @CliProp(name = "ss", type = CliPropType.FLAG)
     private Boolean snapshotEnabled;
@@ -27,11 +23,7 @@ public class ConfigHolder {
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
-    @ConfigProp(name = "heartbeat_timeout", defaultVal = "120000")
-    @CliProp(name = "ht", type = CliPropType.VAL)
-    private Long heartbeatTimeout;
-
-    @ConfigProp(name = "snapshot_location", defaultVal = "")
+    @ConfigProp(name = "snapshot_location", defaultVal = "./")
     @CliProp(name = "sl", type = CliPropType.VAL)
     private String snapshotLocation;
 
@@ -85,23 +77,19 @@ public class ConfigHolder {
 
     public static ConfigHolderBuilder defaultBuilder() {
         return builder()
-                .snapshotLocation("")
+                .snapshotLocation("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .heartbeatEnabled(true)
-                .heartbeatTimeout(120000L)
                 .snapshotEnabled(true);
     }
 
     public static ConfigHolder makeDefaultConfig() {
         return builder()
-                .snapshotLocation("")
+                .snapshotLocation("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .heartbeatEnabled(true)
-                .heartbeatTimeout(120000L)
                 .snapshotEnabled(true)
                 .build();
     }

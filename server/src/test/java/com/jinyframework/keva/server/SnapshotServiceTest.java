@@ -1,8 +1,8 @@
 package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.config.ConfigManager;
-import com.jinyframework.keva.server.core.Server;
+import com.jinyframework.keva.server.core.IServer;
+import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -18,15 +18,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class SnapshotServiceTest {
     static String host = "localhost";
 
-    Server startServer(int port) throws Exception {
+    IServer startServer(int port) throws Exception {
         val config = ConfigHolder.builder()
-                .hostname(host)
-                .port(port)
-                .snapshotEnabled(true)
-                .snapshotLocation("./")
-                .heapSize(8)
-                .build();
-        val server = new Server(config);
+                                 .hostname(host)
+                                 .port(port)
+                                 .snapshotEnabled(true)
+                                 .snapshotLocation("./")
+                                 .heapSize(8)
+                                 .build();
+        val server = new NettyServer(config);
         new Thread(() -> {
             try {
                 server.run();
@@ -41,7 +41,7 @@ public class SnapshotServiceTest {
         return server;
     }
 
-    void stop(Server server) throws Exception {
+    void stop(IServer server) {
         server.shutdown();
     }
 
@@ -51,7 +51,7 @@ public class SnapshotServiceTest {
     }
 
     void sync(int port) {
-        Server server = null;
+        IServer server = null;
         try {
             server = startServer(port);
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class SnapshotServiceTest {
         sync(getAvailablePort());
 
         val port = getAvailablePort();
-        Server server = null;
+        IServer server = null;
         try {
             server = startServer(port);
         } catch (Exception e) {
