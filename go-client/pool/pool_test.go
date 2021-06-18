@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func dummyDialer(ctx context.Context) (net.Conn, error) {
+func dummyDialer(ctx context.Context, addr string) (net.Conn, error) {
 	return &net.TCPConn{}, nil
 }
 
@@ -177,10 +177,10 @@ func TestPoolGetNotReturnStaledConnection(t *testing.T) {
 	assert.Equal(t, expectedId, conn.id)
 }
 
-func makeDelayedDialer(delayAt int) (func(context.Context) (net.Conn, error), chan struct{}) {
+func makeDelayedDialer(delayAt int) (func(context.Context, string) (net.Conn, error), chan struct{}) {
 	counter := int32(0)
 	signalReached := make(chan struct{})
-	return func(ctx context.Context) (net.Conn, error) {
+	return func(ctx context.Context, addr string) (net.Conn, error) {
 		if atomic.AddInt32(&counter, 1) == int32(delayAt) {
 			signalReached <- struct{}{}
 			<-signalReached
@@ -373,15 +373,15 @@ func TestPoolTimeout(t *testing.T) {
 	assert.ErrorIs(t, err, ErrPoolTimeout)
 }
 
-func errorDialer(ctx context.Context) (net.Conn, error) {
+func errorDialer(ctx context.Context, addr string) (net.Conn, error) {
 	return nil, dummyError
 }
 
-func errorDialerRecoverAfter(retries int32) (func(context.Context) (net.Conn, error), chan struct{}) {
+func errorDialerRecoverAfter(retries int32) (func(context.Context, string) (net.Conn, error), chan struct{}) {
 	local := int32(0)
 	stableSignal := make(chan struct{})
 	once := sync.Once{}
-	return func(ctx context.Context) (net.Conn, error) {
+	return func(ctx context.Context, addr string) (net.Conn, error) {
 		if atomic.AddInt32(&local, 1) > retries {
 			once.Do(func() {
 				stableSignal <- struct{}{}

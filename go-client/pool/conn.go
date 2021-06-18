@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/duongcongtoai/kevago/proto"
 	"github.com/google/uuid"
+	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
 func (c *Conn) LastUsed() time.Time {

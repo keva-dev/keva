@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/duongcongtoai/kevago/log"
+	"github.com/tuhuynh27/keva/go-client/log"
 )
 
 /*
@@ -52,10 +52,11 @@ func (p *ConnPool) TotalIdleConns() int {
 
 //Options
 type Options struct {
+	Address            string
 	PoolTimeout        time.Duration
 	PoolSize           int
 	MinIdleConn        int
-	Dialer             func(ctx context.Context) (net.Conn, error)
+	Dialer             func(ctx context.Context, addr string) (net.Conn, error)
 	IdleTimeout        time.Duration
 	MaxConnAge         time.Duration
 	IdleCheckFrequency time.Duration
@@ -169,7 +170,7 @@ func (p *ConnPool) tryDialUntilSuccess() {
 		if p.closed() {
 			return
 		}
-		conn, err := p.opt.Dialer(context.Background())
+		conn, err := p.opt.Dialer(context.Background(), p.opt.Address)
 		if err != nil {
 			p.runtime.lastDialError.Store(err)
 			time.Sleep(time.Second)
@@ -258,7 +259,7 @@ func (p *ConnPool) dialIfErrorLazyRetry() (net.Conn, error) {
 		return nil, p.getLastDialError()
 	}
 
-	netconn, err := p.opt.Dialer(context.Background())
+	netconn, err := p.opt.Dialer(context.Background(), p.opt.Address)
 	if err != nil {
 		p.runtime.lastDialError.Store(err)
 		//ensure only one goroutines execute this retry

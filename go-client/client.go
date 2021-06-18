@@ -1,142 +1,76 @@
 package kevago
 
 import (
-	"fmt"
+	"context"
+	"net"
 	"time"
 
-	"github.com/duongcongtoai/kevago/pool"
+	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
-// 	"context"
-// 	"net"
+var (
+	DefaultAddress = "localhost:6767"
+)
 
-// 	"golang.org/x/net/context"
-
-type Config struct {
+type ClientOptions struct {
 	Pool pool.Options
 }
 
 type Client struct {
-	pool  *pool.ConnPool
-	cmder commander
+	pool   *pool.ConnPool
+	cmdMap commandMap
+	commandAdaptor
 	// conn net.Conn //TODO: connection pool
 	// ctx    context.Context
 	// cancel context.CancelFunc
 }
 
-func NewClient(c Config) (*Client, error) {
+func NewDefaultClient() (*Client, error) {
+	poolOpt := pool.Options{
+		Address:     DefaultAddress,
+		PoolTimeout: time.Second, // max time to wait to get new connection from pool
+		PoolSize:    20,          // max number of connection can get from the pool
+		MinIdleConn: 5,
+		Dialer: func(ctx context.Context, addr string) (net.Conn, error) { //Must define dialer func
+			conn, err := net.Dial("tcp", addr)
+			if err != nil {
+				return nil, err
+			}
+			return conn, err
+		},
+		IdleTimeout:        time.Minute * 5,  // if connection lives longer than 5 minutes, it is removable
+		MaxConnAge:         time.Minute * 10, // all connections cannot live longer than this
+		IdleCheckFrequency: time.Minute * 5,  // reap staled connections after 5 minutes
+	}
+	return NewClient(ClientOptions{
+		Pool: poolOpt,
+	})
+}
+
+func NewClient(c ClientOptions) (*Client, error) {
 	p, err := pool.NewConnPool(c.Pool)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{
-		pool:  p,
-		cmder: globalCmd,
-	}, nil
+	client := &Client{
+		pool:   p,
+		cmdMap: globalCmds,
+	}
+	client.commandAdaptor = client.cmdWithPool
+	return client, nil
 }
 
-func (c *Client) Close() error {
-	c.pool.Close()
-	return nil
-}
-
-// func NewClient(c Config) (*Client, error) {
-// 	conn, err := net.Dial("tcp", c.Endpoints[0])
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	cl := &Client{conn: conn}
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	go cl.readLoop(ctx)
-// 	go cl.writeLoop(ctx)
-// 	cl.cancel = cancel
-// 	cl.ctx = ctx
-// 	return cl, nil
-// }
-
-func (c *Client) connectionIntercept(f func(*pool.Conn) error) error {
+func (c *Client) cmdWithPool(cmd Cmd) error {
 	conn, err := c.pool.Get()
 	if err != nil {
 		return err
 	}
 	defer c.pool.Put(conn)
-	return f(conn)
+	return globalCmds.execute(conn, cmd)
 }
 
-//TODO: remove boiler plating code, reuse code according to input/output type
-func (c *Client) Get(key string) (string, error) {
-	comd := &getCmd{
-		input: []string{key},
-	}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-	if err != nil {
-		return "", err
-	}
-	return comd.result, nil
-}
-
-func (c *Client) Set(key string, value string) (string, error) {
-	comd := &setCmd{
-		input: []string{key, value},
-	}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-	if err != nil {
-		return "", err
-	}
-	return comd.result, nil
-}
-
-func (c *Client) Delete(key string) (string, error) {
-	comd := &delCmd{
-		input: []string{key},
-	}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-	if err != nil {
-		return "", err
-	}
-	return comd.result, nil
-}
-
-func (c *Client) Ping() error {
-	comd := &pingCmd{}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-	if err != nil {
-		return err
-	}
+func (c *Client) Close() error {
+	c.pool.Close()
 	return nil
-}
-
-func (c *Client) Info() (string, error) {
-	comd := &infoCmd{}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-
-	if err != nil {
-		return "", err
-	}
-	return comd.result, nil
-}
-func (c *Client) Expire(key string, d time.Duration) (string, error) {
-	comd := &expireCmd{
-		input: []string{fmt.Sprintf("%s %d", key, d.Milliseconds())},
-	}
-	err := c.connectionIntercept(func(conn *pool.Conn) error {
-		return c.cmder.execute(conn, comd)
-	})
-
-	if err != nil {
-		return "", err
-	}
-	return comd.result, nil
 }

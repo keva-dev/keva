@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/duongcongtoai/kevago/pool"
-	"github.com/duongcongtoai/kevago/proto"
+	"github.com/tuhuynh27/keva/go-client/pool"
+	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
-type commander struct {
+type commandMap struct {
 	internal map[string]CmdHandlers
 }
 type CmdHandlers struct {
@@ -23,7 +23,7 @@ type Cmd interface {
 	ReadResult(r *proto.Reader) error
 }
 
-var globalCmd = commander{
+var globalCmds = commandMap{
 	internal: make(map[string]CmdHandlers),
 }
 
@@ -37,10 +37,10 @@ func init() {
 }
 
 func registerCmd(name string, h CmdHandlers) {
-	globalCmd.internal[name] = h
+	globalCmds.internal[name] = h
 }
 
-func (c commander) execute(conn *pool.Conn, comd Cmd) error {
+func (c commandMap) execute(conn *pool.Conn, comd Cmd) error {
 	hs, exist := c.internal[comd.Name()]
 	if !exist {
 		return fmt.Errorf("command %s not found", comd.Name())
