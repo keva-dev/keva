@@ -1,7 +1,7 @@
 package pool
 
 import (
-	"github.com/duongcongtoai/kevago/proto"
+	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
 //TODO
