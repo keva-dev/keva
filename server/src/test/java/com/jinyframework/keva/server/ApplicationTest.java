@@ -9,14 +9,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ApplicationTest {
 
+    public static final String[] ARGS = new String[0];
+
     @Test
-    void main() throws Exception {
-        String[] args = new String[0];
-        new Thread(() -> Application.main(args)).start();
-        TimeUnit.SECONDS.sleep(1);
-        SocketClient client = new SocketClient("localhost", 6767);
+    void testMain() throws Exception {
+        new Thread(() -> Application.main(ARGS)).start();
+        TimeUnit.SECONDS.sleep(5);
+        final SocketClient client = new SocketClient("localhost", 6767);
         client.connect();
-        String pong = client.exchange("PING");
+        final String pong = client.exchange("PING");
         assertEquals("PONG", pong);
     }
 }

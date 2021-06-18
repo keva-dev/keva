@@ -3,7 +3,6 @@ package com.jinyframework.keva.server;
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.NettyServer;
-import com.jinyframework.keva.server.core.Server;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 

@@ -13,11 +13,9 @@ class ConfigHolderTest {
     @Test
     void defaultConfig() {
         val def = makeDefaultConfig();
-        assertTrue(def.getHeartbeatEnabled());
         assertTrue(def.getSnapshotEnabled());
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
-        assertEquals(120000L, def.getHeartbeatTimeout());
         assertEquals("./", def.getSnapshotLocation());
         assertEquals(64, def.getHeapSize());
     }
@@ -34,18 +32,14 @@ class ConfigHolderTest {
         val props = new Properties();
         props.setProperty("hostname", "host");
         props.setProperty("port", "123123");
-        props.setProperty("heartbeat_enabled", "false");
         props.setProperty("snapshot_enabled", "false");
-        props.setProperty("heartbeat_timeout", "123");
         props.setProperty("snapshot_location", "./snap/");
         props.setProperty("heap_size", "123");
 
         val configHolder = ConfigHolder.fromProperties(props);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertFalse(configHolder.getHeartbeatEnabled());
         assertFalse(configHolder.getSnapshotEnabled());
-        assertEquals(123, configHolder.getHeartbeatTimeout());
         assertEquals("./snap/", configHolder.getSnapshotLocation());
         assertEquals(123, configHolder.getHeapSize());
     }
@@ -58,8 +52,6 @@ class ConfigHolderTest {
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getHeapSize());
         assertNull(emptyConfig.getSnapshotLocation());
-        assertNull(emptyConfig.getHeartbeatTimeout());
-        assertNull(emptyConfig.getHeartbeatEnabled());
         assertNull(emptyConfig.getSnapshotEnabled());
     }
 
@@ -77,9 +69,7 @@ class ConfigHolderTest {
         val configHolder = ConfigHolder.fromArgs(argsHolder);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertTrue(configHolder.getHeartbeatEnabled());
         assertTrue(configHolder.getSnapshotEnabled());
-        assertEquals(123, configHolder.getHeartbeatTimeout());
         assertEquals("./snap/", configHolder.getSnapshotLocation());
         assertEquals(123, configHolder.getHeapSize());
     }
@@ -93,10 +83,9 @@ class ConfigHolderTest {
         val fromArgs = ConfigHolder.fromArgs(argsHolder);
 
         val baseConfig = ConfigHolder.builder().build();
-        ConfigHolder merge = baseConfig.merge(fromArgs);
+        final ConfigHolder merge = baseConfig.merge(fromArgs);
         assertEquals("host", merge.getHostname());
         assertEquals(123123, merge.getPort());
-        assertTrue(merge.getHeartbeatEnabled());
     }
 
 }

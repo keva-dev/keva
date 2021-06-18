@@ -5,7 +5,6 @@ import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,10 +107,10 @@ public abstract class AbstractServerTest {
         for (int i = 0; i < taskNum; i++) {
             final int finalI = i;
             tasks.add(() ->
-                      {
-                          System.out.println("task: " + finalI);
-                          return client.exchange("get abc");
-                      });
+            {
+                System.out.println("task: " + finalI);
+                return client.exchange("get abc");
+            });
         }
         try {
             final List<Future<Object>> futures = executor.invokeAll(tasks, 2, TimeUnit.SECONDS);
@@ -183,10 +182,10 @@ public abstract class AbstractServerTest {
     @Timeout(5)
     void getSetLongKeyString() {
         try {
-            final int aKB = 1023;
-            String testStr = "a".repeat(Math.max(0, aKB));
-            String setAbc = client.exchange("set " + testStr + " 123");
-            String getAbc = client.exchange("get " + testStr);
+            final int aKB = 1026;
+            final String testStr = "a".repeat(Math.max(0, aKB));
+            final String setAbc = client.exchange("set " + testStr + " 123");
+            final String getAbc = client.exchange("get " + testStr);
             assertEquals("1", setAbc);
             assertEquals("123", getAbc);
         } catch (Exception e) {

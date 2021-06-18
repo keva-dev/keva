@@ -16,7 +16,8 @@ public class NioChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ChannelPipeline pipeline = ch.pipeline();
+        ch.config().setKeepAlive(true);
+        final ChannelPipeline pipeline = ch.pipeline();
 
         // Add the text line codec combination first,
         final int maxFrameLength = 1024 * 1024 * 64; // hardcode 64MB for now

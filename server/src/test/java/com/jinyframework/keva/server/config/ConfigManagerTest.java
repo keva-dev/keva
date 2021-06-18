@@ -49,9 +49,8 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath
         };
-        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
+        final ConfigHolder configOverriden = ConfigManager.loadConfig(args);
         assertEquals(123123, configOverriden.getPort());
-        assertFalse(configOverriden.getHeartbeatEnabled());
     }
 
     @Test
@@ -76,8 +75,7 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath, "-p", "123"
         };
-        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
+        final ConfigHolder configOverriden = ConfigManager.loadConfig(args);
         assertEquals(123, configOverriden.getPort());
-        assertFalse(configOverriden.getHeartbeatEnabled());
     }
 }
