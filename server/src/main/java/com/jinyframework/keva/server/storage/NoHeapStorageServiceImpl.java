@@ -2,6 +2,8 @@ package com.jinyframework.keva.server.storage;
 
 import com.jinyframework.keva.store.NoHeapStore;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +16,11 @@ public class NoHeapStorageServiceImpl implements StorageService {
     @Override
     public void setStore(NoHeapStore store) {
         NoHeapStorageServiceImpl.store = store;
+    }
+
+    @Override
+    public Path getSnapshotPath() {
+        return Paths.get(store.getFolder(),store.getName());
     }
 
     @Override

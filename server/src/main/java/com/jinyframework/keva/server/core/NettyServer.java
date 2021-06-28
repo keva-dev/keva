@@ -47,11 +47,11 @@ public class NettyServer implements IServer{
     public void run() {
         try {
             initStorage();
-            ServerBootstrap b = new ServerBootstrap();
+            final ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new NioChannelInitializer());
+             .childHandler(new ServerChannelInitializer());
 
             b.bind(config.getPort()).sync().channel().closeFuture().sync();
         } catch (InterruptedException e) {

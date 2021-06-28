@@ -8,11 +8,11 @@ import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-public class NioChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder();
     private static final StringEncoder ENCODER = new StringEncoder();
 
-    private static final NioServerHandler SERVER_HANDLER = new NioServerHandler();
+    private static final ServerHandler SERVER_HANDLER = new ServerHandler();
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {

@@ -31,6 +31,10 @@ public class ConfigHolder {
     @CliProp(name = "hs", type = CliPropType.VAL)
     private Integer heapSize;
 
+    @ConfigProp(name = "replica_of", defaultVal = "NO ONE")
+    @CliProp(name = "ro", type = CliPropType.VAL)
+    private String replicaOf;
+
     @SneakyThrows
     public static ConfigHolder fromProperties(@NonNull Properties props) {
         val configHolder = builder().build();
@@ -81,7 +85,9 @@ public class ConfigHolder {
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .snapshotEnabled(true);
+                .snapshotEnabled(true)
+                .replicaOf("NO ONE")
+                ;
     }
 
     public static ConfigHolder makeDefaultConfig() {
@@ -91,6 +97,7 @@ public class ConfigHolder {
                 .port(6767)
                 .heapSize(64)
                 .snapshotEnabled(true)
+                .replicaOf("NO ONE")
                 .build();
     }
 

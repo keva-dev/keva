@@ -2,13 +2,17 @@ package com.jinyframework.keva.server.storage;
 
 import com.jinyframework.keva.store.NoHeapStore;
 
+import java.nio.file.Path;
+
 public interface StorageService {
     // setter dep injection
-    public void setStore(NoHeapStore store);
+    void setStore(NoHeapStore store);
 
-    public boolean putString(String key, String val);
+    Path getSnapshotPath();
 
-    public String getString(String key);
+    boolean putString(String key, String val);
 
-    public boolean remove(String key);
+    String getString(String key);
+
+    boolean remove(String key);
 }
