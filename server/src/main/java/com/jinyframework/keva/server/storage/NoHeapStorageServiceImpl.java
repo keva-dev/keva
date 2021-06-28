@@ -20,7 +20,7 @@ public class NoHeapStorageServiceImpl implements StorageService {
 
     @Override
     public Path getSnapshotPath() {
-        return Paths.get(store.getFolder(),store.getName());
+        return Paths.get(store.getFolder(),store.getName()+"Data");
     }
 
     @Override

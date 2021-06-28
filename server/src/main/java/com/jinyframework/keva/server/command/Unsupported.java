@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Unsupported implements CommandHandler {
     @Override
-    public String handle(List<String> args) {
+    public String handle(CommandContext ctx, List<String> args) {
         return "Unsupported command";
     }
 }

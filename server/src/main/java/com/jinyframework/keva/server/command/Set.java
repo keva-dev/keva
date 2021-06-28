@@ -9,12 +9,15 @@ public class Set implements CommandHandler {
     private final StorageService storageService = ServiceInstance.getStorageService();
 
     @Override
-    public Object handle(List<String> args) {
+    public String handle(CommandContext ctx, List<String> args) {
         try {
-            storageService.putString(args.get(0), args.get(1));
-            return 1;
+            final boolean success = storageService.putString(args.get(0), args.get(1));
+            if (success) {
+                return CommandConstant.SUCCESS_CODE;
+            }
+            return CommandConstant.FAIL_CODE;
         } catch (Exception ignore) {
-            return 0;
+            return CommandConstant.FAIL_CODE;
         }
     }
 }

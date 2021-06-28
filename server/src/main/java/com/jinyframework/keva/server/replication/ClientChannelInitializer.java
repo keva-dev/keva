@@ -1,4 +1,4 @@
-package com.jinyframework.keva.server.client;
+package com.jinyframework.keva.server.replication;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
