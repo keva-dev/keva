@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 @Slf4j
-public class NettyServer implements IServer{
+public class NettyServer implements IServer {
     private final ConfigHolder config;
 
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -24,6 +24,7 @@ public class NettyServer implements IServer{
     public NettyServer(ConfigHolder config) {
         this.config = config;
     }
+
     private void initStorage() {
         val noHeapConfig = NoHeapConfig.builder()
                                        .heapSize(config.getHeapSize())
@@ -55,7 +56,7 @@ public class NettyServer implements IServer{
 
             b.bind(config.getPort()).sync().channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            log.error("Failed to start server: ",e);
+            log.error("Failed to start server: ", e);
             Thread.currentThread().interrupt();
         } finally {
             bossGroup.shutdownGracefully();

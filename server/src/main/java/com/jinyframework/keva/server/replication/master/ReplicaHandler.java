@@ -1,9 +1,9 @@
-package com.jinyframework.keva.server.replication;
+package com.jinyframework.keva.server.replication.master;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-public class ClientHandler extends SimpleChannelInboundHandler<String> {
+public class ReplicaHandler extends SimpleChannelInboundHandler<String> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
     }

@@ -4,5 +4,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface CommandHandler {
-    Object handle(CommandContext ctx, List<String> args);
+    Object handle(List<String> args);
 }

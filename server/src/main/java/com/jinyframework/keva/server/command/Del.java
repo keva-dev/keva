@@ -9,7 +9,7 @@ public class Del implements CommandHandler {
     private final StorageService storageService = ServiceInstance.getStorageService();
 
     @Override
-    public String handle(CommandContext ctx, List<String> args) {
+    public String handle(List<String> args) {
         try {
             storageService.remove(args.get(0));
             return CommandConstant.SUCCESS_CODE;

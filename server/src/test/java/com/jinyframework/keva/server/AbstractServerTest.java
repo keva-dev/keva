@@ -192,4 +192,14 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+
+    @Test
+    void fsync() {
+        try {
+            final Object fileContent = client.exchange("fsync");
+            System.out.println("file content: " + fileContent);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }

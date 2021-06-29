@@ -13,7 +13,7 @@ public class Expire implements CommandHandler {
 
 
     @Override
-    public Object handle(CommandContext ctx, List<String> args) {
+    public Object handle(List<String> args) {
         try {
             timer.schedule(new TimerTask() {
                 @Override

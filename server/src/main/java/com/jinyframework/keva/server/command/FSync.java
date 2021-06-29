@@ -1,9 +1,9 @@
 package com.jinyframework.keva.server.command;
 
 import com.jinyframework.keva.server.ServiceInstance;
-import com.jinyframework.keva.server.replication.ReplicationService;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.storage.StorageService;
-import io.netty.handler.stream.ChunkedFile;
+import io.netty.channel.DefaultFileRegion;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -17,13 +17,15 @@ public class FSync implements CommandHandler {
     private final ReplicationService replicationService = ServiceInstance.getReplicationService();
 
     @Override
-    public Object handle(CommandContext ctx, List<String> args) {
+    public Object handle(List<String> args) {
         // send snapshot to replica
         final File snapshotFile = storageService.getSnapshotPath().toFile();
-        try (RandomAccessFile file = new RandomAccessFile(snapshotFile, "r")) {
-            // register replica
-            replicationService.addReplica(ctx.getRemoteAddr());
-            return new ChunkedFile(file);
+        final RandomAccessFile file;
+        try {
+            file = new RandomAccessFile(snapshotFile, "r");
+            // register replica and start buffering commands to forward
+            replicationService.addReplica(args.get(0));
+            return new DefaultFileRegion(file.getChannel(), 0, file.length());
         } catch (IOException e) {
             log.error("FSYNC failed:", e);
             return null;

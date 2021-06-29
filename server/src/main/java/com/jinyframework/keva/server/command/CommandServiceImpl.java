@@ -1,5 +1,7 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.ServiceInstance;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +14,7 @@ import static com.jinyframework.keva.server.command.CommandRegistrar.getHandlerM
 @Slf4j
 public class CommandServiceImpl implements CommandService {
     private final Map<CommandName, CommandHandler> commandHandlerMap = getHandlerMap();
+    private final ReplicationService replicationService = ServiceInstance.getReplicationService();
 
     @Override
     public Object handleCommand(ChannelHandlerContext ctx, String line) {
@@ -24,18 +27,17 @@ public class CommandServiceImpl implements CommandService {
             } catch (IllegalArgumentException e) {
                 command = CommandName.UNSUPPORTED;
             }
+            // forward to replicas
+            replicationService.filterAndBuffer(command, line);
+
             val handler = commandHandlerMap.get(command);
             args.remove(0);
-            final CommandContext cmdCtx = CommandContext.builder()
-                                                        .remoteAddr(ctx.channel().remoteAddress())
-                                                        .build();
-
-            // Need this handler for file transfer so only add when necessary,
-            // because it's not a sharable handler that can be instantiated once
             if (CommandName.FSYNC == command) {
+                // Need this handler for file transfer so only add when necessary,
                 ctx.channel().pipeline().addLast(new ChunkedWriteHandler());
+                args.add(String.valueOf(ctx.channel().remoteAddress()));
             }
-            output = handler.handle(cmdCtx, args);
+            output = handler.handle(args);
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
             output = "ERROR";

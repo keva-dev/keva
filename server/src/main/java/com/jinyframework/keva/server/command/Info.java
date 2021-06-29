@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.replication.ReplicaInfo;
+import com.jinyframework.keva.server.replication.master.ReplicaInfo;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import static com.jinyframework.keva.server.ServiceInstance.getReplicationServic
 
 public class Info implements CommandHandler {
     @Override
-    public String handle(CommandContext ctx, List<String> args) {
+    public String handle(List<String> args) {
         final HashMap<String, Object> stats = new HashMap<>();
         final long currentConnectedClients = getConnectionService().getCurrentConnectedClients();
         final int threads = ManagementFactory.getThreadMXBean().getThreadCount();
