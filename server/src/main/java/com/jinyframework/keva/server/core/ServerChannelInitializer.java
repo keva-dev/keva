@@ -7,10 +7,11 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private static final StringDecoder DECODER = new StringDecoder();
-    private static final StringEncoder ENCODER = new StringEncoder();
+    private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
+    private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
 
     private static final ServerHandler SERVER_HANDLER = new ServerHandler();
 

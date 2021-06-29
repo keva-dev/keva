@@ -7,27 +7,35 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.CharsetUtil;
 
 /**
  * A TCP client used to make request to master
  */
-public class MasterClient {
-    private static final ChannelHandler MASTER_HANDLER = new MasterHandler();
-    private static final StringDecoder DECODER = new StringDecoder();
-    private static final StringEncoder ENCODER = new StringEncoder();
+public class SyncClient {
+    // Using StringDecoder will fail due to special character
+    private static final ByteArrayDecoder DECODER = new ByteArrayDecoder();
+    private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String host;
     private final int port;
     private Channel channel;
 
-    public MasterClient(String host, int port) {
+    public SyncClient(String host, int port) {
         this.host = host;
         this.port = port;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        final SyncClient client = new SyncClient("127.0.0.1", 6767);
+        final String snapshotPath = "./KevaDataTest";
+        client.connect();
+        client.fullSync(new SyncHandler(snapshotPath));
+        client.channel.closeFuture().sync().await();
     }
 
     public boolean connect() {
@@ -48,9 +56,6 @@ public class MasterClient {
                  // the encoder and decoder are static as these are sharable
                  pipeline.addLast(DECODER);
                  pipeline.addLast(ENCODER);
-
-                 // and then business logic.
-                 pipeline.addLast(MASTER_HANDLER);
              }
          });
         try {
@@ -62,8 +67,8 @@ public class MasterClient {
         return true;
     }
 
-    public void fullSync(GenericFutureListener<ChannelFuture> completionHandler) {
-        final ChannelFuture fsync = channel.writeAndFlush("FSYNC");
-        fsync.addListener(completionHandler);
+    public void fullSync(SyncHandler handler) {
+        final ChannelFuture fsync = channel.writeAndFlush("FSYNC\n");
+        fsync.channel().pipeline().addLast(handler);
     }
 }

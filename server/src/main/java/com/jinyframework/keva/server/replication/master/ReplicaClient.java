@@ -60,4 +60,9 @@ public class ReplicaClient {
 
         return true;
     }
+
+    public void send(String msg) {
+        channel.write(msg);
+        channel.writeAndFlush("\n");
+    }
 }
