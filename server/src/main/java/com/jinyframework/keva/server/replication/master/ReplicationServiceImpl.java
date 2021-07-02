@@ -44,17 +44,6 @@ public class ReplicationServiceImpl implements ReplicationService {
                                    .client(replicaClient)
                                    .build();
         new Thread(() -> {
-            for (int i = 0; i < 3; i++) {
-                final boolean success = rep.getClient().connect();
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-                if (success) {
-                    break;
-                }
-            }
             while (true) {
                 try {
                     final String line = rep.getCmdBuffer().take();

@@ -86,7 +86,7 @@ public class ConfigHolder {
                 .port(6767)
                 .heapSize(64)
                 .snapshotEnabled(true)
-                .replicaOf("NO ONE")
+                .replicaOf("NO:ONE")
                 ;
     }
 
@@ -97,7 +97,7 @@ public class ConfigHolder {
                 .port(6767)
                 .heapSize(64)
                 .snapshotEnabled(true)
-                .replicaOf("NO ONE")
+                .replicaOf("NO:ONE")
                 .build();
     }
 

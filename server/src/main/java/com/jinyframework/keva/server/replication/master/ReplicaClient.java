@@ -49,16 +49,31 @@ public class ReplicaClient {
                  pipeline.addLast(ENCODER);
              }
          });
-        try {
-            channel = b.connect(host, port).sync().channel();
-        } catch (Exception e) {
-            return false;
+        int count = 0;
+        while (count < 3) {
+            try {
+                channel = b.connect(host, port).sync().channel();
+                return true;
+            } catch (Exception e) {
+                count++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ignore) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
+        return false;
+    }
 
-        return true;
+    public boolean isConnected() {
+        return channel.isWritable();
     }
 
     public Promise<Object> send(String msg) {
+        if (channel == null || !isConnected()) {
+            connect();
+        }
         final Promise<Object> resPromise = channel.eventLoop().newPromise();
         channel.pipeline().addLast(new ReplicaHandler(resPromise));
         channel.write(msg);
