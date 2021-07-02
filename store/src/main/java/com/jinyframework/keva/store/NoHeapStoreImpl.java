@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -97,8 +98,7 @@ public class NoHeapStoreImpl implements NoHeapStore {
     }
 
     protected final String createJournalFolderName(String folder, String name) {
-        return journalFolder + File.separator +
-                journalName + "Data";
+        return Path.of(folder,name + "Data").toString();
     }
 
     protected final void createMessageJournalMBB(String journalPath, boolean reuseExisting) {

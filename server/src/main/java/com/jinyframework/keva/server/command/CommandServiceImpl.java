@@ -35,7 +35,6 @@ public class CommandServiceImpl implements CommandService {
             if (CommandName.FSYNC == command) {
                 // Need this handler for file transfer so only add when necessary,
                 ctx.channel().pipeline().addLast(new ChunkedWriteHandler());
-                args.add(String.valueOf(ctx.channel().remoteAddress()));
             }
             output = handler.handle(args);
         } catch (Exception e) {

@@ -11,6 +11,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.concurrent.Promise;
 
 /**
  * A TCP client used to forward commands to replica
@@ -18,7 +19,6 @@ import io.netty.handler.logging.LoggingHandler;
 public class ReplicaClient {
     private static final StringDecoder DECODER = new StringDecoder();
     private static final StringEncoder ENCODER = new StringEncoder();
-    private static final ReplicaHandler CLIENT_HANDLER = new ReplicaHandler();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String host;
     private final int port;
@@ -47,22 +47,22 @@ public class ReplicaClient {
                  // the encoder and decoder are static as these are sharable
                  pipeline.addLast(DECODER);
                  pipeline.addLast(ENCODER);
-
-                 // and then business logic.
-                 pipeline.addLast(CLIENT_HANDLER);
              }
          });
         try {
             channel = b.connect(host, port).sync().channel();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             return false;
         }
 
         return true;
     }
 
-    public void send(String msg) {
+    public Promise<Object> send(String msg) {
+        final Promise<Object> resPromise = channel.eventLoop().newPromise();
+        channel.pipeline().addLast(new ReplicaHandler(resPromise));
         channel.write(msg);
         channel.writeAndFlush("\n");
+        return resPromise;
     }
 }

@@ -2,24 +2,20 @@ package com.jinyframework.keva.server.replication.slave;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @Slf4j
 public class SyncHandler extends SimpleChannelInboundHandler<Object> {
-    private final Path snapshotPath;
+    private final Promise<Object> resPromise;
 
-    public SyncHandler(String snapshotPath) {
-        this.snapshotPath = Path.of(snapshotPath);
+    public SyncHandler(Promise<Object> resPromise) {
+        this.resPromise = resPromise;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        final byte[] bytes = (byte[]) msg;
-        Files.write(snapshotPath, bytes);
-        log.info("Finished writing snapshot file to " + snapshotPath);
+        resPromise.setSuccess(msg);
         ctx.close();
     }
 }

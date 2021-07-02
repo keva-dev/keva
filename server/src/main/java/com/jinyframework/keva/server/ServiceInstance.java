@@ -6,6 +6,8 @@ import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.core.ConnectionServiceImpl;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.replication.master.ReplicationServiceImpl;
+import com.jinyframework.keva.server.replication.slave.SlaveService;
+import com.jinyframework.keva.server.replication.slave.SlaveServiceImpl;
 import com.jinyframework.keva.server.storage.NoHeapStorageServiceImpl;
 import com.jinyframework.keva.server.storage.StorageService;
 import lombok.Setter;
@@ -31,6 +33,10 @@ public final class ServiceInstance {
         return StorageServiceHolder.INSTANCE;
     }
 
+    public static SlaveService getSlaveService() {
+        return SlaveServiceHolder.INSTANCE;
+    }
+
     private static final class ConnectionServiceHolder {
         private static final ConnectionService INSTANCE = new ConnectionServiceImpl();
     }
@@ -45,5 +51,9 @@ public final class ServiceInstance {
 
     private static final class ReplicationServiceHolder {
         private static final ReplicationService INSTANCE = new ReplicationServiceImpl();
+    }
+
+    private static final class SlaveServiceHolder {
+        public static final SlaveService INSTANCE = new SlaveServiceImpl();
     }
 }

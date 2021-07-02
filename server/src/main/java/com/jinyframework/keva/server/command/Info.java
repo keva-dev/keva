@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.replication.master.ReplicaInfo;
+import com.jinyframework.keva.server.replication.master.Replica;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
@@ -19,11 +19,11 @@ public class Info implements CommandHandler {
         final int threads = ManagementFactory.getThreadMXBean().getThreadCount();
         stats.put("clients:", currentConnectedClients);
         stats.put("threads:", threads);
-        final ConcurrentMap<String, ReplicaInfo> replicas = getReplicationService().getReplicas();
+        final ConcurrentMap<String, Replica> replicas = getReplicationService().getReplicas();
 
         stats.put("replicas:", replicas.size());
         int count = 0;
-        for (Map.Entry<String, ReplicaInfo> entry : replicas.entrySet()) {
+        for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
             stats.put("slave" + count + ':', entry.getValue());
             count++;
         }

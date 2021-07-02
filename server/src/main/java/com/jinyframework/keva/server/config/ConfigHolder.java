@@ -31,7 +31,7 @@ public class ConfigHolder {
     @CliProp(name = "hs", type = CliPropType.VAL)
     private Integer heapSize;
 
-    @ConfigProp(name = "replica_of", defaultVal = "NO ONE")
+    @ConfigProp(name = "replica_of", defaultVal = "NO:ONE")
     @CliProp(name = "ro", type = CliPropType.VAL)
     private String replicaOf;
 

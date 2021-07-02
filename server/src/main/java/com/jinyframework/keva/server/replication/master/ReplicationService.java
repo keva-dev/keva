@@ -5,7 +5,7 @@ import com.jinyframework.keva.server.command.CommandName;
 import java.util.concurrent.ConcurrentMap;
 
 public interface ReplicationService {
-    ConcurrentMap<String, ReplicaInfo> getReplicas();
+    ConcurrentMap<String, Replica> getReplicas();
 
     void addReplica(String key);
 

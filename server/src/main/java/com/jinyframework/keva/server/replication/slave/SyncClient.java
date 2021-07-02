@@ -12,6 +12,7 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.Promise;
 
 /**
  * A TCP client used to make request to master
@@ -28,14 +29,6 @@ public class SyncClient {
     public SyncClient(String host, int port) {
         this.host = host;
         this.port = port;
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        final SyncClient client = new SyncClient("127.0.0.1", 6767);
-        final String snapshotPath = "./KevaDataTest";
-        client.connect();
-        client.fullSync(new SyncHandler(snapshotPath));
-        client.channel.closeFuture().sync().await();
     }
 
     public boolean connect() {
@@ -67,8 +60,10 @@ public class SyncClient {
         return true;
     }
 
-    public void fullSync(SyncHandler handler) {
-        final ChannelFuture fsync = channel.writeAndFlush("FSYNC\n");
-        fsync.channel().pipeline().addLast(handler);
+    public Promise<Object> fullSync(String host, int port) {
+        final ChannelFuture fsync = channel.writeAndFlush("FSYNC " + host + ' ' + port + '\n');
+        final Promise<Object> resPromise = channel.eventLoop().newPromise();
+        fsync.channel().pipeline().addLast(new SyncHandler(resPromise));
+        return resPromise;
     }
 }
