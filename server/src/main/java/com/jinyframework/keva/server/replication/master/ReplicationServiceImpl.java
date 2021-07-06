@@ -1,7 +1,6 @@
 package com.jinyframework.keva.server.replication.master;
 
 import com.jinyframework.keva.server.command.CommandName;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -10,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class ReplicationServiceImpl implements ReplicationService {
@@ -37,26 +34,8 @@ public class ReplicationServiceImpl implements ReplicationService {
             return;
         }
         final InetSocketAddress addr = parseSlave(key);
-        final ReplicaClient replicaClient = new ReplicaClient(addr.getHostName(), addr.getPort());
-        final Replica rep = Replica.builder()
-                                   .lastCommunicated(new AtomicLong(System.currentTimeMillis()))
-                                   .cmdBuffer(new LinkedBlockingQueue<>())
-                                   .client(replicaClient)
-                                   .build();
-        new Thread(() -> {
-            while (true) {
-                try {
-                    final String line = rep.getCmdBuffer().take();
-                    final Promise<Object> send = rep.getClient().send(line);
-                    if (send.isSuccess()) {
-                        final long now = System.currentTimeMillis();
-                        rep.getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to forward command: ", e);
-                }
-            }
-        }, "rep-" + key + "-thread").start();
+        final Replica rep = new Replica(addr.getHostName(), addr.getPort());
+        rep.startWorker();
         replicas.put(key, rep);
     }
 
@@ -67,7 +46,7 @@ public class ReplicationServiceImpl implements ReplicationService {
         }
         for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
             try {
-                entry.getValue().cmdBuffer.add(line);
+                entry.getValue().buffer(line);
             } catch (Exception e) {
                 log.error("Failed to add command to replica buffer: ", e);
             }

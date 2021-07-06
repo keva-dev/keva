@@ -22,19 +22,20 @@ public class SyncClient {
     private static final ByteArrayDecoder DECODER = new ByteArrayDecoder();
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private final String host;
-    private final int port;
+    private final String masterHost;
+    private final int masterPort;
     private Channel channel;
 
-    public SyncClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public SyncClient(String masterHost, int masterPort) {
+        this.masterHost = masterHost;
+        this.masterPort = masterPort;
     }
 
     public boolean connect() {
         final Bootstrap b = new Bootstrap();
         b.group(workerGroup)
          .channel(NioSocketChannel.class)
+         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
          .handler(new ChannelInitializer<SocketChannel>() {
@@ -51,17 +52,17 @@ public class SyncClient {
                  pipeline.addLast(ENCODER);
              }
          });
-        try {
-            channel = b.connect(host, port).sync().channel();
-        } catch (InterruptedException e) {
+        final ChannelFuture future = b.connect(masterHost, masterPort).awaitUninterruptibly();
+        if (future.isSuccess()) {
+            channel = future.channel();
+            return true;
+        } else {
             return false;
         }
-
-        return true;
     }
 
-    public Promise<Object> fullSync(String host, int port) {
-        final ChannelFuture fsync = channel.writeAndFlush("FSYNC " + host + ' ' + port + '\n');
+    public Promise<Object> fullSync(String slaveHost, Integer slavePort) {
+        final ChannelFuture fsync = channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
         final Promise<Object> resPromise = channel.eventLoop().newPromise();
         fsync.channel().pipeline().addLast(new SyncHandler(resPromise));
         return resPromise;

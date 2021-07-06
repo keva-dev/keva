@@ -21,12 +21,12 @@ public class Info implements CommandHandler {
         stats.put("threads:", threads);
         final ConcurrentMap<String, Replica> replicas = getReplicationService().getReplicas();
 
-        stats.put("replicas:", replicas.size());
         int count = 0;
         for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
             stats.put("slave" + count + ':', entry.getValue());
             count++;
         }
+        stats.put("replicas:", count);
 
         return stats.toString();
     }

@@ -17,7 +17,15 @@ public class ReplicaHandler extends SimpleChannelInboundHandler<String> {
     }
 
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
+        ctx.channel().pipeline().remove(this);
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
+        resPromise.setFailure(cause);
     }
+
 }
