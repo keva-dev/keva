@@ -18,8 +18,6 @@ import io.netty.util.concurrent.Promise;
  * A TCP client used to make request to master
  */
 public class SyncClient {
-    // Using StringDecoder will fail due to special character
-    private static final ByteArrayDecoder DECODER = new ByteArrayDecoder();
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String masterHost;
@@ -47,8 +45,7 @@ public class SyncClient {
                  // Add the text line codec combination first,
                  final int maxFrameLength = 1024 * 1024 * 1024;
                  pipeline.addLast(new DelimiterBasedFrameDecoder(maxFrameLength, Delimiters.lineDelimiter()));
-                 // the encoder and decoder are static as these are sharable
-                 pipeline.addLast(DECODER);
+                 pipeline.addLast(new ByteArrayDecoder());
                  pipeline.addLast(ENCODER);
              }
          });

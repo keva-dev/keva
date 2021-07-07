@@ -18,6 +18,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -93,17 +94,19 @@ public class Replica {
         if (!connect()) {
             throw new Exception("Lost connection to slave");
         }
-        final Promise<Object> resPromise= channel.eventLoop().newPromise();
-        channel.pipeline().addLast("replicaHandler",new ReplicaHandler(resPromise));
+        final Promise<Object> resPromise = channel.eventLoop().newPromise();
+        channel.pipeline().addLast("replicaHandler", new ReplicaHandler(resPromise));
         channel.write(msg);
         channel.writeAndFlush("\n");
         return resPromise;
     }
 
-    public void startWorker() {
+    public CompletableFuture<Void> startWorker() {
         final String threadName = "repl-" + host + ':' + port + "-worker";
-        new Thread(() -> {
-            while (true) {
+        final CompletableFuture<Void> stopFuture = new CompletableFuture<>();
+        final Thread slaveWorker = new Thread(() -> {
+            int count = 0;
+            while (count < 3) {
                 try {
                     final String line = getCmdBuffer().take();
                     final Promise<Object> send = send(line);
@@ -111,12 +114,18 @@ public class Replica {
                     if (send.isSuccess()) {
                         final long now = System.currentTimeMillis();
                         getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
+                        count = 0;
                     }
                 } catch (Exception e) {
                     log.error("Failed to forward command: ", e);
+                    count++;
                 }
             }
-        }, threadName).start();
+            stopFuture.complete(null);
+        }, threadName);
+        slaveWorker.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(slaveWorker::interrupt));
+        return stopFuture;
     }
 
     public void buffer(String line) {

@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,7 +36,8 @@ public class ReplicationServiceImpl implements ReplicationService {
         }
         final InetSocketAddress addr = parseSlave(key);
         final Replica rep = new Replica(addr.getHostName(), addr.getPort());
-        rep.startWorker();
+        final CompletableFuture<Void> stopFuture = rep.startWorker();
+        stopFuture.thenApply(s -> replicas.remove(key));
         replicas.put(key, rep);
     }
 

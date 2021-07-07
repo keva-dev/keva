@@ -27,8 +27,6 @@ public class CommandServiceImpl implements CommandService {
             } catch (IllegalArgumentException e) {
                 command = CommandName.UNSUPPORTED;
             }
-            // forward to replicas
-            replicationService.filterAndBuffer(command, line);
 
             val handler = commandHandlerMap.get(command);
             args.remove(0);
@@ -37,6 +35,9 @@ public class CommandServiceImpl implements CommandService {
                 ctx.channel().pipeline().addLast(new ChunkedWriteHandler());
             }
             output = handler.handle(args);
+
+            // forward committed change to replicas
+            replicationService.filterAndBuffer(command, line);
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
             output = "ERROR";

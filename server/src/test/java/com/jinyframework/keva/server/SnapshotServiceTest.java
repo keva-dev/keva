@@ -38,7 +38,7 @@ public class SnapshotServiceTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(8);
         return server;
     }
 
