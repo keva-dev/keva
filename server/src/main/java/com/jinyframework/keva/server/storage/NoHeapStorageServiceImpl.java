@@ -15,7 +15,7 @@ public class NoHeapStorageServiceImpl implements StorageService {
 
     @Override
     public Path getSnapshotPath() {
-        return Paths.get(store.getFolder(),store.getName()+"Data");
+        return Paths.get(store.getFolder());
     }
 
     @Override

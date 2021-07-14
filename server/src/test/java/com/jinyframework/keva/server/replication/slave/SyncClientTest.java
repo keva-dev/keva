@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -56,8 +57,8 @@ class SyncClientTest {
             final Promise<Object> resPromise = syncClient.fullSync("localhost", PortUtil.getAvailablePort());
             resPromise.sync();
             assertTrue(resPromise.isSuccess());
-            final byte[] res = (byte[]) resPromise.get();
-            final byte[] actual = Files.readAllBytes(Path.of("./temptest/KevaData"));
+            final byte[] res = Base64.getDecoder().decode((String) resPromise.get());
+            final byte[] actual = Files.readAllBytes(Path.of("./temptest/data.zip"));
             assertArrayEquals(actual, res);
         } catch (InterruptedException | ExecutionException | IOException e) {
             fail(e);

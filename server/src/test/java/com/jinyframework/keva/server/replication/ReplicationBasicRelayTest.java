@@ -99,4 +99,39 @@ class ReplicationBasicRelayTest {
         master.shutdown();
         slave.shutdown();
     }
+
+    @Test
+    @Timeout(25)
+    void slaveHasPreviousMasterData() throws Exception {
+        final int masterPort = PortUtil.getAvailablePort();
+        final int slavePort = PortUtil.getAvailablePort();
+        final IServer master = startMaster("localhost", masterPort);
+        TimeUnit.SECONDS.sleep(5);
+        final SocketClient masterClient = new SocketClient("localhost", masterPort);
+        masterClient.connect();
+
+        final String setOld = masterClient.exchange("set old oldmasterdata");
+        assertEquals("1", setOld);
+
+        final IServer slave = startSlave("localhost", slavePort, "localhost:" + masterPort);
+        TimeUnit.SECONDS.sleep(10);
+
+        final SocketClient slaveClient = new SocketClient("localhost", slavePort);
+        slaveClient.connect();
+
+        String getAbc = slaveClient.exchange("get abc");
+        assertEquals("null", getAbc);
+        final String setAbc = masterClient.exchange("set abc helloslave");
+        assertEquals("1", setAbc);
+        getAbc = slaveClient.exchange("get abc");
+        assertEquals("helloslave", getAbc);
+
+        final String getOld = slaveClient.exchange("get old");
+        assertEquals("oldmasterdata", getOld);
+
+        masterClient.disconnect();
+        slaveClient.disconnect();
+        master.shutdown();
+        slave.shutdown();
+    }
 }

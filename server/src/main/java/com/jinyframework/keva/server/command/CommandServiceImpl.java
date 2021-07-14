@@ -3,7 +3,6 @@ package com.jinyframework.keva.server.command;
 import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -30,10 +29,6 @@ public class CommandServiceImpl implements CommandService {
 
             val handler = commandHandlerMap.get(command);
             args.remove(0);
-            if (CommandName.FSYNC == command) {
-                // Need this handler for file transfer so only add when necessary,
-                ctx.channel().pipeline().addLast(new ChunkedWriteHandler());
-            }
             output = handler.handle(args);
 
             // forward committed change to replicas

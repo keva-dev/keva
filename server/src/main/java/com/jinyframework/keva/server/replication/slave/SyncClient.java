@@ -7,7 +7,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.bytes.ByteArrayDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
@@ -19,6 +19,7 @@ import io.netty.util.concurrent.Promise;
  */
 public class SyncClient {
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
+    private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String masterHost;
     private final int masterPort;
@@ -45,7 +46,7 @@ public class SyncClient {
                  // Add the text line codec combination first,
                  final int maxFrameLength = 1024 * 1024 * 1024;
                  pipeline.addLast(new DelimiterBasedFrameDecoder(maxFrameLength, Delimiters.lineDelimiter()));
-                 pipeline.addLast(new ByteArrayDecoder());
+                 pipeline.addLast(DECODER);
                  pipeline.addLast(ENCODER);
              }
          });
