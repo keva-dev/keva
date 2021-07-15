@@ -1,25 +1,21 @@
 package com.jinyframework.keva.server.replication.slave;
 
+import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
 
 /**
  * A TCP client used to make request to master
  */
 public class SyncClient {
-    private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
-    private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String masterHost;
     private final int masterPort;
@@ -37,19 +33,7 @@ public class SyncClient {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new ChannelInitializer<SocketChannel>() {
-             @Override
-             protected void initChannel(SocketChannel ch) throws Exception {
-                 ch.config().setKeepAlive(true);
-                 final ChannelPipeline pipeline = ch.pipeline();
-
-                 // Add the text line codec combination first,
-                 final int maxFrameLength = 1024 * 1024 * 1024;
-                 pipeline.addLast(new DelimiterBasedFrameDecoder(maxFrameLength, Delimiters.lineDelimiter()));
-                 pipeline.addLast(DECODER);
-                 pipeline.addLast(ENCODER);
-             }
-         });
+         .handler(new StringCodecLineFrameInitializer());
         final ChannelFuture future = b.connect(masterHost, masterPort).awaitUninterruptibly();
         if (future.isSuccess()) {
             channel = future.channel();

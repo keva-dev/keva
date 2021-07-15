@@ -20,23 +20,23 @@ import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class NettyServer implements IServer {
+    static final ServerHandler SERVER_HANDLER = new ServerHandler();
     private final ConfigHolder config;
-
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     // Should only use 1 thread to handle to keep order of commands
     EventLoopGroup workerGroup = new NioEventLoopGroup(1);
 
+
     public NettyServer(ConfigHolder config) {
         this.config = config;
     }
-
 
     public ServerBootstrap bootstrapServer() {
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
          .channel(NioServerSocketChannel.class)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .childHandler(new ServerChannelInitializer());
+         .childHandler(new StringCodecLineFrameInitializer(SERVER_HANDLER));
         return b;
     }
 

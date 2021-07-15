@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -23,25 +24,26 @@ public class FSync implements CommandHandler {
         final Path p = Files.createFile(Path.of(zipFilePath));
         try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
             final Path pp = Path.of(sourceDirPath);
-            Files.walk(pp)
-                 .filter(path -> {
-                     try {
-                         return !Files.isDirectory(path) && !Files.isSameFile(p, path);
-                     } catch (IOException e) {
-                         return false;
-                     }
-                 })
-                 .forEach(path -> {
-                     System.out.println(pp.relativize(path));
-                     final ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
-                     try {
-                         zs.putNextEntry(zipEntry);
-                         Files.copy(path, zs);
-                         zs.closeEntry();
-                     } catch (IOException e) {
-                         System.err.println(e);
-                     }
-                 });
+            try (Stream<Path> files = Files.walk(pp)) {
+                files.filter(path -> {
+                    try {
+                        return !Files.isDirectory(path) && !Files.isSameFile(p, path);
+                    } catch (IOException e) {
+                        return false;
+                    }
+                })
+                     .forEach(path -> {
+                         log.info("Zipping: {}", pp.relativize(path));
+                         final ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
+                         try {
+                             zs.putNextEntry(zipEntry);
+                             Files.copy(path, zs);
+                             zs.closeEntry();
+                         } catch (IOException e) {
+                             log.error("Failed to zip file {}: ", path, e);
+                         }
+                     });
+            }
         }
     }
 

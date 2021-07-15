@@ -28,12 +28,13 @@ public class SlaveServiceImpl implements SlaveService {
     @SneakyThrows
     private static void unzip(String dest, String src) {
         final File fileZip = Path.of(src).toFile();
-        final ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip));
-        ZipEntry zipEntry = zis.getNextEntry();
-        while (zipEntry != null) {
-            final Path destFile = Files.createFile(Path.of(dest, zipEntry.getName()));
-            Files.write(destFile, zis.readAllBytes());
-            zipEntry = zis.getNextEntry();
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip))) {
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                final Path destFile = Files.createFile(Path.of(dest, zipEntry.getName()));
+                Files.write(destFile, zis.readAllBytes());
+                zipEntry = zis.getNextEntry();
+            }
         }
     }
 

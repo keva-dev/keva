@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.core;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -9,11 +10,18 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
-public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class StringCodecLineFrameInitializer extends ChannelInitializer<SocketChannel> {
     private static final StringDecoder DECODER = new StringDecoder(CharsetUtil.UTF_8);
     private static final StringEncoder ENCODER = new StringEncoder(CharsetUtil.UTF_8);
 
-    private static final ServerHandler SERVER_HANDLER = new ServerHandler();
+    private ChannelHandler handler;
+
+    public StringCodecLineFrameInitializer(ChannelHandler handler) {
+        this.handler = handler;
+    }
+
+    public StringCodecLineFrameInitializer() {
+    }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
@@ -28,6 +36,8 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(ENCODER);
 
         // and then business logic.
-        pipeline.addLast(SERVER_HANDLER);
+        if (handler != null) {
+            pipeline.addLast(handler);
+        }
     }
 }

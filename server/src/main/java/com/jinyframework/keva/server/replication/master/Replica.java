@@ -1,14 +1,13 @@
 package com.jinyframework.keva.server.replication.master;
 
+import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.Delimiters;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.Promise;
@@ -17,6 +16,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @EqualsAndHashCode
 @Slf4j
 public class Replica {
-    private static final StringDecoder DECODER = new StringDecoder();
-    private static final StringEncoder ENCODER = new StringEncoder();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final AtomicLong lastCommunicated;
     private final BlockingQueue<String> cmdBuffer;
@@ -54,20 +52,7 @@ public class Replica {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new ChannelInitializer<SocketChannel>() {
-             @Override
-             protected void initChannel(SocketChannel ch) throws Exception {
-                 ch.config().setKeepAlive(true);
-                 final ChannelPipeline pipeline = ch.pipeline();
-
-                 // Add the text line codec combination first,
-                 final int maxFrameLength = 1024 * 1024 * 64; // hardcode 64MB for now
-                 pipeline.addLast(new DelimiterBasedFrameDecoder(maxFrameLength, Delimiters.lineDelimiter()));
-                 // the encoder and decoder are static as these are sharable
-                 pipeline.addLast(DECODER);
-                 pipeline.addLast(ENCODER);
-             }
-         });
+         .handler(new StringCodecLineFrameInitializer());
     }
 
     public boolean connect() {
@@ -90,11 +75,11 @@ public class Replica {
         return false;
     }
 
-    public Promise<Object> send(String msg) throws Exception {
-        if (!connect()) {
-            throw new Exception("Lost connection to slave");
-        }
+    public Promise<Object> send(String msg) {
         final Promise<Object> resPromise = channel.eventLoop().newPromise();
+        if (!connect()) {
+            return resPromise.setFailure(new IOException("Lost connection to slave"));
+        }
         channel.pipeline().addLast("replicaHandler", new ReplicaHandler(resPromise));
         channel.write(msg);
         channel.writeAndFlush("\n");
@@ -119,6 +104,7 @@ public class Replica {
                 } catch (Exception e) {
                     log.error("Failed to forward command: ", e);
                     count++;
+                    Thread.currentThread().interrupt();
                 }
             }
             stopFuture.complete(null);
