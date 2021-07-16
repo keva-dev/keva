@@ -3,13 +3,14 @@ package com.jinyframework.keva.server.util;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Enumeration;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
@@ -52,32 +53,32 @@ public final class ZipUtil {
         int totalSizeArchive = 0;
         int totalEntryArchive = 0;
 
-        final File zipFile = Path.of(src).toFile();
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
-            ZipEntry ze = zis.getNextEntry();
-            while (ze != null) {
-                totalEntryArchive += 1;
+        final File f = Path.of(src).toFile();
+        final ZipFile zipFile = new ZipFile(f);
+        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            final ZipEntry ze = entries.nextElement();
+            final InputStream zis = zipFile.getInputStream(ze);
+            totalEntryArchive += 1;
 
-                final Path destFile = Files.createFile(Path.of(dest, ze.getName()));
-                final byte[] content = zis.readAllBytes();
-                log.info("Unzipping: {} real size: {} compressed size: {}", ze.getName(), content.length, ze.getCompressedSize());
-                final double compressionRatio = (double) content.length / ze.getCompressedSize();
-                if (compressionRatio > THRESHOLD_RATIO) {
-                    throw new IOException("Ratio between compressed and uncompressed data is highly suspicious, looks like a Zip Bomb Attack");
-                }
-
-                if (totalSizeArchive > THRESHOLD_SIZE) {
-                    throw new IOException("The uncompressed data size is too much for the application resource capacity");
-                }
-
-                if (totalEntryArchive > THRESHOLD_ENTRIES) {
-                    throw new IOException("Too much entries in this archive, can lead to inodes exhaustion of the system");
-                }
-
-                totalSizeArchive += content.length;
-                Files.write(destFile, content);
-                ze = zis.getNextEntry();
+            final Path destFile = Files.createFile(Path.of(dest, ze.getName()));
+            final byte[] content = zis.readAllBytes();
+            log.info("Unzipping: {} real size: {} compressed size: {}", ze.getName(), content.length, ze.getCompressedSize());
+            final double compressionRatio = (double) content.length / ze.getCompressedSize();
+            if (compressionRatio > THRESHOLD_RATIO) {
+                throw new IOException("Ratio between compressed and uncompressed data is highly suspicious, looks like a Zip Bomb Attack");
             }
+
+            if (totalSizeArchive > THRESHOLD_SIZE) {
+                throw new IOException("The uncompressed data size is too much for the application resource capacity");
+            }
+
+            if (totalEntryArchive > THRESHOLD_ENTRIES) {
+                throw new IOException("Too much entries in this archive, can lead to inodes exhaustion of the system");
+            }
+
+            totalSizeArchive += content.length;
+            Files.write(destFile, content);
         }
     }
 }
