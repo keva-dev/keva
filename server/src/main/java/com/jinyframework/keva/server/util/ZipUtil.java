@@ -54,31 +54,35 @@ public final class ZipUtil {
         int totalEntryArchive = 0;
 
         final File f = Path.of(src).toFile();
-        final ZipFile zipFile = new ZipFile(f);
-        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
-        while (entries.hasMoreElements()) {
-            final ZipEntry ze = entries.nextElement();
-            final InputStream zis = zipFile.getInputStream(ze);
-            totalEntryArchive += 1;
+        try (ZipFile zipFile = new ZipFile(f)) {
+            final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                final ZipEntry ze = entries.nextElement();
+                final Path destFile;
+                final byte[] content;
+                try (InputStream zis = zipFile.getInputStream(ze)) {
+                    totalEntryArchive += 1;
 
-            final Path destFile = Files.createFile(Path.of(dest, ze.getName()));
-            final byte[] content = zis.readAllBytes();
-            log.info("Unzipping: {} real size: {} compressed size: {}", ze.getName(), content.length, ze.getCompressedSize());
-            final double compressionRatio = (double) content.length / ze.getCompressedSize();
-            if (compressionRatio > THRESHOLD_RATIO) {
-                throw new IOException("Ratio between compressed and uncompressed data is highly suspicious, looks like a Zip Bomb Attack");
+                    destFile = Files.createFile(Path.of(dest, ze.getName()));
+                    content = zis.readAllBytes();
+                }
+                log.info("Unzipping: {} real size: {} compressed size: {}", ze.getName(), content.length, ze.getCompressedSize());
+                final double compressionRatio = (double) content.length / ze.getCompressedSize();
+                if (compressionRatio > THRESHOLD_RATIO) {
+                    throw new IOException("Ratio between compressed and uncompressed data is highly suspicious, looks like a Zip Bomb Attack");
+                }
+
+                if (totalSizeArchive > THRESHOLD_SIZE) {
+                    throw new IOException("The uncompressed data size is too much for the application resource capacity");
+                }
+
+                if (totalEntryArchive > THRESHOLD_ENTRIES) {
+                    throw new IOException("Too much entries in this archive, can lead to inodes exhaustion of the system");
+                }
+
+                totalSizeArchive += content.length;
+                Files.write(destFile, content);
             }
-
-            if (totalSizeArchive > THRESHOLD_SIZE) {
-                throw new IOException("The uncompressed data size is too much for the application resource capacity");
-            }
-
-            if (totalEntryArchive > THRESHOLD_ENTRIES) {
-                throw new IOException("Too much entries in this archive, can lead to inodes exhaustion of the system");
-            }
-
-            totalSizeArchive += content.length;
-            Files.write(destFile, content);
         }
     }
 }
