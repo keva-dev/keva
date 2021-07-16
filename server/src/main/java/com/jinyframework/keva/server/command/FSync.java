@@ -3,6 +3,7 @@ package com.jinyframework.keva.server.command;
 import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.storage.StorageService;
+import com.jinyframework.keva.server.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -10,42 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Slf4j
 public class FSync implements CommandHandler {
     private final StorageService storageService = ServiceInstance.getStorageService();
     private final ReplicationService replicationService = ServiceInstance.getReplicationService();
-
-    public static void pack(String sourceDirPath, String zipFilePath) throws IOException {
-        Files.deleteIfExists(Path.of(zipFilePath));
-        final Path p = Files.createFile(Path.of(zipFilePath));
-        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
-            final Path pp = Path.of(sourceDirPath);
-            try (Stream<Path> files = Files.walk(pp)) {
-                files.filter(path -> {
-                    try {
-                        return !Files.isDirectory(path) && !Files.isSameFile(p, path);
-                    } catch (IOException e) {
-                        return false;
-                    }
-                })
-                     .forEach(path -> {
-                         log.info("Zipping: {}", pp.relativize(path));
-                         final ZipEntry zipEntry = new ZipEntry(pp.relativize(path).toString());
-                         try {
-                             zs.putNextEntry(zipEntry);
-                             Files.copy(path, zs);
-                             zs.closeEntry();
-                         } catch (IOException e) {
-                             log.error("Failed to zip file {}: ", path, e);
-                         }
-                     });
-            }
-        }
-    }
 
     @Override
     public Object handle(List<String> args) {
@@ -53,7 +23,7 @@ public class FSync implements CommandHandler {
         try {
             final Path snapFolder = storageService.getSnapshotPath();
             final Path zipPath = snapFolder.resolve("data.zip");
-            pack(snapFolder.toString(), zipPath.toString());
+            ZipUtil.pack(snapFolder.toString(), zipPath.toString());
             // register replica and start buffering commands to forward
             log.info(String.valueOf(args));
             replicationService.addReplica(args.get(0) + ':' + args.get(1));

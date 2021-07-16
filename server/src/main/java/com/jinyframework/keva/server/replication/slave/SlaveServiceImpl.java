@@ -1,20 +1,16 @@
 package com.jinyframework.keva.server.replication.slave;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.server.util.ZipUtil;
 import io.netty.util.concurrent.Promise;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 @Slf4j
 public class SlaveServiceImpl implements SlaveService {
@@ -23,19 +19,6 @@ public class SlaveServiceImpl implements SlaveService {
         final String host = s[0];
         final int port = Integer.parseInt(s[1]);
         return new InetSocketAddress(host, port);
-    }
-
-    @SneakyThrows
-    private static void unzip(String dest, String src) {
-        final File fileZip = Path.of(src).toFile();
-        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip))) {
-            ZipEntry zipEntry = zis.getNextEntry();
-            while (zipEntry != null) {
-                final Path destFile = Files.createFile(Path.of(dest, zipEntry.getName()));
-                Files.write(destFile, zis.readAllBytes());
-                zipEntry = zis.getNextEntry();
-            }
-        }
     }
 
     @Override
@@ -52,7 +35,7 @@ public class SlaveServiceImpl implements SlaveService {
         final Path zipFile = Path.of(config.getSnapshotLocation(), "data.zip");
         Files.createDirectories(Path.of(config.getSnapshotLocation()));
         Files.write(zipFile, snapContent);
-        unzip(config.getSnapshotLocation(), zipFile.toString());
+        ZipUtil.unzip(config.getSnapshotLocation(), zipFile.toString());
         log.info("Finished writing snapshot file");
     }
 }

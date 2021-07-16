@@ -106,7 +106,7 @@ class ReplicationBasicRelayTest {
         final int masterPort = PortUtil.getAvailablePort();
         final int slavePort = PortUtil.getAvailablePort();
         final IServer master = startMaster("localhost", masterPort);
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(6);
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
         masterClient.connect();
 
