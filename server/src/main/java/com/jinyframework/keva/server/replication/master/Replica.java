@@ -10,7 +10,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.Promise;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -75,12 +75,14 @@ public class Replica {
         return false;
     }
 
-    public Promise<Object> send(String msg) {
-        final Promise<Object> resPromise = channel.eventLoop().newPromise();
+    public CompletableFuture<Object> send(String msg) {
+        final CompletableFuture<Object> resPromise = new CompletableFuture<>();
+        // lazy initialization, only try to connect when sending
         if (!connect()) {
-            return resPromise.setFailure(new IOException("Lost connection to slave"));
+            resPromise.completeExceptionally(new IOException("Lost connection to slave"));
+            return resPromise;
         }
-        channel.pipeline().addLast("replicaHandler", new ReplicaHandler(resPromise));
+        channel.pipeline().addLast(new ReplicaHandler(resPromise));
         channel.write(msg);
         channel.writeAndFlush("\n");
         return resPromise;
@@ -94,13 +96,11 @@ public class Replica {
             while (count < 3) {
                 try {
                     final String line = getCmdBuffer().take();
-                    final Promise<Object> send = send(line);
-                    send.await(10000);
-                    if (send.isSuccess()) {
-                        final long now = System.currentTimeMillis();
-                        getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
-                        count = 0;
-                    }
+                    final CompletableFuture<Object> send = send(line);
+                    send.get(3000, TimeUnit.MILLISECONDS);
+                    final long now = System.currentTimeMillis();
+                    getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
+                    count = 0;
                 } catch (Exception e) {
                     log.error("Failed to forward command: ", e);
                     count++;

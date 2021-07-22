@@ -2,30 +2,33 @@ package com.jinyframework.keva.server.replication.master;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.concurrent.Promise;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ReplicaHandler extends SimpleChannelInboundHandler<String> {
-    private final Promise<Object> resPromise;
+    private final CompletableFuture<Object> resPromise;
 
-    public ReplicaHandler(Promise<Object> resPromise) {
+    public ReplicaHandler(CompletableFuture<Object> resPromise) {
         this.resPromise = resPromise;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        resPromise.setSuccess(msg);
+        resPromise.complete(msg);
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         super.channelReadComplete(ctx);
         ctx.channel().pipeline().remove(this);
+        ctx.flush();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
-        resPromise.setFailure(cause);
+        resPromise.completeExceptionally(cause);
+        ctx.close();
     }
 
 }
