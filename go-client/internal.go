@@ -1,33 +1,59 @@
 package kevago
 
-// type InternalClient struct {
-// 	// pool   *ConnPool
-// 	cmdMap commandMap
-// 	commandAdaptor
-// 	// conn net.Conn //TODO: connection pool
-// 	// ctx    context.Context
-// 	// cancel context.CancelFunc
-// }
+import (
+	"bufio"
+	"net"
+)
 
-// func NewInternalClient(c ClientOptions) (*Client, error) {
-// 	p, err := NewConnPool(c.Pool)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+type InternalClient struct {
+	cmdMap internalCmdMap
+	internalCommandAdaptor
+	conn *internalConn
+	addr string
+}
 
-// 	client := &Client{
-// 		pool:   p,
-// 		cmdMap: globalCmds,
-// 	}
-// 	client.commandAdaptor = client.cmdWithPool
-// 	return client, nil
-// }
+type internalConn struct {
+	netConn net.Conn
+	r       *bufio.Reader
+	w       *bufio.Writer
+}
 
-// func (c *Client) cmdWithPool(cmd Cmd) error {
-// 	conn, err := c.Get()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer c.Put(conn)
-// 	return globalCmds.execute(conn, cmd)
-// }
+func NewInternalClient(addr string) (*InternalClient, error) {
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+	cl := &InternalClient{
+		cmdMap: internalcmds,
+		conn:   &internalConn{netConn: conn},
+		addr:   addr,
+	}
+	cl.internalCommandAdaptor = cl.process
+	return cl, nil
+}
+
+func (c *InternalClient) process(cmd internalCmd) error {
+	return c.cmdMap.execute(c.conn, cmd)
+}
+
+type internalCommandAdaptor func(internalCmd) error
+
+func (c internalCommandAdaptor) Info() (string, error) {
+	ret := internalInfoCmd{}
+	c(&ret)
+	return ret.ret, nil
+}
+
+type internalInfoCmd struct {
+	ret string
+}
+
+func (i *internalInfoCmd) Name() string {
+	return "info"
+}
+func (i *internalInfoCmd) Args() []string { return nil }
+
+func (i *internalInfoCmd) ReadResult(r *bufio.Reader) error {
+	i.ret = "dummy info"
+	return nil
+}
