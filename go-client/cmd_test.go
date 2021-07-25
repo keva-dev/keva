@@ -35,7 +35,7 @@ func setupDefault(t *testing.T) *Client {
 	return cl
 }
 
-func TestCRUD(t *testing.T) {
+func TestCmd_CRUD(t *testing.T) {
 	cl := setupDefault(t)
 	defer cl.Close()
 
@@ -60,7 +60,7 @@ func TestCRUD(t *testing.T) {
 	assert.Equal(t, "null", ret)
 }
 
-func TestExpire(t *testing.T) {
+func TestCmd_Expire(t *testing.T) {
 	cl := setupDefault(t)
 	defer cl.Close()
 
@@ -87,7 +87,7 @@ func TestExpire(t *testing.T) {
 
 }
 
-func TestPing(t *testing.T) {
+func TestCmd_Ping(t *testing.T) {
 	cl := setupDefault(t)
 	defer cl.Close()
 	err := cl.Ping()
@@ -95,7 +95,7 @@ func TestPing(t *testing.T) {
 
 }
 
-func TestInfo(t *testing.T) {
+func TestCmd_Info(t *testing.T) {
 	cl := setupDefault(t)
 	defer cl.Close()
 	_, err := cl.Info()

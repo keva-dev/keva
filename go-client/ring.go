@@ -133,7 +133,6 @@ func (r *Ring) cmdWithConsistentHash(cmd Cmd) error {
 		return fmt.Errorf("command with no argument is not supported by ring just yet")
 	}
 	addr := r.consistentHash.Lookup(args[0])
-	fmt.Printf("arg: %s hashed into: %s\n", args[0], addr)
 	correctShard, ok := r.allShards[addr]
 	r.mu.RUnlock()
 	if !ok {

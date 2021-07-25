@@ -2,21 +2,18 @@ package com.jinyframework.keva.server;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
-import com.jinyframework.keva.server.core.Server;
+import com.jinyframework.keva.server.core.NettyServer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 @Slf4j
 public final class Application {
-    private Application() {
-    }
-
     public static void main(String[] args) {
         try {
             final ConfigHolder configHolder = ConfigManager.loadConfig(args);
             log.info(configHolder.toString());
 
-            val server = new Server(configHolder);
+            val server = new NettyServer(configHolder);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
