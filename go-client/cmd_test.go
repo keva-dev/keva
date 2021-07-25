@@ -7,11 +7,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
 func setupDefault(t *testing.T) *Client {
-	popt := pool.Options{
+	popt := Options{
 		PoolTimeout: time.Second,
 		PoolSize:    20,
 		MinIdleConn: 5,

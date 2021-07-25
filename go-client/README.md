@@ -14,11 +14,11 @@ fmt.Println(ret)
 
 ### More options
 
-Create a client to Keva server, which under the hood holds a connection pool.
+Create a client to Keva server, which under the hood holds a connection 
 Each time a command is called, client gets a connecton from pool and use it.
 
 ```go
-poolOpts := pool.Options{
+poolOpts := Options{
     PoolTimeout: time.Second, // max time to wait to get new connection from pool
     PoolSize:    20, // max number of connection can get from the pool
     MinIdleConn: 5,

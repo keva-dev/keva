@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tuhuynh27/keva/go-client/pool"
 	"github.com/tuhuynh27/keva/go-client/proto"
 )
 
@@ -40,7 +39,7 @@ func registerCmd(name string, h CmdHandlers) {
 	globalCmds.internal[name] = h
 }
 
-func (c commandMap) execute(conn *pool.Conn, comd Cmd) error {
+func (c commandMap) execute(conn *Conn, comd Cmd) error {
 	hs, exist := c.internal[comd.Name()]
 	if !exist {
 		return fmt.Errorf("command %s not found", comd.Name())

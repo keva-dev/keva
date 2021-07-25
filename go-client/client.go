@@ -4,8 +4,6 @@ import (
 	"context"
 	"net"
 	"time"
-
-	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
 var (
@@ -13,11 +11,11 @@ var (
 )
 
 type ClientOptions struct {
-	Pool pool.Options
+	Pool Options
 }
 
 type Client struct {
-	pool   *pool.ConnPool
+	pool   *ConnPool
 	cmdMap commandMap
 	commandAdaptor
 	// conn net.Conn //TODO: connection pool
@@ -26,7 +24,7 @@ type Client struct {
 }
 
 func NewDefaultClient() (*Client, error) {
-	poolOpt := pool.Options{
+	poolOpt := Options{
 		Address:     DefaultAddress,
 		PoolTimeout: time.Second, // max time to wait to get new connection from pool
 		PoolSize:    20,          // max number of connection can get from the pool
@@ -48,7 +46,7 @@ func NewDefaultClient() (*Client, error) {
 }
 
 func NewClient(c ClientOptions) (*Client, error) {
-	p, err := pool.NewConnPool(c.Pool)
+	p, err := NewConnPool(c.Pool)
 	if err != nil {
 		return nil, err
 	}

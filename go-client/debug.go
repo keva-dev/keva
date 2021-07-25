@@ -1,6 +1,6 @@
 // +build debug
 
-package pool
+package kevago
 
 import (
 	"sync"

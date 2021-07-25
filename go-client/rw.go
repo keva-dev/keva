@@ -1,4 +1,4 @@
-package pool
+package kevago
 
 import (
 	"github.com/tuhuynh27/keva/go-client/proto"

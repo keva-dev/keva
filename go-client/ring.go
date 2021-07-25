@@ -7,8 +7,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/tuhuynh27/keva/go-client/pool"
 )
 
 type RingOptions struct {
@@ -96,7 +94,7 @@ func NewRing(opts RingOptions) (*Ring, error) {
 	clientOpt := opts.ClientOptions
 	for _, addr := range opts.Addresses {
 		clientOpt := ClientOptions{
-			Pool: pool.Options{
+			Pool: Options{
 				Address:            addr,
 				PoolTimeout:        clientOpt.PoolTimeout,
 				PoolSize:           clientOpt.PoolSize,
@@ -162,7 +160,7 @@ func (r *Ring) healthCheckByInterval(frequency time.Duration) {
 
 		for _, shard := range r.getShards() {
 			err := shard.client.Ping()
-			isUp := err == nil || err == pool.ErrPoolTimeout
+			isUp := err == nil || err == ErrPoolTimeout
 			statusChanged := shard.updateStatus(isUp)
 			if statusChanged {
 				shardsChanged = true

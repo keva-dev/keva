@@ -1,4 +1,4 @@
-package pool
+package kevago
 
 import (
 	"context"
@@ -20,7 +20,7 @@ func eventually(t *testing.T, f func() bool) {
 	assert.Eventually(t, f, time.Second, time.Millisecond*10)
 }
 
-func TestMinIdleConns(t *testing.T) {
+func TestPool_MinIdleConns(t *testing.T) {
 	const poolSize = 100
 	createPoolFunc := func(minIdleConns int) *ConnPool {
 		connPool, err := NewConnPool(Options{
@@ -72,7 +72,7 @@ func TestMinIdleConns(t *testing.T) {
 	})
 }
 
-func TestConnectionReaper(t *testing.T) {
+func TestPool_ConnectionReaper(t *testing.T) {
 	const idleTimeout = 5 * time.Second
 	const maxAge = time.Hour
 	const poolSize = 100
@@ -138,7 +138,7 @@ func TestConnectionReaper(t *testing.T) {
 
 }
 
-func TestPoolGetNotReturnStaledConnection(t *testing.T) {
+func TestPool_GetNotReturnStaledConnection(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 100
@@ -190,7 +190,7 @@ func makeDelayedDialer(delayAt int) (func(context.Context, string) (net.Conn, er
 	}, signalReached
 }
 
-func TestUnmanagedConnRemovedOnPutback(t *testing.T) {
+func TestPool_UnmanagedConnRemovedOnPutback(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 11 // make semaphore extra 1 connection
@@ -232,7 +232,7 @@ func TestUnmanagedConnRemovedOnPutback(t *testing.T) {
 	assert.Equal(t, unmanagedConn.id, closedConns[0].id)
 }
 
-func TestRemoveConn(t *testing.T) {
+func TestPool_RemoveConn(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 10
@@ -273,7 +273,7 @@ func TestRemoveConn(t *testing.T) {
 	}
 }
 
-func TestPoolClose(t *testing.T) {
+func TestPool_PoolClose(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 10
@@ -348,7 +348,7 @@ func TestPoolClose(t *testing.T) {
 	})
 }
 
-func TestPoolTimeout(t *testing.T) {
+func TestPool_PoolTimeout(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 10
@@ -396,7 +396,7 @@ var (
 	dummyError = errors.New("dummy error")
 )
 
-func TestDialError(t *testing.T) {
+func TestPool_DialError(t *testing.T) {
 	const idleTimeout = 5 * time.Minute
 	const maxAge = time.Hour
 	const poolSize = 10
