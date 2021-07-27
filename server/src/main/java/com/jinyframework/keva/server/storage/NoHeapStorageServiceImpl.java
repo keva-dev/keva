@@ -2,14 +2,11 @@ package com.jinyframework.keva.server.storage;
 
 import com.jinyframework.keva.store.NoHeapStore;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class NoHeapStorageServiceImpl implements StorageService {
     private static NoHeapStore store;
-    ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Override
     public void setStore(NoHeapStore store) {
@@ -17,41 +14,22 @@ public class NoHeapStorageServiceImpl implements StorageService {
     }
 
     @Override
+    public Path getSnapshotPath() {
+        return Paths.get(store.getFolder());
+    }
+
+    @Override
     public boolean putString(String key, String val) {
-        final Future<Boolean> res = executor.submit(() -> store.putString(key, val));
-        try {
-            return res.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return false;
-        } catch (ExecutionException e) {
-            return false;
-        }
+        return store.putString(key,val);
     }
 
     @Override
     public String getString(String key) {
-        final Future<String> res = executor.submit(() -> store.getString(key));
-        try {
-            return res.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return null;
-        } catch (ExecutionException e) {
-            return null;
-        }
+        return store.getString(key);
     }
 
     @Override
     public boolean remove(String key) {
-        final Future<Boolean> res = executor.submit(() -> store.remove(key));
-        try {
-            return res.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return false;
-        } catch (ExecutionException e) {
-            return false;
-        }
+        return store.remove(key);
     }
 }

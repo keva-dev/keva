@@ -1,5 +1,7 @@
 package com.jinyframework.keva.server.command;
 
+import io.netty.channel.ChannelHandlerContext;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -8,5 +10,5 @@ public interface CommandService {
         return new ArrayList<>(Arrays.asList(line.split(" ")));
     }
 
-    Object handleCommand(String line);
+    Object handleCommand(ChannelHandlerContext ctx, String line);
 }

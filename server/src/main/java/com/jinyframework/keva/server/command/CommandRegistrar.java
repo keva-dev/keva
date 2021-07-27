@@ -25,8 +25,10 @@ public final class CommandRegistrar {
             map.put(CommandName.INFO, new Info());
             map.put(CommandName.DEL, new Del());
             map.put(CommandName.EXPIRE, new Expire());
+            map.put(CommandName.FSYNC, new FSync());
 
             map.put(CommandName.UNSUPPORTED, new Unsupported());
+            //noinspection Java9CollectionFactory
             return Collections.unmodifiableMap(map);
         }
     }

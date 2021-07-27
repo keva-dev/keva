@@ -9,7 +9,7 @@ public class Get implements CommandHandler {
     private final StorageService storageService = ServiceInstance.getStorageService();
 
     @Override
-    public Object handle(List<String> args) {
+    public String handle(List<String> args) {
         return storageService.getString(args.get(0));
     }
 }

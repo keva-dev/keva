@@ -4,6 +4,10 @@ import com.jinyframework.keva.server.command.CommandService;
 import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.core.ConnectionServiceImpl;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
+import com.jinyframework.keva.server.replication.master.ReplicationServiceImpl;
+import com.jinyframework.keva.server.replication.slave.SlaveService;
+import com.jinyframework.keva.server.replication.slave.SlaveServiceImpl;
 import com.jinyframework.keva.server.storage.NoHeapStorageServiceImpl;
 import com.jinyframework.keva.server.storage.StorageService;
 import lombok.Setter;
@@ -11,6 +15,26 @@ import lombok.Setter;
 @Setter
 public final class ServiceInstance {
     private ServiceInstance() {
+    }
+
+    public static ReplicationService getReplicationService() {
+        return ReplicationServiceHolder.INSTANCE;
+    }
+
+    public static ConnectionService getConnectionService() {
+        return ConnectionServiceHolder.INSTANCE;
+    }
+
+    public static CommandService getCommandService() {
+        return CommandServiceHolder.INSTANCE;
+    }
+
+    public static StorageService getStorageService() {
+        return StorageServiceHolder.INSTANCE;
+    }
+
+    public static SlaveService getSlaveService() {
+        return SlaveServiceHolder.INSTANCE;
     }
 
     private static final class ConnectionServiceHolder {
@@ -25,15 +49,11 @@ public final class ServiceInstance {
         private static final StorageService INSTANCE = new NoHeapStorageServiceImpl();
     }
 
-    public static ConnectionService getConnectionService() {
-        return ConnectionServiceHolder.INSTANCE;
+    private static final class ReplicationServiceHolder {
+        private static final ReplicationService INSTANCE = new ReplicationServiceImpl();
     }
 
-    public static CommandService getCommandService() {
-        return CommandServiceHolder.INSTANCE;
-    }
-
-    public static StorageService getStorageService() {
-        return StorageServiceHolder.INSTANCE;
+    private static final class SlaveServiceHolder {
+        public static final SlaveService INSTANCE = new SlaveServiceImpl();
     }
 }

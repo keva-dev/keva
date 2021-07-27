@@ -7,6 +7,7 @@ import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +38,7 @@ public class SnapshotServiceTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.SECONDS.sleep(8);
         return server;
     }
 
@@ -80,6 +81,7 @@ public class SnapshotServiceTest {
     }
 
     @Test
+    @Timeout(20)
     void recover() {
         sync(getAvailablePort());
 

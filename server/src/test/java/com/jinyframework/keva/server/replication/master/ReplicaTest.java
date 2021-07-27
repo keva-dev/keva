@@ -1,21 +1,25 @@
-package com.jinyframework.keva.server;
+package com.jinyframework.keva.server.replication.master;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.PortUtil;
-import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.*;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 @Slf4j
-@DisplayName("Netty Server")
-public class NettyServerTest extends AbstractServerTest {
+public final class ReplicaTest {
     static String host = "localhost";
     static int port = PortUtil.getAvailablePort();
+    private static IServer server;
+    private static Replica rep;
+
+    private ReplicaTest() {
+    }
 
     @BeforeAll
     static void startServer() throws Exception {
@@ -37,13 +41,30 @@ public class NettyServerTest extends AbstractServerTest {
         // Wait for server to start
         TimeUnit.SECONDS.sleep(10);
 
-        client = new SocketClient(host, port);
-        client.connect();
+        rep = new Replica(host, port);
     }
 
     @AfterAll
     static void stop() {
-        client.disconnect();
         server.shutdown();
+    }
+
+    @Test
+    @Timeout(2)
+    void clientSend() throws Exception {
+        assertEquals("PONG", rep.send("PING").get());
+        assertEquals("null", rep.send("get abc").get());
+        assertEquals("1", rep.send("set abc xyz").get());
+    }
+
+    @Test
+    @Timeout(2)
+    void repSendWhenCommandIsBuffered() throws Exception {
+        rep.startWorker();
+        rep.buffer("set a b");
+        rep.buffer("set a c");
+        rep.buffer("set a d");
+        TimeUnit.MILLISECONDS.sleep(100);
+        assertEquals("d", rep.send("get a").get());
     }
 }

@@ -1,17 +1,22 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.storage.SocketMapInstance;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
 
-    private final Map<String, ServerSocket> socketMap = SocketMapInstance.getSocketHashMap();
+    private final ConcurrentHashMap<String, ClientInfo> clients = new ConcurrentHashMap<>();
 
     @Override
     public long getCurrentConnectedClients() {
-        return socketMap.size();
+        return clients.size();
+    }
+
+    @Override
+    public ConcurrentMap<String, ClientInfo> getClients() {
+        return clients;
     }
 }

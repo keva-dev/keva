@@ -21,9 +21,9 @@ public class Expire implements CommandHandler {
                     storageService.remove(args.get(0));
                 }
             }, Long.parseLong(args.get(1)));
-            return 1;
+            return CommandConstant.SUCCESS_CODE;
         } catch (Exception ignore) {
-            return 0;
+            return CommandConstant.FAIL_CODE;
         }
     }
 }
