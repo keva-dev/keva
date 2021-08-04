@@ -4,7 +4,6 @@ import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.PortUtil;
-import io.netty.util.concurrent.Promise;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -54,9 +54,7 @@ class SyncClientTest {
         final SyncClient syncClient = new SyncClient(host, port);
         try {
             assertTrue(syncClient.connect());
-            final Promise<Object> resPromise = syncClient.fullSync("localhost", PortUtil.getAvailablePort());
-            resPromise.sync();
-            assertTrue(resPromise.isSuccess());
+            final CompletableFuture<Object> resPromise = syncClient.fullSync("localhost", PortUtil.getAvailablePort());
             final byte[] res = Base64.getDecoder().decode((String) resPromise.get());
             final byte[] actual = Files.readAllBytes(Path.of("./temptest/data.zip"));
             assertArrayEquals(actual, res);

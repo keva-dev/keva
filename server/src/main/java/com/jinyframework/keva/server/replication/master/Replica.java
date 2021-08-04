@@ -1,6 +1,7 @@
 package com.jinyframework.keva.server.replication.master;
 
 import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
+import com.jinyframework.keva.server.replication.FutureHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -34,6 +35,8 @@ public class Replica {
     private final String host;
     private final int port;
     private final AtomicBoolean isAlive = new AtomicBoolean(false);
+    private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
+    private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
     Bootstrap b;
     private Channel channel;
 
@@ -52,7 +55,7 @@ public class Replica {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new StringCodecLineFrameInitializer());
+         .handler(new StringCodecLineFrameInitializer(futureHandler));
     }
 
     public boolean alive() {
@@ -81,7 +84,7 @@ public class Replica {
 
     public CompletableFuture<Object> send(String msg) {
         final CompletableFuture<Object> future = new CompletableFuture<>();
-        channel.pipeline().addLast(new ReplicaHandler(future));
+        resFutureQueue.offer(future);
         channel.write(msg);
         channel.writeAndFlush("\n");
         return future;
