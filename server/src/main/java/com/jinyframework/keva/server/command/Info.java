@@ -17,16 +17,16 @@ public class Info implements CommandHandler {
         final HashMap<String, Object> stats = new HashMap<>();
         final long currentConnectedClients = getConnectionService().getCurrentConnectedClients();
         final int threads = ManagementFactory.getThreadMXBean().getThreadCount();
-        stats.put("clients:", currentConnectedClients);
-        stats.put("threads:", threads);
+        stats.put("clients", currentConnectedClients);
+        stats.put("threads", threads);
         final ConcurrentMap<String, Replica> replicas = getReplicationService().getReplicas();
 
         int count = 0;
         for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
-            stats.put("slave" + count + ':', entry.getValue());
+            stats.put("slave" + count, entry.getValue());
             count++;
         }
-        stats.put("replicas:", count);
+        stats.put("replicas", count);
 
         return stats.toString();
     }

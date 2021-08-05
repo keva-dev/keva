@@ -50,8 +50,11 @@ public class SyncClient {
 
     public CompletableFuture<Object> fullSync(String slaveHost, Integer slavePort) {
         final CompletableFuture<Object> future = new CompletableFuture<>();
-        resFutureQueue.offer(future);
-        channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
+        if (resFutureQueue.offer(future)) {
+            channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
+        } else {
+            future.completeExceptionally(new Exception("Protocol client failure"));
+        };
         return future;
     }
 }

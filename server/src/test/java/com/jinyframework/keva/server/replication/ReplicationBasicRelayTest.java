@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @Slf4j
@@ -152,5 +153,29 @@ class ReplicationBasicRelayTest {
         master.shutdown();
         slave1.shutdown();
         slave2.shutdown();
+    }
+
+    @Test
+    @Timeout(20)
+    void slaveInfoUpdated() throws Exception {
+        final int masterPort = PortUtil.getAvailablePort();
+        final int slave1Port = PortUtil.getAvailablePort();
+        final int slave2Port = PortUtil.getAvailablePort();
+        final IServer master = startMaster("localhost", masterPort);
+        TimeUnit.SECONDS.sleep(5);
+        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        TimeUnit.SECONDS.sleep(10);
+
+        final SocketClient masterClient = new SocketClient("localhost", masterPort);
+        masterClient.connect();
+        assertTrue(masterClient.exchange("info").contains("replicas=2"));
+        slave2.shutdown();
+        TimeUnit.SECONDS.sleep(4);
+        assertTrue(masterClient.exchange("info").contains("replicas=1"));
+
+        masterClient.disconnect();
+        master.shutdown();
+        slave1.shutdown();
     }
 }

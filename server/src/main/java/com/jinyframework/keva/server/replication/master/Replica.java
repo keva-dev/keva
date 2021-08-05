@@ -84,9 +84,12 @@ public class Replica {
 
     public CompletableFuture<Object> send(String msg) {
         final CompletableFuture<Object> future = new CompletableFuture<>();
-        resFutureQueue.offer(future);
-        channel.write(msg);
-        channel.writeAndFlush("\n");
+        if (resFutureQueue.offer(future)) {
+            channel.write(msg);
+            channel.writeAndFlush("\n");
+        } else {
+            future.completeExceptionally(new Exception("Protocol client failure"));
+        };
         return future;
     }
 
