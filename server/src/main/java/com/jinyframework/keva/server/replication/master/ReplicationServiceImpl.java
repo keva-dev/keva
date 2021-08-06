@@ -43,9 +43,10 @@ public class ReplicationServiceImpl implements ReplicationService {
                 log.warn("Couldn't connect to slave");
                 return;
             }
-            final CompletableFuture<Object> lostFuture = new CompletableFuture<>();
-            final ScheduledFuture<?> scheduleFuture = rep.startHealthChecker(healthCheckerPool, lostFuture);
-            lostFuture.whenComplete((res, ex) -> {
+            final CompletableFuture<Object> lostConn = new CompletableFuture<>();
+            final ScheduledFuture<?> scheduleFuture = healthCheckerPool.scheduleAtFixedRate(rep.healthChecker(lostConn),
+                    5, 1, TimeUnit.SECONDS);
+            lostConn.whenComplete((res, ex) -> {
                 log.warn("Slave connection lost");
                 scheduleFuture.cancel(true);
                 replicas.remove(key);

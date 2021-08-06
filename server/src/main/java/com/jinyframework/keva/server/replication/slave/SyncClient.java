@@ -22,9 +22,9 @@ public class SyncClient {
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String masterHost;
     private final int masterPort;
-    private Channel channel;
     private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
     private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
+    private Channel channel;
 
     public SyncClient(String masterHost, int masterPort) {
         this.masterHost = masterHost;
@@ -53,8 +53,8 @@ public class SyncClient {
         if (resFutureQueue.offer(future)) {
             channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
         } else {
-            future.completeExceptionally(new Exception("Protocol client failure"));
-        };
+            future.completeExceptionally(new IllegalStateException("Protocol client queue failure"));
+        }
         return future;
     }
 }

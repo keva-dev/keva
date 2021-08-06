@@ -88,8 +88,8 @@ public class Replica {
             channel.write(msg);
             channel.writeAndFlush("\n");
         } else {
-            future.completeExceptionally(new Exception("Protocol client failure"));
-        };
+            future.completeExceptionally(new IllegalStateException("Protocol client queue failure"));
+        }
         return future;
     }
 
@@ -121,11 +121,10 @@ public class Replica {
         getCmdBuffer().add(line);
     }
 
-    public ScheduledFuture<?> startHealthChecker(ScheduledExecutorService healthCheckerPool,
-                                                 CompletableFuture<Object> lost) {
+    public Runnable healthChecker(CompletableFuture<Object> lost) {
         final AtomicInteger retries = new AtomicInteger(0);
         final int maxRetry = 3;
-        return healthCheckerPool.scheduleAtFixedRate(() -> {
+        return () -> {
             // ping and update
             final CompletableFuture<Object> ping = send("PING");
             try {
@@ -135,19 +134,19 @@ public class Replica {
                     final long now = System.currentTimeMillis();
                     getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
                 } else {
-                    throw new Exception("Incorrect slave result: " + pong);
+                    retries.getAndIncrement();
                 }
             } catch (Exception e) {
-                log.warn("Ping failed", e);
                 retries.getAndIncrement();
-                if (retries.get() >= maxRetry) {
-                    isAlive.getAndSet(false);
-                    lost.complete(true);
-                }
+                log.warn("Ping failed", e);
                 if (e instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                 }
             }
-        }, 5, 1, TimeUnit.SECONDS);
+            if (retries.get() >= maxRetry) {
+                isAlive.getAndSet(false);
+                lost.complete(true);
+            }
+        };
     }
 }
