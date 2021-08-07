@@ -18,6 +18,10 @@ type internalConn struct {
 	w       *bufio.Writer
 }
 
+func (c *InternalClient) Close() error {
+	return c.conn.netConn.Close()
+}
+
 func NewInternalClient(addr string) (*InternalClient, error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
@@ -43,6 +47,11 @@ func (c internalCommandAdaptor) Info() (string, error) {
 	c(&ret)
 	return ret.ret, nil
 }
+func (c internalCommandAdaptor) Ping() (string, error) {
+	ret := internalPingCmd{}
+	c(&ret)
+	return ret.ret, nil
+}
 
 type internalInfoCmd struct {
 	ret string
@@ -54,6 +63,20 @@ func (i *internalInfoCmd) Name() string {
 func (i *internalInfoCmd) Args() []string { return nil }
 
 func (i *internalInfoCmd) ReadResult(r *bufio.Reader) error {
+	i.ret = "dummy info"
+	return nil
+}
+
+type internalPingCmd struct {
+	ret string
+}
+
+func (i *internalPingCmd) Name() string {
+	return "ping"
+}
+func (i *internalPingCmd) Args() []string { return nil }
+
+func (i *internalPingCmd) ReadResult(r *bufio.Reader) error {
 	i.ret = "dummy info"
 	return nil
 }

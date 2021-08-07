@@ -14,8 +14,7 @@ fmt.Println(ret)
 
 ### More options
 
-Create a client to Keva server, which under the hood holds a connection 
-Each time a command is called, client gets a connecton from pool and use it.
+Create a client to Keva server, which under the hood holds a connection pool. Each time a command is called, client gets a connecton from pool and use it.
 
 ```go
 poolOpts := Options{

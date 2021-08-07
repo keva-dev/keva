@@ -13,8 +13,9 @@ server.PID:
     # cd bin && { python server.py & echo $$! > $@; }
 	./gradlew server:run & echo $$! > $@
 
-
 stop: server.PID
 	kill `cat $<` && rm $<
 
+run-with-file: 
+	./gradlew server:run --args="-f $(realpath $(config_file))"
 .PHONY: start stop
