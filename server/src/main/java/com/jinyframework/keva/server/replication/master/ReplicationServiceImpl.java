@@ -32,7 +32,7 @@ public class ReplicationServiceImpl implements ReplicationService {
     public void addReplica(String key) {
         final InetSocketAddress addr = parseSlave(key);
         if (replicas.containsKey(key)) {
-            replicas.get(key).getLastCommunicated().getAndSet(System.currentTimeMillis());
+            // should check to reconnect here
             return;
         }
         final Replica rep = new Replica(addr.getHostName(), addr.getPort());
@@ -49,7 +49,6 @@ public class ReplicationServiceImpl implements ReplicationService {
             lostConn.whenComplete((res, ex) -> {
                 log.warn("Slave connection lost");
                 scheduleFuture.cancel(true);
-                replicas.remove(key);
             });
             rep.commandRelayTask().run();
         });

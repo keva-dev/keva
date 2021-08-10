@@ -169,10 +169,15 @@ class ReplicationBasicRelayTest {
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
         masterClient.connect();
-        assertTrue(masterClient.exchange("info").contains("replicas=2"));
+        String info = masterClient.exchange("info");
+        log.info(info);
+        final String slaveInfoFormat = "(host:%s, port:%d, online:%b)";
+        assertTrue(info.contains(String.format(slaveInfoFormat, "localhost", slave1Port, true)));
+        assertTrue(info.contains(String.format(slaveInfoFormat, "localhost", slave2Port, true)));
         slave2.shutdown();
         TimeUnit.SECONDS.sleep(4);
-        assertTrue(masterClient.exchange("info").contains("replicas=1"));
+        info = masterClient.exchange("info");
+        assertTrue(info.contains(String.format(slaveInfoFormat, "localhost", slave2Port, false)));
 
         masterClient.disconnect();
         master.shutdown();

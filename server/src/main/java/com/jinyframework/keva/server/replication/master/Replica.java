@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A TCP client used to forward commands to replica
@@ -30,21 +29,21 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class Replica {
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup(1);
-    private final AtomicLong lastCommunicated;
+    private final long joinedTime;
     private final BlockingQueue<String> cmdBuffer;
     private final String host;
     private final int port;
     private final AtomicBoolean isAlive = new AtomicBoolean(false);
     private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
     private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
-    Bootstrap b;
+    private Bootstrap b;
     private Channel channel;
 
     public Replica(String host, int port) {
         this.host = host;
         this.port = port;
-        lastCommunicated = new AtomicLong(System.currentTimeMillis());
         cmdBuffer = new LinkedBlockingQueue<>();
+        joinedTime = System.currentTimeMillis();
         init();
     }
 
@@ -103,8 +102,6 @@ public class Replica {
                     log.info(line);
                     final CompletableFuture<Object> send = send(line);
                     send.get(3000, TimeUnit.MILLISECONDS);
-                    final long now = System.currentTimeMillis();
-                    getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
                     lastFailedLine = null;
                 } catch (Exception e) {
                     lastFailedLine = line;
@@ -131,8 +128,6 @@ public class Replica {
                 final String pong = (String) ping.get(300, TimeUnit.MILLISECONDS);
                 if ("PONG".equalsIgnoreCase(pong)) {
                     retries.getAndSet(0);
-                    final long now = System.currentTimeMillis();
-                    getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
                 } else {
                     retries.getAndIncrement();
                 }
