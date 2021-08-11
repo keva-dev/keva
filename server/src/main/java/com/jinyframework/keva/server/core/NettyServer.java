@@ -44,6 +44,8 @@ public class NettyServer implements IServer {
         if (config.getReplicaOf() != null && !config.getReplicaOf().isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
             // start slave service and sync snapshot file in blocking manner
             ServiceInstance.getSlaveService().start(config);
+        } else {
+            ServiceInstance.getReplicationService().init();
         }
     }
 

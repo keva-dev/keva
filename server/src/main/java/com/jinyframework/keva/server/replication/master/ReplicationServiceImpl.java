@@ -11,16 +11,21 @@ import java.util.concurrent.*;
 
 @Slf4j
 public class ReplicationServiceImpl implements ReplicationService {
-    private final ConcurrentHashMap<String, Replica> replicas = new ConcurrentHashMap<>();
     private final Set<CommandName> writeCommands = EnumSet.of(CommandName.SET, CommandName.DEL);
     private final ScheduledExecutorService healthCheckerPool = Executors.newScheduledThreadPool(1);
     private final ExecutorService repWorkerPool = Executors.newCachedThreadPool();
+    private ConcurrentHashMap<String, Replica> replicas;
 
     private static InetSocketAddress parseSlave(String addr) {
         final String[] s = addr.split(":");
         final String host = s[0];
         final int port = Integer.parseInt(s[1]);
         return new InetSocketAddress(host, port);
+    }
+
+    @Override
+    public void init() {
+        replicas = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -61,7 +66,9 @@ public class ReplicationServiceImpl implements ReplicationService {
         }
         for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
             try {
-                entry.getValue().buffer(line);
+                if (entry.getValue().alive()) {
+                    entry.getValue().buffer(line);
+                }
             } catch (Exception e) {
                 log.error("Failed to add command to replica buffer: ", e);
             }

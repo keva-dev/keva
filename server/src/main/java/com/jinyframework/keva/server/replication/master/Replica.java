@@ -96,7 +96,7 @@ public class Replica {
         return () -> {
             String lastFailedLine = null;
             String line = null;
-            while (isAlive.get()) {
+            while (alive()) {
                 try {
                     line = lastFailedLine == null ? getCmdBuffer().take() : lastFailedLine;
                     log.info(line);
@@ -141,6 +141,7 @@ public class Replica {
             if (retries.get() >= maxRetry) {
                 isAlive.getAndSet(false);
                 lost.complete(true);
+                cmdBuffer.clear();
             }
         };
     }
