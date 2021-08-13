@@ -1,0 +1,40 @@
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
+    id 'com.adarshr.test-logger' version '2.1.0'
+}
+
+group 'com.jinyframework'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+def nettyVersion = '4.1.65.Final'
+dependencies {
+    compile project(':store')
+    compile project(':server')
+
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.9'
+    compile group: 'ch.qos.logback', name: 'logback-core', version: '1.0.9'
+    compile group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}"
+    compile group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}"
+}
+
+shadowJar {
+    minimize()
+}
+
+application {
+    mainClassName = 'com.jinyframework.keva.proxy.Application'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
+}
