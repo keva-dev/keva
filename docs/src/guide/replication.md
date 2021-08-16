@@ -11,12 +11,12 @@ This feature is in experimental
 keva-server -p 6767
 ```
 
-- Start replicator instances with args (`-ro` mean replicationOf):
+- Start replicator instances with args (`-ro` mean replicationOf, `-sl` is snapshot file dir location):
 
 ```command
-keva-server -p 6768 -ro localhost:6767
-keva-server -p 6769 -ro localhost:6767
-keva-server -p 6770 -ro localhost:6767
+keva-server -p 6768 -ro localhost:6767 -sl ./rep1
+keva-server -p 6769 -ro localhost:6767 -sl ./rep2
+keva-server -p 6770 -ro localhost:6767 -sl ./rep3
 ```
 
 ## Ideas

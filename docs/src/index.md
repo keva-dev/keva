@@ -10,7 +10,7 @@ features:
 - title: Multi-thread 
   details: Keva off-heap in-memory comes with multithreaded engine - the Redis's missing feature
 - title: High Availability
-  details: Simplify your high availability setup with active-replica nodes, sharded cluster mode are also available 
+  details: Simplify your high availability setup with master-replica nodes, sharded cluster mode will also be available soon 
 footer: Apache-2.0 Licensed | Copyright © 2021 Keva Team
 ---
 
@@ -24,5 +24,5 @@ footer: Apache-2.0 Licensed | Copyright © 2021 Keva Team
 <div style="margin-top: 2rem; max-width: 960px; text-align: center; font-size: 1.5rem; font-weight: bold;">Lab Product of</div>
 
 <div style="text-align: center; margin-top: 1.5rem; margin-bottom: 2rem;">
-<a href="https://www.grokking.org" target="_blank"><img src="https://lh6.googleusercontent.com/NTHxdqeOR0owScQ2fcN-OQ9LcuUoj9lNHZ0hCw-dYfGHq_b3CX8MwLiK-bx0PTV0M_kp6sPGl4KCyLOfuuMyKsA=w16383" style="max-width: 92px; margin-right: 0.5rem;" /></a>
+<a href="https://www.grokking.org" target="_blank"><img src="https://i.imgur.com/5k8qMpf.png" style="max-width: 92px; margin-right: 0.5rem;" /></a>
 </div>

@@ -29,6 +29,7 @@ module.exports = {
    * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
    */
   themeConfig: {
+    logo: 'https://i.imgur.com/z0c9bV7.png',
     repo: 'https://github.com/tuhuynh27/keva',
     editLinks: false,
     docsDir: '',
@@ -57,7 +58,7 @@ module.exports = {
             '',
             'install',
             'usage',
-            'replication'
+            'replication',
           ]
         }
       ],

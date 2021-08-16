@@ -1,6 +1,6 @@
 # The Team Behind Keva
 
-Keva is built by a team of enthusiastic and passionate engineers formed by Grokking Coding Lab.
+Keva project is built by a team of enthusiastic and passionate engineers formed by Grokking Coding Lab.
 
 [Join our team!](https://github.com/tuhuynh/keva)
 
@@ -36,6 +36,7 @@ Keva is built by a team of enthusiastic and passionate engineers formed by Grokk
         <td>
             <h3>Toai Duong</h3>
             <p>Keva Go-Client</p>
+            <p>Keva Proxy/Sentinel</p>
             <p>
                 <img src="https://image.flaticon.com/icons/png/512/25/25231.png" style="max-width: 12.5px; margin-right: 2.5px;"/>
                 <a href="https://github.com/axblueblader" target="_blank">duongcongtoai</a>
