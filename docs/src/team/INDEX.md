@@ -39,7 +39,7 @@ Keva project is built by a team of enthusiastic and passionate engineers formed 
             <p>Keva Proxy/Sentinel</p>
             <p>
                 <img src="https://image.flaticon.com/icons/png/512/25/25231.png" style="max-width: 12.5px; margin-right: 2.5px;"/>
-                <a href="https://github.com/axblueblader" target="_blank">duongcongtoai</a>
+                <a href="https://github.com/duongcongtoai" target="_blank">duongcongtoai</a>
             </p>
         </td>
     </tr>

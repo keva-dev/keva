@@ -13,7 +13,7 @@ go get github.com/tuhuynh27/keva/go-client
 Create a client to Keva server, which under the hood holds a connection pool.
 Each time a command being called, client gets a connection from pool and use it.
 
-```golang
+```go
 import (
     "context"
     "fmt"

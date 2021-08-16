@@ -2,6 +2,7 @@
 
 ## Requirements
 
+- Linux/macOS environment
 - Java 11 (JDK 11) or higher
 
 ## Download
@@ -31,11 +32,13 @@ Options:
 ### Server
 
 ```command
-keva-server
+$ keva-server -p 6767
 ```
 
 ### Client
 
 ```command
-keva-cli
+$ keva-cli -p 6767
+$ keva-cli> PING
+PONG
 ```

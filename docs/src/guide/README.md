@@ -9,6 +9,12 @@ a shared way.
 
 ## Features
 
-- High performance and low latency in-memory key-value store (JVM GC independent)
+- High performance and low latency in-memory key-value store
 - The basic operations are PUT(key,value), GET(key), DEL(key)
-- Persistence in-memory data to disk (very fast thanks to disk-memory mapping at OS level)
+- Persistence in-memory data to disk
+
+## Major dependencies
+
+- Run on JVM
+- Netty for handling TCP messages
+- ChronicleMap for storage engine

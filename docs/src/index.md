@@ -1,12 +1,12 @@
 ---
 home: true
 heroImage: https://i.imgur.com/z0c9bV7.png
-tagline: Low-latency in-memory key-value store, used as a database or cache (Redis replacement)
+tagline: Low-latency in-memory key-value store, used as a database or cache (aimed Redis replacement)
 actionText: Quick Start →
 actionLink: /guide/
 features:
 - title: Low latency
-  details: By keeping data in-memory, Keva can serve up data with submillisecond latencies
+  details: By keeping data in-memory, Keva can serve up data with sub-millisecond latencies
 - title: Multi-thread 
   details: Keva off-heap in-memory comes with multithreaded engine - the Redis's missing feature
 - title: High Availability
@@ -17,7 +17,6 @@ footer: Apache-2.0 Licensed | Copyright © 2021 Keva Team
 <p style="text-align: right; max-width: 960px; margin: auto;">
 <img src="https://img.shields.io/github/workflow/status/tuhuynh27/keva/Build/master?label=build&style=flat-square" alt="GitHub Workflow Status (branch)">
 <img src="https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square" alt="Lines of code">
-<img src="https://img.shields.io/github/languages/code-size/tuhuynh27/keva?style=flat-square" alt="GitHub code size in bytes">
 <img src="https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square" alt="GitHub">
 </p>
 
