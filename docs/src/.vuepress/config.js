@@ -58,6 +58,7 @@ module.exports = {
             '',
             'install',
             'usage',
+            'go-client',
             'replication',
           ]
         }
