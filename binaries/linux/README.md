@@ -23,8 +23,10 @@ chmod +x /usr/local/bin/keva-cli
 ## Run
 
 Options:
-- ```-h```: hostname
-- ```-p```: port
+- ```-h```: hostname (default: localhost)
+- ```-p```: port (default: 6767)
+- ```-sl```: snapshot location (default: ./)
+- ```-ro```: replicate of (default: none)
 
 ### Server
 

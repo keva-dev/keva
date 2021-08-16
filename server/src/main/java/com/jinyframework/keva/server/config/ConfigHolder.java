@@ -8,7 +8,6 @@ import java.util.Properties;
 @Builder(toBuilder = true)
 @Getter
 @Setter
-@ToString
 @EqualsAndHashCode
 public class ConfigHolder {
     @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
@@ -113,5 +112,16 @@ public class ConfigHolder {
             return this;
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Configurations:" + "\n" +
+                "snapshotEnabled: " + this.snapshotEnabled + "\n" +
+                "hostname: " + this.hostname + "\n" +
+                "port: " + this.port + "\n" +
+                "snapshotLocation: " + this.snapshotLocation + "\n" +
+                "heapSize: " + this.heapSize + "\n" +
+                "replicaOf: " + this.replicaOf;
     }
 }
