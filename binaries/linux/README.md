@@ -8,16 +8,16 @@
 
 - Server
 
-```shell
-$ curl -o /usr/local/bin/keva-server https://raw.githubusercontent.com/tuhuynh27/jiny/master/keva/binaries/linux/keva-server
-$ chmod +x /usr/local/bin/keva-server
+```command
+curl -o /usr/local/bin/keva-server https://rawcdn.githack.com/tuhuynh27/keva/607bfaf8bd5b87a7b58b192769ae08b4bd135580/binaries/linux/keva-server
+chmod +x /usr/local/bin/keva-server
 ```
 
 - CLI Client
 
-```shell
-$ curl -o /usr/local/bin/keva-cli https://raw.githubusercontent.com/tuhuynh27/jiny/master/keva/binaries/linux/keva-cli
-$ chmod +x /usr/local/bin/keva-cli
+```command
+curl -o /usr/local/bin/keva-cli https://rawcdn.githack.com/tuhuynh27/keva/607bfaf8bd5b87a7b58b192769ae08b4bd135580/binaries/linux/keva-cli
+chmod +x /usr/local/bin/keva-cli
 ```
 
 ## Run
@@ -28,12 +28,12 @@ Options:
 
 ### Server
 
-```shell
-$ keva-server
+```command
+keva-server
 ```
 
 ### Client
 
-```shell
-$ keva-cli
+```command
+keva-cli
 ```

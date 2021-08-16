@@ -23,46 +23,7 @@ a shared way.
 
 ## Install
 
-There're 2 ways to use Keva: Embedded in a Java app / Standalone Server
-
-### Use embedded in Java app as a library:
-
-Include this to `build.gradle`
-
-```groovy
-dependencies {
-    compile group: 'com.jinyframework', name: 'keva-store', version: '0.3.4'
-}
-```
-
-Or download .jar file [here](https://github.com/tuhuynh27/jiny/raw/master/keva/builds/jar/keva-store.jar), move that .jar file to `./libs` and include this to `build.gradle`:
-
-```groovy
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-}
-```
-
-Then you can use it:
-
-```java
-import com.jinyframework.keva.store.*;
-
-// Create store initial with 1843MB memory
-NoHeapStoreManager manager = new NoHeapStoreManager();
-manager.createStore("StoreSample", NoHeapStore.Storage.IN_MEMORY, 256);
-
-// Get store instance
-NoHeapStore noHeapStore = manager.getStore("StoreSample");
-
-// Operations on store
-noHeapStore.putString("key", "value");
-noHeapStore.getString("key"); // Returns "value"
-```
-
-### Standalone server-client
-
-Visit [Binaries Builds](https://github.com/tuhuynh27/keva/tree/master/builds)
+Visit [Binaries Builds](https://github.com/tuhuynh27/keva/tree/master/binaries)
 
 ## Usage
 
@@ -70,7 +31,7 @@ Visit [Binaries Builds](https://github.com/tuhuynh27/keva/tree/master/builds)
 
 - Returns "PONG". Often used to check connection to server.
 
-```
+```command
 localhost/127.0.0.1:6767> ping
 PONG
 ```
@@ -79,7 +40,7 @@ PONG
 
 - Returns value of key. If key or value doesn't exist, returns "null".
 
-```
+```command
 localhost/127.0.0.1:6767> get mykey
 null
 localhost/127.0.0.1:6767> set mykey myvalue
@@ -92,7 +53,7 @@ myvalue
 
 - Set value for key. Returns 1 if successful, 0 otherwise.
 
-```
+```command
 localhost/127.0.0.1:6767> set mykey myvalue
 1
 ```
@@ -101,7 +62,7 @@ localhost/127.0.0.1:6767> set mykey myvalue
 
 - Remove the key value pair. Returns 1 if successful, 0 otherwise.
 
-```
+```command
 localhost/127.0.0.1:6767> set a b
 1
 localhost/127.0.0.1:6767> get a
@@ -116,7 +77,7 @@ null
 
 - Set expire time for key. Returns 1 if successful, 0 otherwise.
 
-```
+```command
 localhost/127.0.0.1:6767> expire mykey 1000
 1
 ```
@@ -125,7 +86,7 @@ localhost/127.0.0.1:6767> expire mykey 1000
 
 - Returns information about the server.
 
-```
+```command
 localhost/127.0.0.1:6767> info
 {threads:=6, clients:=1}
 ```
@@ -141,34 +102,34 @@ us out!
 
 To install and work on Keva locally:
 
-```
-$ git clone git@github.com:tuhuynh27/keva.git
-$ cd keva
-$ ./gradlew dependencies
+```command
+git clone git@github.com:tuhuynh27/keva.git
+cd keva
+./gradlew dependencies
 ```
 
 Run server:
 
-```
-$ ./gradlew --no-daemon --quiet --console plain :server:run
+```command
+./gradlew --no-daemon --quiet --console plain :server:run
 ```
 
 Run CLI client:
 
-```
-$ ./gradlew --no-daemon --quiet --console plain :cli-client:run
+```command
+./gradlew --no-daemon --quiet --console plain :cli-client:run
 ```
 
 Build server:
 
-```
-$ ./gradlew :server:shadowJar
+```command
+./gradlew :server:shadowJar
 ```
 
 Build CLI client:
 
-```
-$ ./gradlew :cli-client:shadowJar
+```command
+./gradlew :cli-client:shadowJar
 ```
 
 ## License
