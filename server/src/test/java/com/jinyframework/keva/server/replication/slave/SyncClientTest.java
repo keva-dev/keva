@@ -8,6 +8,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,6 +51,7 @@ class SyncClientTest {
     }
 
     @Test
+    @Timeout(10)
     void fullSync() {
         final SyncClient syncClient = new SyncClient(host, port);
         try {

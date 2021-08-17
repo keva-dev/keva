@@ -116,7 +116,7 @@ class ReplicationBasicRelayTest {
         final int slave2Port = PortUtil.getAvailablePort();
         final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
         final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(6);
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
         masterClient.connect();
@@ -150,7 +150,7 @@ class ReplicationBasicRelayTest {
 
         final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
         final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(6);
 
         final SocketClient slave1Client = new SocketClient("localhost", slave1Port);
         slave1Client.connect();
@@ -172,8 +172,9 @@ class ReplicationBasicRelayTest {
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
         final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        TimeUnit.SECONDS.sleep(1); // ensure slave 1 is registered first
         final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(6);
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
         masterClient.connect();

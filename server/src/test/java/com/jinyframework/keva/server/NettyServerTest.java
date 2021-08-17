@@ -35,7 +35,7 @@ public class NettyServerTest extends AbstractServerTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(6);
 
         client = new SocketClient(host, port);
         client.connect();
