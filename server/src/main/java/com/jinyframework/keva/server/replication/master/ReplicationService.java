@@ -10,4 +10,6 @@ public interface ReplicationService {
     void addReplica(String key);
 
     void filterAndBuffer(CommandName cmd, String line);
+
+    void init();
 }

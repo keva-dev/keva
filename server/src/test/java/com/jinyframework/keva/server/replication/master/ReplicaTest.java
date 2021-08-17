@@ -5,7 +5,10 @@ import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +45,8 @@ public final class ReplicaTest {
         TimeUnit.SECONDS.sleep(10);
 
         rep = new Replica(host, port);
+        rep.connect();
+        new Thread(rep.commandRelayTask()).start();
     }
 
     @AfterAll
@@ -60,7 +65,6 @@ public final class ReplicaTest {
     @Test
     @Timeout(2)
     void repSendWhenCommandIsBuffered() throws Exception {
-        rep.startWorker();
         rep.buffer("set a b");
         rep.buffer("set a c");
         rep.buffer("set a d");

@@ -1,10 +1,8 @@
 package com.jinyframework.keva.server.command;
 
-import lombok.val;
-
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Map.*;
 
 public final class CommandRegistrar {
     private CommandRegistrar() {
@@ -18,18 +16,17 @@ public final class CommandRegistrar {
         static final Map<CommandName, CommandHandler> registrar = registerCommands();
 
         private static Map<CommandName, CommandHandler> registerCommands() {
-            val map = new HashMap<CommandName, CommandHandler>();
-            map.put(CommandName.GET, new Get());
-            map.put(CommandName.SET, new Set());
-            map.put(CommandName.PING, new Ping());
-            map.put(CommandName.INFO, new Info());
-            map.put(CommandName.DEL, new Del());
-            map.put(CommandName.EXPIRE, new Expire());
-            map.put(CommandName.FSYNC, new FSync());
+            return ofEntries(
+                    entry(CommandName.GET, new Get()),
+                    entry(CommandName.SET, new Set()),
+                    entry(CommandName.PING, new Ping()),
+                    entry(CommandName.INFO, new Info()),
+                    entry(CommandName.DEL, new Del()),
+                    entry(CommandName.EXPIRE, new Expire()),
+                    entry(CommandName.FSYNC, new FSync()),
 
-            map.put(CommandName.UNSUPPORTED, new Unsupported());
-            //noinspection Java9CollectionFactory
-            return Collections.unmodifiableMap(map);
+                    entry(CommandName.UNSUPPORTED, new Unsupported())
+            );
         }
     }
 }

@@ -7,6 +7,8 @@ import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
@@ -16,10 +18,14 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @Slf4j
 class ReplicationBasicRelayTest {
+    IServer master;
+    int masterPort;
+
     @SneakyThrows
     IServer startMaster(String host, int port) {
         final String snapLoc = Path.of("mastertest" + port).toString();
@@ -89,14 +95,25 @@ class ReplicationBasicRelayTest {
         return server;
     }
 
+    @BeforeEach
+    void initMaster() throws Exception {
+        masterPort = PortUtil.getAvailablePort();
+        master = startMaster("localhost", masterPort);
+        TimeUnit.SECONDS.sleep(6);
+    }
+
+    @AfterEach
+    void cleanupMaster() {
+        if (master != null) {
+            master.shutdown();
+        }
+    }
+
     @Test
     @Timeout(25)
     void masterForwardSlave() throws Exception {
-        final int masterPort = PortUtil.getAvailablePort();
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
-        final IServer master = startMaster("localhost", masterPort);
-        TimeUnit.SECONDS.sleep(5);
         final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
         final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(10);
@@ -117,7 +134,6 @@ class ReplicationBasicRelayTest {
         masterClient.disconnect();
         slave1Client.disconnect();
         slave2Client.disconnect();
-        master.shutdown();
         slave1.shutdown();
         slave2.shutdown();
     }
@@ -125,11 +141,8 @@ class ReplicationBasicRelayTest {
     @Test
     @Timeout(25)
     void slaveHasPreviousMasterData() throws Exception {
-        final int masterPort = PortUtil.getAvailablePort();
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
-        final IServer master = startMaster("localhost", masterPort);
-        TimeUnit.SECONDS.sleep(6);
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
         masterClient.connect();
 
@@ -149,8 +162,33 @@ class ReplicationBasicRelayTest {
 
         masterClient.disconnect();
         slave1Client.disconnect();
-        master.shutdown();
         slave1.shutdown();
         slave2.shutdown();
+    }
+
+    @Test
+    @Timeout(20)
+    void slaveInfoUpdated() throws Exception {
+        final int slave1Port = PortUtil.getAvailablePort();
+        final int slave2Port = PortUtil.getAvailablePort();
+        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        TimeUnit.SECONDS.sleep(10);
+
+        final SocketClient masterClient = new SocketClient("localhost", masterPort);
+        masterClient.connect();
+        String info = masterClient.exchange("info");
+        log.info(info);
+        final String slaveInfoFormat = "(host:%s, port:%d, online:%b)";
+        assertTrue(info.contains(String.format("slave0=" + slaveInfoFormat, "localhost", slave1Port, true)));
+        assertTrue(info.contains(String.format("slave1=" + slaveInfoFormat, "localhost", slave2Port, true)));
+        slave2.shutdown();
+        TimeUnit.SECONDS.sleep(4);
+        info = masterClient.exchange("info");
+        assertTrue(info.contains(String.format("slave0=" + slaveInfoFormat, "localhost", slave1Port, true)));
+        assertTrue(info.contains(String.format("slave1=" + slaveInfoFormat, "localhost", slave2Port, false)));
+
+        masterClient.disconnect();
+        slave1.shutdown();
     }
 }

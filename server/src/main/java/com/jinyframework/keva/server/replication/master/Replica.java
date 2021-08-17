@@ -1,6 +1,7 @@
 package com.jinyframework.keva.server.replication.master;
 
 import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
+import com.jinyframework.keva.server.replication.FutureHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -15,12 +16,9 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A TCP client used to forward commands to replica
@@ -30,19 +28,23 @@ import java.util.concurrent.atomic.AtomicLong;
 @EqualsAndHashCode
 @Slf4j
 public class Replica {
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private final AtomicLong lastCommunicated;
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(1);
+    private final long joinedTime;
     private final BlockingQueue<String> cmdBuffer;
     private final String host;
     private final int port;
-    Bootstrap b;
+    private final AtomicBoolean isAlive = new AtomicBoolean(false);
+    private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
+    private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
+    private Bootstrap b;
     private Channel channel;
 
     public Replica(String host, int port) {
         this.host = host;
         this.port = port;
-        lastCommunicated = new AtomicLong(System.currentTimeMillis());
         cmdBuffer = new LinkedBlockingQueue<>();
+        joinedTime = System.currentTimeMillis();
+        init();
     }
 
     public void init() {
@@ -52,69 +54,95 @@ public class Replica {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new StringCodecLineFrameInitializer());
+         .handler(new StringCodecLineFrameInitializer(futureHandler));
     }
 
-    public boolean connect() {
-        if (channel != null) {
-            return true;
-        }
-        if (b == null) {
-            init();
-        }
-        int count = 0;
-        while (count < 3) {
-            final ChannelFuture future = b.connect(host, port).awaitUninterruptibly();
-            if (future.isSuccess()) {
-                channel = future.channel();
-                return true;
-            } else {
-                count++;
+    public boolean alive() {
+        return isAlive.get();
+    }
+
+    public void connect() {
+        int retries = 0;
+        final int maxRetries = 3;
+        final int timeoutInterval = 300; // millisecond
+        while (retries < maxRetries) {
+            final ChannelFuture channelFuture = b.connect(host, port).awaitUninterruptibly();
+            if (channelFuture.isSuccess()) {
+                channel = channelFuture.channel();
+                isAlive.getAndSet(true);
+                return;
+            }
+            retries++;
+            try {
+                TimeUnit.MILLISECONDS.sleep(timeoutInterval);
+            } catch (InterruptedException interruptedException) {
+                Thread.currentThread().interrupt();
             }
         }
-        return false;
     }
 
     public CompletableFuture<Object> send(String msg) {
-        final CompletableFuture<Object> resPromise = new CompletableFuture<>();
-        // lazy initialization, only try to connect when sending
-        if (!connect()) {
-            resPromise.completeExceptionally(new IOException("Lost connection to slave"));
-            return resPromise;
+        final CompletableFuture<Object> future = new CompletableFuture<>();
+        if (resFutureQueue.offer(future)) {
+            channel.write(msg);
+            channel.writeAndFlush("\n");
+        } else {
+            future.completeExceptionally(new IllegalStateException("Protocol client queue failure"));
         }
-        channel.pipeline().addLast(new ReplicaHandler(resPromise));
-        channel.write(msg);
-        channel.writeAndFlush("\n");
-        return resPromise;
+        return future;
     }
 
-    public CompletableFuture<Void> startWorker() {
-        final String threadName = "repl-" + host + ':' + port + "-worker";
-        final CompletableFuture<Void> stopFuture = new CompletableFuture<>();
-        final Thread slaveWorker = new Thread(() -> {
-            int count = 0;
-            while (count < 3) {
+    public Runnable commandRelayTask() {
+        return () -> {
+            String lastFailedLine = null;
+            String line = null;
+            while (alive()) {
                 try {
-                    final String line = getCmdBuffer().take();
+                    line = lastFailedLine == null ? getCmdBuffer().take() : lastFailedLine;
+                    log.info(line);
                     final CompletableFuture<Object> send = send(line);
                     send.get(3000, TimeUnit.MILLISECONDS);
-                    final long now = System.currentTimeMillis();
-                    getLastCommunicated().getAndUpdate(old -> Math.max(old, now));
-                    count = 0;
+                    lastFailedLine = null;
                 } catch (Exception e) {
-                    log.error("Failed to forward command: ", e);
-                    count++;
-                    Thread.currentThread().interrupt();
+                    lastFailedLine = line;
+                    log.warn("Failed to forward command: ", e);
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             }
-            stopFuture.complete(null);
-        }, threadName);
-        slaveWorker.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(slaveWorker::interrupt));
-        return stopFuture;
+        };
     }
 
     public void buffer(String line) {
         getCmdBuffer().add(line);
+    }
+
+    public Runnable healthChecker(CompletableFuture<Object> lost) {
+        final AtomicInteger retries = new AtomicInteger(0);
+        final int maxRetry = 3;
+        return () -> {
+            // ping and update
+            final CompletableFuture<Object> ping = send("PING");
+            try {
+                final String pong = (String) ping.get(300, TimeUnit.MILLISECONDS);
+                if ("PONG".equalsIgnoreCase(pong)) {
+                    retries.getAndSet(0);
+                } else {
+                    retries.getAndIncrement();
+                }
+            } catch (Exception e) {
+                retries.getAndIncrement();
+                log.warn("Ping failed", e);
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            if (retries.get() >= maxRetry) {
+                isAlive.getAndSet(false);
+                lost.complete(true);
+                cmdBuffer.clear();
+            }
+        };
     }
 }

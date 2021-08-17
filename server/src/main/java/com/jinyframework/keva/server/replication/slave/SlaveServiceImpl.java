@@ -2,7 +2,6 @@ package com.jinyframework.keva.server.replication.slave;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.util.ZipUtil;
-import io.netty.util.concurrent.Promise;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -29,7 +29,7 @@ public class SlaveServiceImpl implements SlaveService {
         while (!success) {
             success = syncClient.connect();
         }
-        final Promise<Object> res = syncClient.fullSync(config.getHostname(), config.getPort());
+        final CompletableFuture<Object> res = syncClient.fullSync(config.getHostname(), config.getPort());
         final byte[] snapContent;
         snapContent = Base64.getDecoder().decode((String) res.get());
         final Path zipFile = Path.of(config.getSnapshotLocation(), "data.zip");

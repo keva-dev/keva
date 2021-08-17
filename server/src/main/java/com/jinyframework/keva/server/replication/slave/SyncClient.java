@@ -1,6 +1,7 @@
 package com.jinyframework.keva.server.replication.slave;
 
 import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
+import com.jinyframework.keva.server.replication.FutureHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -10,7 +11,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.Promise;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * A TCP client used to make request to master
@@ -19,6 +22,8 @@ public class SyncClient {
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private final String masterHost;
     private final int masterPort;
+    private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
+    private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
     private Channel channel;
 
     public SyncClient(String masterHost, int masterPort) {
@@ -33,7 +38,7 @@ public class SyncClient {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new StringCodecLineFrameInitializer());
+         .handler(new StringCodecLineFrameInitializer(futureHandler));
         final ChannelFuture future = b.connect(masterHost, masterPort).awaitUninterruptibly();
         if (future.isSuccess()) {
             channel = future.channel();
@@ -43,10 +48,13 @@ public class SyncClient {
         }
     }
 
-    public Promise<Object> fullSync(String slaveHost, Integer slavePort) {
-        final ChannelFuture fsync = channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
-        final Promise<Object> resPromise = channel.eventLoop().newPromise();
-        fsync.channel().pipeline().addLast(new SyncHandler(resPromise));
-        return resPromise;
+    public CompletableFuture<Object> fullSync(String slaveHost, Integer slavePort) {
+        final CompletableFuture<Object> future = new CompletableFuture<>();
+        if (resFutureQueue.offer(future)) {
+            channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
+        } else {
+            future.completeExceptionally(new IllegalStateException("Protocol client queue failure"));
+        }
+        return future;
     }
 }

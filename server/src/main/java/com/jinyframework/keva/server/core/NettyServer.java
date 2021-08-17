@@ -41,11 +41,11 @@ public class NettyServer implements IServer {
     }
 
     public void bootstrapReplication() throws IOException, ExecutionException, InterruptedException {
-        if (config.getReplicaOf() == null || config.getReplicaOf().isBlank() || "NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
-            // start replication service
-        } else {
+        if (config.getReplicaOf() != null && !config.getReplicaOf().isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
             // start slave service and sync snapshot file in blocking manner
             ServiceInstance.getSlaveService().start(config);
+        } else {
+            ServiceInstance.getReplicationService().init();
         }
     }
 
