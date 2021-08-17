@@ -6,6 +6,9 @@ import com.jinyframework.keva.server.core.NettyServer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 @Slf4j
 public final class Application {
     public static void main(String[] args) {
@@ -24,6 +27,18 @@ public final class Application {
                     log.info("Bye");
                 }
             }));
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    System.out.println("#    #                      ######  ######  \n" +
+                            "#   #  ###### #    #   ##   #     # #     # \n" +
+                            "#  #   #      #    #  #  #  #     # #     # \n" +
+                            "###    #####  #    # #    # #     # ######  \n" +
+                            "#  #   #      #    # ###### #     # #     # \n" +
+                            "#   #  #       #  #  #    # #     # #     # \n" +
+                            "#    # ######   ##   #    # ######  ######  ");
+                }
+            }, 1000);
             server.run();
         } catch (Exception e) {
             log.error("There was a problem running server: ", e);

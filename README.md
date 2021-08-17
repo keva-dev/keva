@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="150" src="https://i.imgur.com/OpG00Ct.png">
+  <img width="150" src="https://i.imgur.com/z0c9bV7.png">
 </p>
 
 Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva
@@ -13,122 +13,14 @@ a shared way.
 ![Lines of code](https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/tuhuynh27/keva?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square)
-![Maven Central](https://img.shields.io/maven-central/v/com.jinyframework/core?style=flat-square)
 
-## Features
+## Quick Start
 
-- High performance and low latency in-memory key-value store (JVM GC independent)
-- The basic operations are PUT(key,value), GET(key), DEL(key)
-- Persistence in-memory data to disk (very fast thanks to disk-memory mapping at OS level)
+[Get started in 5 minutes.](https://keva.dev)
 
-## Install
+## Changelogs
 
-There're 2 ways to use Keva: Embedded in a Java app / Standalone Server
-
-### Use embedded in Java app as a library:
-
-Include this to `build.gradle`
-
-```groovy
-dependencies {
-    compile group: 'com.jinyframework', name: 'keva-store', version: '0.3.4'
-}
-```
-
-Or download .jar file [here](https://github.com/tuhuynh27/jiny/raw/master/keva/builds/jar/keva-store.jar), move that .jar file to `./libs` and include this to `build.gradle`:
-
-```groovy
-dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-}
-```
-
-Then you can use it:
-
-```java
-import com.jinyframework.keva.store.*;
-
-// Create store initial with 1843MB memory
-NoHeapStoreManager manager = new NoHeapStoreManager();
-manager.createStore("StoreSample", NoHeapStore.Storage.IN_MEMORY, 256);
-
-// Get store instance
-NoHeapStore noHeapStore = manager.getStore("StoreSample");
-
-// Operations on store
-noHeapStore.putString("key", "value");
-noHeapStore.getString("key"); // Returns "value"
-```
-
-### Standalone server-client
-
-Visit [Binaries Builds](https://github.com/tuhuynh27/keva/tree/master/builds)
-
-## Usage
-
-### PING
-
-- Returns "PONG". Often used to check connection to server.
-
-```
-localhost/127.0.0.1:6767> ping
-PONG
-```
-
-### GET key
-
-- Returns value of key. If key or value doesn't exist, returns "null".
-
-```
-localhost/127.0.0.1:6767> get mykey
-null
-localhost/127.0.0.1:6767> set mykey myvalue
-1
-localhost/127.0.0.1:6767> get mykey
-myvalue
-```
-
-### SET key value
-
-- Set value for key. Returns 1 if successful, 0 otherwise.
-
-```
-localhost/127.0.0.1:6767> set mykey myvalue
-1
-```
-
-### DEL key
-
-- Remove the key value pair. Returns 1 if successful, 0 otherwise.
-
-```
-localhost/127.0.0.1:6767> set a b
-1
-localhost/127.0.0.1:6767> get a
-b
-localhost/127.0.0.1:6767> del a
-1
-localhost/127.0.0.1:6767> get a
-null
-```
-
-### EXPIRE key expireTimeInMilliSecond
-
-- Set expire time for key. Returns 1 if successful, 0 otherwise.
-
-```
-localhost/127.0.0.1:6767> expire mykey 1000
-1
-```
-
-### INFO
-
-- Returns information about the server.
-
-```
-localhost/127.0.0.1:6767> info
-{threads:=6, clients:=1}
-```
+[Learn about the latest improvements.](https://jinyframework.com/guide/changelogs.html)
 
 ## Development
 
@@ -141,34 +33,34 @@ us out!
 
 To install and work on Keva locally:
 
-```
-$ git clone git@github.com:tuhuynh27/keva.git
-$ cd keva
-$ ./gradlew dependencies
+```command
+git clone git@github.com:tuhuynh27/keva.git
+cd keva
+./gradlew dependencies
 ```
 
 Run server:
 
-```
-$ ./gradlew --no-daemon --quiet --console plain :server:run
+```command
+./gradlew --no-daemon --quiet --console plain :server:run
 ```
 
 Run CLI client:
 
-```
-$ ./gradlew --no-daemon --quiet --console plain :cli-client:run
+```command
+./gradlew --no-daemon --quiet --console plain :cli-client:run
 ```
 
 Build server:
 
-```
-$ ./gradlew :server:shadowJar
+```command
+./gradlew :server:shadowJar
 ```
 
 Build CLI client:
 
-```
-$ ./gradlew :cli-client:shadowJar
+```command
+./gradlew :cli-client:shadowJar
 ```
 
 ## License
