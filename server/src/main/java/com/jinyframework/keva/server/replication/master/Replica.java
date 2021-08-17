@@ -105,7 +105,7 @@ public class Replica {
                     lastFailedLine = null;
                 } catch (Exception e) {
                     lastFailedLine = line;
-                    log.warn("Failed to forward command: ", e);
+                    log.trace("Failed to forward command: ", e);
                     if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
                     }
@@ -132,8 +132,8 @@ public class Replica {
                     retries.getAndIncrement();
                 }
             } catch (Exception e) {
+                log.trace("Ping failed: ", e);
                 retries.getAndIncrement();
-                log.warn("Ping failed", e);
                 if (e instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                 }
