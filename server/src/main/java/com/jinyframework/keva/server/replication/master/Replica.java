@@ -11,6 +11,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -34,8 +35,11 @@ public class Replica {
     private final String host;
     private final int port;
     private final AtomicBoolean isAlive = new AtomicBoolean(false);
+    @Getter(AccessLevel.NONE)
     private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
+    @Getter(AccessLevel.NONE)
     private final FutureHandler futureHandler = new FutureHandler(resFutureQueue);
+    @Getter(AccessLevel.NONE)
     private Bootstrap b;
     private Channel channel;
 
@@ -64,7 +68,7 @@ public class Replica {
     public void connect() {
         int retries = 0;
         final int maxRetries = 3;
-        final int timeoutInterval = 300; // millisecond
+        final int timeoutInterval = 500; // millisecond
         while (retries < maxRetries) {
             final ChannelFuture channelFuture = b.connect(host, port).awaitUninterruptibly();
             if (channelFuture.isSuccess()) {
@@ -105,7 +109,7 @@ public class Replica {
                     lastFailedLine = null;
                 } catch (Exception e) {
                     lastFailedLine = line;
-                    log.warn("Failed to forward command: ", e);
+                    log.trace("Failed to forward command: ", e);
                     if (e instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
                     }
@@ -132,8 +136,8 @@ public class Replica {
                     retries.getAndIncrement();
                 }
             } catch (Exception e) {
+                log.trace("Ping failed: ", e);
                 retries.getAndIncrement();
-                log.warn("Ping failed", e);
                 if (e instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                 }

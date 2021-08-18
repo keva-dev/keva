@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 @ChannelHandler.Sharable
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
+    private static final AttributeKey<String> sockIdKey = AttributeKey.newInstance("socketId");
+
     private final ConcurrentMap<String, ClientInfo> clients = ServiceInstance.getConnectionService().getClients();
     private final CommandService commandService = ServiceInstance.getCommandService();
-
-    private final AttributeKey<String> sockIdKey = AttributeKey.newInstance("socketId");
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {

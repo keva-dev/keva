@@ -45,7 +45,7 @@ public class ReplicationServiceImpl implements ReplicationService {
         repWorkerPool.submit(() -> {
             rep.connect();
             if (!rep.alive()) {
-                log.warn("Couldn't connect to slave");
+                log.warn("Couldn't connect to slave: {}:{}", rep.getHost(), rep.getPort());
                 return;
             }
             final CompletableFuture<Object> lostConn = new CompletableFuture<>();

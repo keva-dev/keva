@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 public class ConnectionServiceImpl implements ConnectionService {
 
-    private final ConcurrentHashMap<String, ClientInfo> clients = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ClientInfo> clients;
 
     @Override
     public long getCurrentConnectedClients() {
@@ -18,5 +18,10 @@ public class ConnectionServiceImpl implements ConnectionService {
     @Override
     public ConcurrentMap<String, ClientInfo> getClients() {
         return clients;
+    }
+
+    @Override
+    public void init() {
+        clients = new ConcurrentHashMap<>();
     }
 }

@@ -20,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class NettyServer implements IServer {
-    static final ServerHandler SERVER_HANDLER = new ServerHandler();
     private final ConfigHolder config;
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
     // Should only use 1 thread to handle to keep order of commands
@@ -32,11 +31,13 @@ public class NettyServer implements IServer {
     }
 
     public ServerBootstrap bootstrapServer() {
+        ServiceInstance.getConnectionService().init();
+
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
          .channel(NioServerSocketChannel.class)
-         .handler(new LoggingHandler(LogLevel.INFO))
-         .childHandler(new StringCodecLineFrameInitializer(SERVER_HANDLER));
+         .handler(new LoggingHandler(LogLevel.WARN))
+         .childHandler(new StringCodecLineFrameInitializer(new ServerHandler()));
         return b;
     }
 
