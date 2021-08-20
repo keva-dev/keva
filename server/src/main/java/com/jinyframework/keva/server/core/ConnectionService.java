@@ -6,6 +6,4 @@ public interface ConnectionService {
     long getCurrentConnectedClients();
 
     ConcurrentMap<String, ClientInfo> getClients();
-
-    void init();
 }

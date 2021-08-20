@@ -1,6 +1,5 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.storage.StorageService;
 import com.jinyframework.keva.server.util.ZipUtil;
@@ -14,8 +13,13 @@ import java.util.List;
 
 @Slf4j
 public class FSync implements CommandHandler {
-    private final StorageService storageService = ServiceInstance.getStorageService();
-    private final ReplicationService replicationService = ServiceInstance.getReplicationService();
+    private final StorageService storageService;
+    private final ReplicationService replicationService;
+
+    public FSync(StorageService storageService, ReplicationService replicationService) {
+        this.storageService = storageService;
+        this.replicationService = replicationService;
+    }
 
     @Override
     public Object handle(List<String> args) {

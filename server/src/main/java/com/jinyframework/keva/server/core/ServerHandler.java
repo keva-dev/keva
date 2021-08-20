@@ -1,6 +1,5 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.command.CommandService;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -16,8 +15,13 @@ import java.util.concurrent.ConcurrentMap;
 public class ServerHandler extends SimpleChannelInboundHandler<String> {
     private static final AttributeKey<String> sockIdKey = AttributeKey.newInstance("socketId");
 
-    private final ConcurrentMap<String, ClientInfo> clients = ServiceInstance.getConnectionService().getClients();
-    private final CommandService commandService = ServiceInstance.getCommandService();
+    private final ConcurrentMap<String, ClientInfo> clients;
+    private final CommandService commandService;
+
+    public ServerHandler(ConnectionService connectionService, CommandService commandService) {
+        this.commandService = commandService;
+        clients = connectionService.getClients();
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {

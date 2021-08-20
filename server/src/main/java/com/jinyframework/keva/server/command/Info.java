@@ -1,23 +1,31 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.replication.master.Replica;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
 
 import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
-import static com.jinyframework.keva.server.ServiceInstance.getConnectionService;
-import static com.jinyframework.keva.server.ServiceInstance.getReplicationService;
 
 public class Info implements CommandHandler {
+    private final ReplicationService replicationService;
+    private final ConnectionService connectionService;
+
+    public Info(ReplicationService replicationService, ConnectionService connectionService) {
+        this.replicationService = replicationService;
+        this.connectionService = connectionService;
+    }
+
     @Override
     public String handle(List<String> args) {
         final HashMap<String, Object> stats = new HashMap<>();
-        final long currentConnectedClients = getConnectionService().getCurrentConnectedClients();
+        final long currentConnectedClients = connectionService.getCurrentConnectedClients();
         final int threads = ManagementFactory.getThreadMXBean().getThreadCount();
         stats.put("clients", currentConnectedClients);
         stats.put("threads", threads);
-        final ConcurrentMap<String, Replica> replicas = getReplicationService().getReplicas();
+        final ConcurrentMap<String, Replica> replicas = replicationService.getReplicas();
 
         final ArrayList<Map.Entry<String, Replica>> entries = new ArrayList<>(replicas.entrySet());
         entries.sort(Comparator.comparingLong(e -> e.getValue().getJoinedTime()));

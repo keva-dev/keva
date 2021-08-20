@@ -1,6 +1,5 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
@@ -8,12 +7,16 @@ import lombok.val;
 
 import java.util.Map;
 
-import static com.jinyframework.keva.server.command.CommandRegistrar.getHandlerMap;
-
 @Slf4j
 public class CommandServiceImpl implements CommandService {
-    private final Map<CommandName, CommandHandler> commandHandlerMap = getHandlerMap();
-    private final ReplicationService replicationService = ServiceInstance.getReplicationService();
+
+    private final Map<CommandName, CommandHandler> commandHandlerMap;
+    private final ReplicationService replicationService;
+
+    public CommandServiceImpl(Map<CommandName, CommandHandler> commandHandlerMap, ReplicationService replicationService) {
+        this.commandHandlerMap = commandHandlerMap;
+        this.replicationService = replicationService;
+    }
 
     @Override
     public Object handleCommand(ChannelHandlerContext ctx, String line) {

@@ -1,32 +1,44 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.core.ConnectionService;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
+import com.jinyframework.keva.server.storage.StorageService;
+
 import java.util.Map;
 
 import static java.util.Map.*;
 
 public final class CommandRegistrar {
-    private CommandRegistrar() {
+    private final Map<CommandName, CommandHandler> registrar;
+    private final StorageService storageService;
+    private final ReplicationService replicationService;
+    private final ConnectionService connectionService;
+
+    public CommandRegistrar(StorageService storageService,
+                            ReplicationService replicationService,
+                            ConnectionService connectionService) {
+        this.storageService = storageService;
+        this.replicationService = replicationService;
+        this.connectionService = connectionService;
+        registrar = registerCommands();
     }
 
-    public static Map<CommandName, CommandHandler> getHandlerMap() {
-        return RegistrarHolder.registrar;
+    public Map<CommandName, CommandHandler> getHandlerMap() {
+        return registrar;
     }
 
-    private static final class RegistrarHolder {
-        static final Map<CommandName, CommandHandler> registrar = registerCommands();
+    private Map<CommandName, CommandHandler> registerCommands() {
+        return ofEntries(
+                entry(CommandName.GET, new Get(storageService)),
+                entry(CommandName.SET, new Set(storageService)),
+                entry(CommandName.PING, new Ping()),
+                entry(CommandName.INFO, new Info(replicationService, connectionService)),
+                entry(CommandName.DEL, new Del(storageService)),
+                entry(CommandName.EXPIRE, new Expire(storageService)),
+                entry(CommandName.FSYNC, new FSync(storageService, replicationService)),
 
-        private static Map<CommandName, CommandHandler> registerCommands() {
-            return ofEntries(
-                    entry(CommandName.GET, new Get()),
-                    entry(CommandName.SET, new Set()),
-                    entry(CommandName.PING, new Ping()),
-                    entry(CommandName.INFO, new Info()),
-                    entry(CommandName.DEL, new Del()),
-                    entry(CommandName.EXPIRE, new Expire()),
-                    entry(CommandName.FSYNC, new FSync()),
-
-                    entry(CommandName.UNSUPPORTED, new Unsupported())
-            );
-        }
+                entry(CommandName.UNSUPPORTED, new Unsupported())
+        );
     }
 }
+
