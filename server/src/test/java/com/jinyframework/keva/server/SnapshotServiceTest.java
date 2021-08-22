@@ -20,7 +20,7 @@ public class SnapshotServiceTest {
     static String host = "localhost";
 
     IServer startServer(int port) throws Exception {
-        val config = ConfigHolder.builder()
+        val config = ConfigHolder.defaultBuilder()
                                  .hostname(host)
                                  .port(port)
                                  .snapshotEnabled(true)

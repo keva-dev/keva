@@ -103,7 +103,7 @@ public class Replica {
             while (alive()) {
                 try {
                     line = lastFailedLine == null ? getCmdBuffer().take() : lastFailedLine;
-                    log.info(line);
+                    log.trace(line);
                     final CompletableFuture<Object> send = send(line);
                     send.get(3000, TimeUnit.MILLISECONDS);
                     lastFailedLine = null;

@@ -30,13 +30,14 @@ import java.util.concurrent.ExecutionException;
 public class NettyServer implements IServer {
     private final ConfigHolder config;
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    // Should only use 1 thread to handle to keep order of commands
+    // Should only use 1 thread to handle to keep order of commands for now
     EventLoopGroup workerGroup = new NioEventLoopGroup(1);
 
     private ConnectionService connectionService;
     private StorageService storageService;
     private SlaveService slaveService;
     private CommandService commandService;
+    private ReplicationService replicationService;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
@@ -47,7 +48,7 @@ public class NettyServer implements IServer {
         connectionService = new ConnectionServiceImpl();
         storageService = new NoHeapStorageServiceImpl();
         slaveService = new SlaveServiceImpl();
-        final ReplicationService replicationService = new ReplicationServiceImpl();
+        replicationService = new ReplicationServiceImpl();
 
         final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
         commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
@@ -67,6 +68,7 @@ public class NettyServer implements IServer {
             // start slave service and sync snapshot file in blocking manner
             slaveService.start(config);
         }
+        replicationService.initWriteLog(config.getWriteLogSize());
     }
 
     public void bootstrapStorage() {
@@ -77,9 +79,6 @@ public class NettyServer implements IServer {
                                        .build();
         final NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
         storageService.setStore(noHeapStore);
-
-        val storageName = noHeapStore.getName();
-        log.info("Bootstrapped " + storageName);
     }
 
     @Override
@@ -95,6 +94,7 @@ public class NettyServer implements IServer {
             bootstrapStorage();
             final ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
+            log.info("Database server started at {}", config.getPort());
 
             sync.channel().closeFuture().sync();
         } catch (InterruptedException e) {

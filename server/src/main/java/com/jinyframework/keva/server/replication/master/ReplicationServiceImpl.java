@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.replication.master;
 
+import com.jinyframework.keva.server.core.WriteLog;
 import com.jinyframework.keva.server.command.CommandName;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,12 +16,18 @@ public class ReplicationServiceImpl implements ReplicationService {
     private final ScheduledExecutorService healthCheckerPool = Executors.newScheduledThreadPool(1);
     private final ExecutorService repWorkerPool = Executors.newCachedThreadPool();
     private final ConcurrentHashMap<String, Replica> replicas = new ConcurrentHashMap<>();
+    private WriteLog writeLog;
 
     private static InetSocketAddress parseSlave(String addr) {
         final String[] s = addr.split(":");
         final String host = s[0];
         final int port = Integer.parseInt(s[1]);
         return new InetSocketAddress(host, port);
+    }
+
+    @Override
+    public void initWriteLog(int size) {
+        writeLog = new WriteLog(size);
     }
 
     @Override
@@ -44,11 +51,11 @@ public class ReplicationServiceImpl implements ReplicationService {
                 return;
             }
             final CompletableFuture<Object> lostConn = new CompletableFuture<>();
-            final ScheduledFuture<?> scheduleFuture = healthCheckerPool.scheduleAtFixedRate(rep.healthChecker(lostConn),
+            final ScheduledFuture<?> healthChecking = healthCheckerPool.scheduleAtFixedRate(rep.healthChecker(lostConn),
                     5, 1, TimeUnit.SECONDS);
             lostConn.whenComplete((res, ex) -> {
                 log.warn("Slave connection lost");
-                scheduleFuture.cancel(true);
+                healthChecking.cancel(true);
             });
             rep.commandRelayTask().run();
         });
@@ -59,13 +66,11 @@ public class ReplicationServiceImpl implements ReplicationService {
         if (!writeCommands.contains(cmd)) {
             return;
         }
+        writeLog.buffer(line);
         for (Map.Entry<String, Replica> entry : replicas.entrySet()) {
-            try {
-                if (entry.getValue().alive()) {
-                    entry.getValue().buffer(line);
-                }
-            } catch (Exception e) {
-                log.error("Failed to add command to replica buffer: ", e);
+            final Replica rep = entry.getValue();
+            if (rep.alive()) {
+                rep.buffer(line);
             }
         }
     }

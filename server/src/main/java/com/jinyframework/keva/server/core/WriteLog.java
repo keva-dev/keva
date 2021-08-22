@@ -1,4 +1,4 @@
-package com.jinyframework.keva.server.command;
+package com.jinyframework.keva.server.core;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,18 +8,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * The type Command log.
+ * A circular array that supports multiple thread reads and single thread write
  */
 @Slf4j
-public class CommandLog {
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+public class WriteLog {
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
 
 
     private final AtomicInteger currentOffset = new AtomicInteger(0); // increase every write
 
     private final AtomicInteger startingOffset = new AtomicInteger(0); // denotes offset at index 0
 
-    // denotes oldest available offset
     private final int capacity;
     private final ArrayList<String> buffer;
 
@@ -28,13 +27,13 @@ public class CommandLog {
      *
      * @param capacity the capacity
      */
-    public CommandLog(int capacity) {
+    public WriteLog(int capacity) {
         this.capacity = capacity;
         buffer = new ArrayList<>(Arrays.asList(new String[capacity]));
     }
 
     /**
-     * Buffer.
+     * Buffer the command, if capacity limit is reached, it will wraps around and override data in the first index
      *
      * @param command the command
      */
