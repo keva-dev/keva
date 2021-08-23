@@ -1,12 +1,16 @@
 package com.jinyframework.keva.server.command;
 
-import com.jinyframework.keva.server.ServiceInstance;
 import com.jinyframework.keva.server.storage.StorageService;
 
 import java.util.List;
 
 public class Get implements CommandHandler {
-    private final StorageService storageService = ServiceInstance.getStorageService();
+    private final StorageService storageService;
+
+    public Get(StorageService storageService) {
+        this.storageService = storageService;
+    }
+
 
     @Override
     public String handle(List<String> args) {

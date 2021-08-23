@@ -1,7 +1,15 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.ServiceInstance;
+import com.jinyframework.keva.server.command.CommandRegistrar;
+import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.server.replication.master.ReplicationService;
+import com.jinyframework.keva.server.replication.master.ReplicationServiceImpl;
+import com.jinyframework.keva.server.replication.slave.SlaveService;
+import com.jinyframework.keva.server.replication.slave.SlaveServiceImpl;
+import com.jinyframework.keva.server.storage.NoHeapStorageServiceImpl;
+import com.jinyframework.keva.server.storage.StorageService;
 import com.jinyframework.keva.store.NoHeapConfig;
 import com.jinyframework.keva.store.NoHeapFactory;
 import com.jinyframework.keva.store.NoHeapStore;
@@ -25,28 +33,39 @@ public class NettyServer implements IServer {
     // Should only use 1 thread to handle to keep order of commands
     EventLoopGroup workerGroup = new NioEventLoopGroup(1);
 
+    private ConnectionService connectionService;
+    private StorageService storageService;
+    private SlaveService slaveService;
+    private CommandService commandService;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
+        initServices();
+    }
+
+    private void initServices() {
+        connectionService = new ConnectionServiceImpl();
+        storageService = new NoHeapStorageServiceImpl();
+        slaveService = new SlaveServiceImpl();
+        final ReplicationService replicationService = new ReplicationServiceImpl();
+
+        final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
+        commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
     }
 
     public ServerBootstrap bootstrapServer() {
-        ServiceInstance.getConnectionService().init();
-
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
          .channel(NioServerSocketChannel.class)
-         .handler(new LoggingHandler(LogLevel.WARN))
-         .childHandler(new StringCodecLineFrameInitializer(new ServerHandler()));
+         .handler(new LoggingHandler(LogLevel.TRACE))
+         .childHandler(new StringCodecLineFrameInitializer(new ServerHandler(connectionService, commandService)));
         return b;
     }
 
     public void bootstrapReplication() throws IOException, ExecutionException, InterruptedException {
         if (config.getReplicaOf() != null && !config.getReplicaOf().isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
             // start slave service and sync snapshot file in blocking manner
-            ServiceInstance.getSlaveService().start(config);
-        } else {
-            ServiceInstance.getReplicationService().init();
+            slaveService.start(config);
         }
     }
 
@@ -57,7 +76,7 @@ public class NettyServer implements IServer {
                                        .snapshotLocation(config.getSnapshotLocation())
                                        .build();
         final NoHeapStore noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
-        ServiceInstance.getStorageService().setStore(noHeapStore);
+        storageService.setStore(noHeapStore);
 
         val storageName = noHeapStore.getName();
         log.info("Bootstrapped " + storageName);

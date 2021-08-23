@@ -14,18 +14,13 @@ public class ReplicationServiceImpl implements ReplicationService {
     private final Set<CommandName> writeCommands = EnumSet.of(CommandName.SET, CommandName.DEL);
     private final ScheduledExecutorService healthCheckerPool = Executors.newScheduledThreadPool(1);
     private final ExecutorService repWorkerPool = Executors.newCachedThreadPool();
-    private ConcurrentHashMap<String, Replica> replicas;
+    private final ConcurrentHashMap<String, Replica> replicas = new ConcurrentHashMap<>();
 
     private static InetSocketAddress parseSlave(String addr) {
         final String[] s = addr.split(":");
         final String host = s[0];
         final int port = Integer.parseInt(s[1]);
         return new InetSocketAddress(host, port);
-    }
-
-    @Override
-    public void init() {
-        replicas = new ConcurrentHashMap<>();
     }
 
     @Override
