@@ -1,7 +1,6 @@
 package com.jinyframework.keva.store;
 
 import lombok.extern.slf4j.Slf4j;
-import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
@@ -18,7 +17,10 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
     public NoHeapChronicleMapImpl(NoHeapConfig config) {
         try {
             ChronicleMapBuilder<String, String> mapBuilder = ChronicleMapBuilder.of(String.class, String.class)
-                    .name("keva-map").averageKey("SampleKey").averageValue("SampleValue").entries(50_000);
+                    .name("keva-chronicle-map")
+                    .averageKey("SampleKey")
+                    .averageValue("SampleValue")
+                    .entries(50_000);
 
             val shouldPersist = config.getSnapshotEnabled();
             if (shouldPersist) {
@@ -35,16 +37,6 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
     }
 
     @Override
-    public long getRecordCount() {
-        return 0;
-    }
-
-    @Override
-    public long getEmptyCount() {
-        return 0;
-    }
-
-    @Override
     public String getName() {
         return null;
     }
@@ -52,11 +44,6 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
     @Override
     public String getFolder() {
         return snapshotDir;
-    }
-
-    @Override
-    public long getFileSize() {
-        return 0;
     }
 
     @Override
@@ -142,21 +129,7 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
 
     @Override
     public boolean remove(String key) {
-        return false;
-    }
-
-    @Override
-    public Object iterateStart() {
-        return null;
-    }
-
-    @Override
-    public Object iterateNext() {
-        return null;
-    }
-
-    @Override
-    public void delete() {
-
+        chronicleMap.remove(key);
+        return true;
     }
 }

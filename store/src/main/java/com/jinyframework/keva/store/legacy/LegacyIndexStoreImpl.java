@@ -1,4 +1,4 @@
-package com.jinyframework.keva.store;
+package com.jinyframework.keva.store.legacy;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,7 +9,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 @Slf4j
-public class IndexStoreImpl implements IndexStore {
+public class LegacyIndexStoreImpl implements LegacyIndexStore {
     protected static final int PAGE_SIZE = 1024 * 1024;
     protected static final int SIZE_FACTOR = 100;
     protected static final int DEFAULT_INDEX_JOURNAL_SIZE = SIZE_FACTOR * PAGE_SIZE;
@@ -34,11 +34,11 @@ public class IndexStoreImpl implements IndexStore {
     protected ByteBuffer indexBuffer = null;
     protected long indexCurrentEnd = 0;
 
-    public IndexStoreImpl(String journalPath, boolean inMemory, boolean reuseExisting) {
+    public LegacyIndexStoreImpl(String journalPath, boolean inMemory, boolean reuseExisting) {
         this(DEFAULT_INDEX_JOURNAL_SIZE, journalPath, inMemory, reuseExisting);
     }
 
-    public IndexStoreImpl(int size, String journalPath, boolean inMemory, boolean reuseExisting) {
+    public LegacyIndexStoreImpl(int size, String journalPath, boolean inMemory, boolean reuseExisting) {
         boolean success;
         sizeInBytes = size;
         this.inMemory = inMemory;

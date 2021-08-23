@@ -1,10 +1,29 @@
-package com.jinyframework.keva.store;
+package com.jinyframework.keva.store.legacy;
 
-public interface NoHeapStore {
+public interface LegacyNoHeapStore {
+    byte INACTIVE_RECORD = 0;
+    byte ACTIVE_RECORD = 1;
+    byte EMPTY_RECORD_TYPE = -1;
+    byte OBJ_RECORD_TYPE = 1;
+    byte TEXT_RECORD_TYPE = 2;
+    byte LONG_RECORD_TYPE = 3;
+    byte INT_RECORD_TYPE = 4;
+    byte DOUBLE_RECORD_TYPE = 5;
+    byte FLOAT_RECORD_TYPE = 6;
+    byte SHORT_RECORD_TYPE = 7;
+    byte CHAR_RECORD_TYPE = 8;
+    byte BYTEARRAY_RECORD_TYPE = 9;
+
+    // Get Journal stats
+    long getRecordCount();
+
+    long getEmptyCount();
 
     String getName();
 
     String getFolder();
+
+    long getFileSize();
 
     boolean putInteger(String key, Integer val);
 
@@ -39,6 +58,12 @@ public interface NoHeapStore {
     char getChar(String key);
 
     boolean remove(String key);
+
+    Object iterateStart();
+
+    Object iterateNext();
+
+    void delete();
 
     enum Storage {
         IN_MEMORY,

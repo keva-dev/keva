@@ -7,22 +7,24 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.Serializable;
 
+import com.jinyframework.keva.store.legacy.LegacyNoHeapStore;
+import com.jinyframework.keva.store.legacy.LegacyNoHeapStoreManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import lombok.*;
 
-public class StoreTest {
+public class LegacyStoreTest {
     private static final String storeName = "junit-test";
-    private static NoHeapStoreManager manager = null;
-    private static NoHeapStore noHeapStore = null;
+    private static LegacyNoHeapStoreManager manager = null;
+    private static LegacyNoHeapStore noHeapStore = null;
 
     @BeforeAll
     static void initStore() {
         try {
-            manager = new NoHeapStoreManager();
-            manager.createStore(storeName, NoHeapStore.Storage.IN_MEMORY, 8);
+            manager = new LegacyNoHeapStoreManager();
+            manager.createStore(storeName, LegacyNoHeapStore.Storage.IN_MEMORY, 8);
             noHeapStore = manager.getStore(storeName);
         } catch (Exception e) {
             fail(e);
