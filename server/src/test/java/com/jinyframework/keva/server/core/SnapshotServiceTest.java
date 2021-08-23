@@ -1,8 +1,6 @@
-package com.jinyframework.keva.server;
+package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.core.IServer;
-import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

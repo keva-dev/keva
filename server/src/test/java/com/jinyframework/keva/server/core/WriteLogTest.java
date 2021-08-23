@@ -1,6 +1,5 @@
-package com.jinyframework.keva.server;
+package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.core.WriteLog;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 

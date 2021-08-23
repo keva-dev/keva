@@ -1,6 +1,5 @@
-package com.jinyframework.keva.server;
+package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
 import org.junit.jupiter.api.Test;
