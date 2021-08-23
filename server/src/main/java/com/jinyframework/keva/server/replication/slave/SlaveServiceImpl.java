@@ -1,7 +1,6 @@
 package com.jinyframework.keva.server.replication.slave;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -32,10 +31,9 @@ public class SlaveServiceImpl implements SlaveService {
         final CompletableFuture<Object> res = syncClient.fullSync(config.getHostname(), config.getPort());
         final byte[] snapContent;
         snapContent = Base64.getDecoder().decode((String) res.get());
-        final Path zipFile = Path.of(config.getSnapshotLocation(), "data.zip");
+        final Path kdbFile = Path.of(config.getSnapshotLocation(), "dump.kdb");
         Files.createDirectories(Path.of(config.getSnapshotLocation()));
-        Files.write(zipFile, snapContent);
-        ZipUtil.unzip(config.getSnapshotLocation(), zipFile.toString());
+        Files.write(kdbFile, snapContent);
         log.info("Finished writing snapshot file");
     }
 }

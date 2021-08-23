@@ -7,6 +7,10 @@ java {
     withSourcesJar()
 }
 
+dependencies {
+    implementation 'net.openhft:chronicle-map:3.21.85'
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
