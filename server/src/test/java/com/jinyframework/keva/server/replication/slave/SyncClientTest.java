@@ -58,7 +58,7 @@ class SyncClientTest {
             assertTrue(syncClient.connect());
             final CompletableFuture<Object> resPromise = syncClient.fullSync("localhost", PortUtil.getAvailablePort());
             final byte[] res = Base64.getDecoder().decode((String) resPromise.get());
-            final byte[] actual = Files.readAllBytes(Path.of("./temptest/data.zip"));
+            final byte[] actual = Files.readAllBytes(Path.of("./temptest/dump.kdb"));
             assertArrayEquals(actual, res);
         } catch (InterruptedException | ExecutionException | IOException e) {
             fail(e);
