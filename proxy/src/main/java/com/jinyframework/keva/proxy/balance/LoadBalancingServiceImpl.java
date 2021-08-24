@@ -60,6 +60,7 @@ public class LoadBalancingServiceImpl implements LoadBalancingService {
 			return (String) shard.send(request).get();
 		} catch (InterruptedException | ExecutionException e) {
 			log.error(e.getMessage());
+			Thread.currentThread().interrupt();
 			return "Something wrong happen";
 		}
 	}

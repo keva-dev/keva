@@ -2,7 +2,7 @@ package com.jinyframework.keva.proxy.command;
 
 import java.util.List;
 
-import com.jinyframework.keva.server.command.CommandHandler;
+import command.CommandHandler;
 
 public class Unsupported implements CommandHandler {
     @Override

@@ -2,7 +2,6 @@ package com.jinyframework.keva.proxy.core;
 
 import com.jinyframework.keva.proxy.ServiceInstance;
 import com.jinyframework.keva.proxy.config.ConfigHolder;
-import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.store.NoHeapConfig;
 import com.jinyframework.keva.store.NoHeapFactory;
 import com.jinyframework.keva.store.NoHeapStore;
@@ -15,6 +14,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import server.IServer;
 
 @Slf4j
 public class NettyServer implements IServer {
@@ -51,10 +51,10 @@ public class NettyServer implements IServer {
         log.info("Bootstrapped " + storageName);
     }
 
-    public void bootstrapShards() throws Exception {
+    public void bootstrapShards() {
         val servers = config.getServerList().split(",");
         if (servers.length == 0 || servers[0].isEmpty()) {
-            throw new Exception("No shard server defined");
+            throw new IllegalArgumentException("No shard server defined");
         }
         for (String server : servers) {
             ServiceInstance.getLoadBalancingService().addShard(server, config.getVirtualNodeAmount());

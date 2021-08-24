@@ -11,9 +11,9 @@ public class HashUtil {
 
 	static {
 		try {
-			instance = MessageDigest.getInstance("MD5");
+			instance = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			//Do nothing
 		}
 	}
 

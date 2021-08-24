@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group 'com.jinyframework'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+def nettyVersion = '4.1.65.Final'
+dependencies {
+    compile project(':store')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    compile group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}"
+    compile group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}"
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -14,8 +14,9 @@ repositories {
 def nettyVersion = '4.1.65.Final'
 dependencies {
     compile project(':store')
-    compile project(':server')
+    compile project(':common')
 
+    testCompile project(':server')
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.0.9'
     compile group: 'ch.qos.logback', name: 'logback-core', version: '1.0.9'
     compile group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}"

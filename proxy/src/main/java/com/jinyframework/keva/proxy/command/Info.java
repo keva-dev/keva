@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.jinyframework.keva.proxy.ServiceInstance;
-import com.jinyframework.keva.server.command.CommandHandler;
+import command.CommandHandler;
 
 public class Info implements CommandHandler {
     @Override

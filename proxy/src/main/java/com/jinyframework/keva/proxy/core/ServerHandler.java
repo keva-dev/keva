@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.jinyframework.keva.proxy.ServiceInstance;
 import com.jinyframework.keva.proxy.command.CommandService;
-import com.jinyframework.keva.server.core.ClientInfo;
+import connection.ClientInfo;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -11,7 +11,7 @@ class HashUtilTest {
     @Test
     void hash() {
         String key = "keva";
-        long hashValue = 1993468365;
+        long hashValue = 3455670683L;
         assertEquals(hashValue, HashUtil.hash(key));
     }
 }

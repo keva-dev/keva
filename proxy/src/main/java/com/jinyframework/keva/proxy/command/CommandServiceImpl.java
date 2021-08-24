@@ -2,7 +2,7 @@ package com.jinyframework.keva.proxy.command;
 
 import java.util.Map;
 
-import com.jinyframework.keva.server.command.CommandHandler;
+import command.CommandHandler;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

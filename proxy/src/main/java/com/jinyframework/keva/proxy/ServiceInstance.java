@@ -4,11 +4,11 @@ import com.jinyframework.keva.proxy.balance.LoadBalancingService;
 import com.jinyframework.keva.proxy.balance.LoadBalancingServiceImpl;
 import com.jinyframework.keva.proxy.command.CommandService;
 import com.jinyframework.keva.proxy.command.CommandServiceImpl;
-import com.jinyframework.keva.server.core.ConnectionService;
-import com.jinyframework.keva.server.core.ConnectionServiceImpl;
-import com.jinyframework.keva.server.storage.NoHeapStorageServiceImpl;
-import com.jinyframework.keva.server.storage.StorageService;
+import connection.ConnectionService;
+import connection.ConnectionServiceDefaultImpl;
 import lombok.Setter;
+import storage.NoHeapStorageServiceImpl;
+import storage.StorageService;
 
 @Setter
 public final class ServiceInstance {
@@ -32,7 +32,7 @@ public final class ServiceInstance {
     }
 
     private static final class ConnectionServiceHolder {
-        private static final ConnectionService INSTANCE = new ConnectionServiceImpl();
+        private static final ConnectionService INSTANCE = new ConnectionServiceDefaultImpl();
     }
 
     private static final class CommandServiceHolder {

@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
-import com.jinyframework.keva.server.core.IServer;
-import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
+import server.IServer;
+import util.SocketClient;
 
 public abstract class AbstractServerTest {
     static SocketClient client;

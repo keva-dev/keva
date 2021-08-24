@@ -3,7 +3,7 @@ package com.jinyframework.keva.proxy.command;
 import java.util.List;
 
 import com.jinyframework.keva.proxy.ServiceInstance;
-import com.jinyframework.keva.server.command.CommandHandler;
+import command.CommandHandler;
 
 public class Forward implements CommandHandler {
 	@Override

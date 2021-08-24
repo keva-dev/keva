@@ -2,10 +2,9 @@ package com.jinyframework.keva.proxy.config;
 
 import java.util.Properties;
 
-import com.jinyframework.keva.server.config.CliProp;
-import com.jinyframework.keva.server.config.CliPropType;
-import com.jinyframework.keva.server.config.ConfigProp;
-import com.jinyframework.keva.server.util.ArgsHolder;
+import config.config.CliProp;
+import config.config.CliPropType;
+import config.config.ConfigProp;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,6 +13,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.val;
+import util.ArgsHolder;
 
 @Builder(toBuilder = true)
 @Getter

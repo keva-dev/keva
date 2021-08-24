@@ -11,10 +11,11 @@ import org.junit.jupiter.api.DisplayName;
 import com.jinyframework.keva.proxy.config.ConfigHolder;
 import com.jinyframework.keva.proxy.core.NettyServer;
 import com.jinyframework.keva.server.core.IServer;
-import com.jinyframework.keva.server.util.PortUtil;
-import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import util.PortUtil;
+import util.SocketClient;
 
 @Slf4j
 @DisplayName("Netty Server")

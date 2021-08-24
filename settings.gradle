@@ -4,3 +4,5 @@ include 'cli-client'
 include 'server'
 include 'proxy'
 include 'store'
+include 'common'
+
