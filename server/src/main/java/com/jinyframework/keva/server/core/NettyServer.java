@@ -30,8 +30,8 @@ import java.util.concurrent.ExecutionException;
 public class NettyServer implements IServer {
     private final ConfigHolder config;
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    // Should only use 1 thread to handle to keep order of commands for now
-    EventLoopGroup workerGroup = new NioEventLoopGroup(1);
+    // Should only use 1 thread to handle to keep order of commands
+    EventLoopGroup workerGroup = new NioEventLoopGroup(6);
 
     private ConnectionService connectionService;
     private StorageService storageService;

@@ -1,4 +1,4 @@
-package com.jinyframework.keva.store;
+package com.jinyframework.keva.store.legacy;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.TreeMap;
 
 @Slf4j
-public class NoHeapStoreImpl implements NoHeapStore {
+public class LegacyNoHeapStoreImpl implements LegacyNoHeapStore {
     protected static final int MEGABYTE = 1024 * 1024;
     protected static final int JOURNAL_SIZE_FACTOR = 100;
     protected static final int DEFAULT_JOURNAL_SIZE = MEGABYTE * JOURNAL_SIZE_FACTOR;
@@ -35,7 +35,7 @@ public class NoHeapStoreImpl implements NoHeapStore {
     protected long currentEnd = 0;
     // Keep an index of all active entries in the storage file
     //
-    protected IndexStore index = null;
+    protected LegacyIndexStore index = null;
     protected String journalFolder = "";
     protected String journalName = "";
     protected boolean inMemory = true;
@@ -47,24 +47,24 @@ public class NoHeapStoreImpl implements NoHeapStore {
     private long objectGetTime = 0;
     private long objectPutTime = 0;
 
-    private NoHeapStoreImpl() {
+    private LegacyNoHeapStoreImpl() {
     }
 
     // TODO: Need to add optional expected capacity
-    public NoHeapStoreImpl(String folder, String name) {
+    public LegacyNoHeapStoreImpl(String folder, String name) {
         this(folder, name, Storage.IN_MEMORY, DEFAULT_JOURNAL_SIZE, true);
     }
 
-    public NoHeapStoreImpl(String folder, String name, Storage type) {
+    public LegacyNoHeapStoreImpl(String folder, String name, Storage type) {
         this(folder, name, type, DEFAULT_JOURNAL_SIZE, true);
     }
 
-    public NoHeapStoreImpl(String folder, String name, Storage type, int sizeInBytes) {
+    public LegacyNoHeapStoreImpl(String folder, String name, Storage type, int sizeInBytes) {
         this(folder, name, type, sizeInBytes, true);
     }
 
-    public NoHeapStoreImpl(String folder, String name, Storage type,
-                           int sizeInBytes, boolean reuseExisting) {
+    public LegacyNoHeapStoreImpl(String folder, String name, Storage type,
+                                 int sizeInBytes, boolean reuseExisting) {
         this.reuseExisting = reuseExisting;
         this.journalFolder = folder;
         this.journalName = name;
@@ -240,7 +240,7 @@ public class NoHeapStoreImpl implements NoHeapStore {
 
     private void writeJournalHeader(RandomAccessFile journal) throws IOException {
         // write the journal version number to the file
-        journal.writeUTF(NoHeapStoreImpl.JOURNAL_VERSION);
+        journal.writeUTF(LegacyNoHeapStoreImpl.JOURNAL_VERSION);
 
         // write the journal name to the file
         journal.writeUTF(journalName);
@@ -253,7 +253,7 @@ public class NoHeapStoreImpl implements NoHeapStore {
     protected void createIndexJournal(String journalPath, boolean inMemory, boolean reuseExisting) {
         try {
             int size = bufferSize / 4;
-            index = new IndexStoreImpl(size, journalPath, inMemory, reuseExisting);
+            index = new LegacyIndexStoreImpl(size, journalPath, inMemory, reuseExisting);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -889,7 +889,7 @@ public class NoHeapStoreImpl implements NoHeapStore {
             // saved record
             //
             boolean found = false;
-            byte type = NoHeapStore.EMPTY_RECORD_TYPE;
+            byte type = LegacyNoHeapStore.EMPTY_RECORD_TYPE;
             while (!found && current < (bufferSize - Header.HEADER_SIZE)) {
                 // Begin reading the next record header
                 //

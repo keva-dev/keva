@@ -1,6 +1,6 @@
-package com.jinyframework.keva.store;
+package com.jinyframework.keva.store.legacy;
 
-public interface IndexStore {
+public interface LegacyIndexStore {
     void put(String k, Long v);
 
     Long get(String k);

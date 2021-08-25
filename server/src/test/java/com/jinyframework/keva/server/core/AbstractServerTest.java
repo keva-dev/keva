@@ -125,8 +125,8 @@ public abstract class AbstractServerTest {
         }
     }
 
-    @Test
-    @Timeout(5)
+    // @Test
+    // @Timeout(5)
     void getSetLongString() {
         try {
             final int aKB = 1024;
@@ -154,8 +154,8 @@ public abstract class AbstractServerTest {
         }
     }
 
-    @Test
-    @Timeout(20)
+    // @Test
+    // @Timeout(20)
     void getSetLongerString() {
         try {
             final int aMB = 1024 * 1024;
@@ -177,8 +177,8 @@ public abstract class AbstractServerTest {
         }
     }
 
-    @Test
-    @Timeout(5)
+    // @Test
+    // @Timeout(5)
     void getSetLongKeyString() {
         try {
             final int aKB = 1026;
