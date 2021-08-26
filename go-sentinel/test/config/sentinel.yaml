@@ -1,0 +1,18 @@
+my_id: ""
+binds:
+  - localhost
+port: "25673"
+masters:
+  - name: "mymaster"
+    addr: "localhost:6767"
+    quorum: 2 
+    down_after: 5s
+    failover_timeout: 10s
+    config_epoch: 
+    known_replicas:
+      - addr: "localhost:6768"
+    # TODO: support return known sentinel from keva
+    # known_sentinels:
+    #   - addr: "localhost:25673"
+    #     id: ""
+current_epoch: 0
