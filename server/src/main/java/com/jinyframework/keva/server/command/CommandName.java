@@ -8,5 +8,6 @@ public enum CommandName {
     DEL,
     EXPIRE,
     FSYNC,
+    PSYNC,
     UNSUPPORTED
 }

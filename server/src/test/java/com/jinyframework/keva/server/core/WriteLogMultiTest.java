@@ -94,28 +94,28 @@ class WriteLogMultiTest {
         public void thread1() {
             assertArrayEquals(new String[]{"A", "B", "C"}, writeLog.copyFromOffset(0).toArray());
             Assertions.assertEquals(3, writeLog.getCurrentOffset());
-            Assertions.assertEquals(0, writeLog.getStartingOffset());
+            Assertions.assertEquals(0, writeLog.getMinOffset());
             waitForTick(2);
             assertArrayEquals(new String[]{"B", "C", "D"}, writeLog.copyFromOffset(1).toArray());
             Assertions.assertEquals(4, writeLog.getCurrentOffset());
-            Assertions.assertEquals(3, writeLog.getStartingOffset());
+            Assertions.assertEquals(1, writeLog.getMinOffset());
         }
 
         public void thread2() {
             waitForTick(1);
             writeLog.buffer("D");
             Assertions.assertEquals(4, writeLog.getCurrentOffset());
-            Assertions.assertEquals(3, writeLog.getStartingOffset());
+            Assertions.assertEquals(1, writeLog.getMinOffset());
         }
 
         public void thread3() {
             assertArrayEquals(new String[]{"A", "B", "C"}, writeLog.copyFromOffset(0).toArray());
             Assertions.assertEquals(3, writeLog.getCurrentOffset());
-            Assertions.assertEquals(0, writeLog.getStartingOffset());
+            Assertions.assertEquals(0, writeLog.getMinOffset());
             waitForTick(2);
             assertArrayEquals(new String[]{"B", "C", "D"}, writeLog.copyFromOffset(1).toArray());
             Assertions.assertEquals(4, writeLog.getCurrentOffset());
-            Assertions.assertEquals(3, writeLog.getStartingOffset());
+            Assertions.assertEquals(1, writeLog.getMinOffset());
         }
     }
 }

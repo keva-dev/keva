@@ -20,11 +20,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class NettyServer implements IServer {
@@ -37,6 +35,7 @@ public class NettyServer implements IServer {
     private StorageService storageService;
     private SlaveService slaveService;
     private CommandService commandService;
+    @Getter
     private ReplicationService replicationService;
 
     public NettyServer(ConfigHolder config) {
@@ -47,8 +46,8 @@ public class NettyServer implements IServer {
     private void initServices() {
         connectionService = new ConnectionServiceImpl();
         storageService = new NoHeapStorageServiceImpl();
-        slaveService = new SlaveServiceImpl();
-        replicationService = new ReplicationServiceImpl();
+        replicationService = new ReplicationServiceImpl(storageService);
+        slaveService = new SlaveServiceImpl(replicationService);
 
         final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
         commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
@@ -63,7 +62,7 @@ public class NettyServer implements IServer {
         return b;
     }
 
-    public void bootstrapReplication() throws IOException, ExecutionException, InterruptedException {
+    public void bootstrapReplication() throws Exception {
         if (config.getReplicaOf() != null && !config.getReplicaOf().isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
             // start slave service and sync snapshot file in blocking manner
             slaveService.start(config);
@@ -103,8 +102,7 @@ public class NettyServer implements IServer {
         } catch (Exception e) {
             log.error("Failed to start server: ", e);
         } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
+            shutdown();
         }
     }
 }

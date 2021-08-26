@@ -20,6 +20,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class SyncClient {
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private static final String SYNC_FORMAT = "PSYNC %s %s %s %s\n";
     private final String masterHost;
     private final int masterPort;
     private final LinkedBlockingDeque<CompletableFuture<Object>> resFutureQueue = new LinkedBlockingDeque<>();
@@ -48,10 +49,16 @@ public class SyncClient {
         }
     }
 
-    public CompletableFuture<Object> fullSync(String slaveHost, Integer slavePort) {
+    public CompletableFuture<Object> sendSync(String slaveHost, int slavePort) {
+        return sendSync(slaveHost, slavePort, null, 0);
+    }
+
+    public CompletableFuture<Object> sendSync(String slaveHost, int slavePort,
+                                              String masterId, int offset) {
         final CompletableFuture<Object> future = new CompletableFuture<>();
         if (resFutureQueue.offer(future)) {
-            channel.writeAndFlush("FSYNC " + slaveHost + ' ' + slavePort + '\n');
+            final String syncMsg = String.format(SYNC_FORMAT, slaveHost, slavePort, masterId, offset);
+            channel.writeAndFlush(syncMsg);
         } else {
             future.completeExceptionally(new IllegalStateException("Protocol client queue failure"));
         }

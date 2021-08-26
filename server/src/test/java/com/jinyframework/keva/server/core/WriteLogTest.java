@@ -11,27 +11,27 @@ class WriteLogTest {
     private static final String[] EMPTY_ARRAY = new String[0];
 
     @Test
-    void checkCurrentAndStartingOffset() {
+    void checkCurrentAndMinOffset() {
         final WriteLog writeLog = new WriteLog(3);
         assertEquals(0, writeLog.getCurrentOffset());
-        assertEquals(0, writeLog.getStartingOffset());
+        assertEquals(0, writeLog.getMinOffset());
 
         writeLog.buffer("A");
         writeLog.buffer("B");
         writeLog.buffer("C");
 
         assertEquals(3, writeLog.getCurrentOffset());
-        assertEquals(0, writeLog.getStartingOffset());
+        assertEquals(0, writeLog.getMinOffset());
 
         writeLog.buffer("D");
-        assertEquals(3, writeLog.getStartingOffset());
+        assertEquals(1, writeLog.getMinOffset());
 
         writeLog.buffer("E");
         writeLog.buffer("F");
 
         assertEquals(6, writeLog.getCurrentOffset());
         writeLog.buffer("G");
-        assertEquals(6, writeLog.getStartingOffset());
+        assertEquals(4, writeLog.getMinOffset());
         assertEquals(7, writeLog.getCurrentOffset());
     }
 
@@ -81,7 +81,7 @@ class WriteLogTest {
         writeLog.buffer("C");
         writeLog.buffer("E");
         writeLog.reset();
-        assertEquals(0, writeLog.getStartingOffset());
+        assertEquals(0, writeLog.getMinOffset());
         assertEquals(0, writeLog.getCurrentOffset());
     }
 }

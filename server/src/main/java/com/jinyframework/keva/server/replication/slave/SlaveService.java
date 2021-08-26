@@ -6,5 +6,5 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public interface SlaveService {
-    void start(ConfigHolder config) throws InterruptedException, IOException, ExecutionException;
+    void start(ConfigHolder config) throws Exception;
 }
