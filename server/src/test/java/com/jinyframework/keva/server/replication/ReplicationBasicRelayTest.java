@@ -30,8 +30,6 @@ class ReplicationBasicRelayTest {
     IServer startMaster(String host, int port) {
         final String snapLoc = Path.of("mastertest" + port).toString();
         Files.createDirectories(Path.of(snapLoc));
-        Files.deleteIfExists(Path.of(snapLoc, "KevaData"));
-        Files.deleteIfExists(Path.of(snapLoc, "KevaDataIndex"));
 
         final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
                                                            .snapshotEnabled(true)
@@ -47,9 +45,7 @@ class ReplicationBasicRelayTest {
                 log.warn(e.getMessage());
             } finally {
                 try {
-                    Files.deleteIfExists(Path.of(snapLoc, "KevaData"));
-                    Files.deleteIfExists(Path.of(snapLoc, "KevaDataIndex"));
-                    Files.deleteIfExists(Path.of(snapLoc, "data.zip"));
+                    Files.deleteIfExists(Path.of(snapLoc, "dump.kdb"));
                     Files.deleteIfExists(Path.of(snapLoc));
                 } catch (IOException e) {
                     log.warn(e.getMessage());
@@ -64,8 +60,6 @@ class ReplicationBasicRelayTest {
     IServer startSlave(String host, int port, String master) {
         final String snapLoc = Path.of("slavetest" + port).toString();
         Files.createDirectories(Path.of(snapLoc));
-        Files.deleteIfExists(Path.of(snapLoc, "KevaData"));
-        Files.deleteIfExists(Path.of(snapLoc, "KevaDataIndex"));
 
         final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
                                                            .snapshotEnabled(true)
@@ -82,9 +76,7 @@ class ReplicationBasicRelayTest {
                 log.warn(e.getMessage());
             } finally {
                 try {
-                    Files.deleteIfExists(Path.of(snapLoc, "KevaData"));
-                    Files.deleteIfExists(Path.of(snapLoc, "KevaDataIndex"));
-                    Files.deleteIfExists(Path.of(snapLoc, "data.zip"));
+                    Files.deleteIfExists(Path.of(snapLoc, "dump.kdb"));
                     Files.deleteIfExists(Path.of(snapLoc));
                 } catch (IOException e) {
                     log.warn(e.getMessage());
@@ -162,6 +154,7 @@ class ReplicationBasicRelayTest {
 
         masterClient.disconnect();
         slave1Client.disconnect();
+        slave2Client.disconnect();
         slave1.shutdown();
         slave2.shutdown();
     }

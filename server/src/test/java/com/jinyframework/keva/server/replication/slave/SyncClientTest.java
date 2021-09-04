@@ -24,36 +24,45 @@ class SyncClientTest {
     static final String host = "localhost";
     static final int port = PortUtil.getAvailablePort();
     static String masterId;
+    static NettyServer server;
 
     @BeforeAll
     @SneakyThrows
     static void startServer() {
         Files.createDirectories(Path.of("./temptest/"));
 
-        final NettyServer server = new NettyServer(ConfigHolder.defaultBuilder()
-                                                               .snapshotEnabled(true)
-                                                               .snapshotLocation("./temptest/")
-                                                               .hostname(host)
-                                                               .port(port)
-                                                               .build());
+        server = new NettyServer(ConfigHolder.defaultBuilder()
+                                             .snapshotEnabled(true)
+                                             .snapshotLocation("./temptest/")
+                                             .hostname(host)
+                                             .port(port)
+                                             .build());
         masterId = server.getReplicationService().getReplicationId();
         new Thread(() -> {
             try {
                 server.run();
             } catch (Exception e) {
                 log.error(e.getMessage());
+            } finally {
                 try {
-                    Files.deleteIfExists(Path.of("./temptest/", "data.zip"));
+                    Files.deleteIfExists(Path.of("./temptest/", "dump.kdb"));
                     Files.deleteIfExists(Path.of("./temptest/"));
                 } catch (IOException ioException) {
-                    log.warn(e.getMessage());
+                    log.warn(ioException.getMessage());
                 }
-                System.exit(1);
             }
         }).start();
 
         // Wait for server to start
         TimeUnit.SECONDS.sleep(6);
+    }
+
+    @AfterAll
+    @SneakyThrows
+    static void shutdownServer() {
+        if (server != null) {
+            server.shutdown();
+        }
     }
 
     @Test
@@ -84,7 +93,7 @@ class SyncClientTest {
         final SyncClient syncClient = new SyncClient(host, port);
         assertTrue(syncClient.connect());
         final CompletableFuture<Object> res = syncClient.sendSync("localhost", PortUtil.getAvailablePort(),
-                masterId, 0);
+                                                                  masterId, 0);
         final String[] respContent = res.get().toString().split(" ");
         if ("P".equals(respContent[0])) {
             assertEquals(3, respContent.length);
@@ -109,7 +118,7 @@ class SyncClientTest {
         final SyncClient syncClient = new SyncClient(host, port);
         assertTrue(syncClient.connect());
         final CompletableFuture<Object> res = syncClient.sendSync("localhost", PortUtil.getAvailablePort(),
-                masterId, 1);
+                                                                  masterId, 1);
         final String[] respContent = res.get().toString().split(" ");
         if ("P".equals(respContent[0])) {
             assertEquals(4, respContent.length);
