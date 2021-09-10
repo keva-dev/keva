@@ -13,16 +13,12 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	logger *zap.SugaredLogger
-)
-
-func init() {
+func newLogger() *zap.SugaredLogger {
 	dlogger, err := zap.NewDevelopment()
 	if err != nil {
 		panic(err)
 	}
-	logger = dlogger.Sugar()
+	return dlogger.Sugar()
 }
 
 type Config struct {
@@ -63,6 +59,7 @@ type Sentinel struct {
 	slaveFactory    func(*slaveInstance) error
 	clientFactory   func(string) (internalClient, error)
 	listener        net.Listener
+	logger          *zap.SugaredLogger
 }
 
 func defaultSlaveFactory(sl *slaveInstance) error {
@@ -92,6 +89,7 @@ func NewFromConfig(conf Config) (*Sentinel, error) {
 		mu:              &sync.Mutex{},
 		clientFactory:   newInternalClient,
 		masterInstances: map[string]*masterInstance{},
+		logger:          newLogger(),
 	}, nil
 }
 
@@ -210,19 +208,23 @@ var (
 )
 
 type slaveInstance struct {
+	runID           string
 	masterName      string
 	killed          bool
 	mu              sync.Mutex
-	masterDownSince time.Duration
+	masterDownSince time.Time
 	masterHost      string
 	masterPort      string
 	masterUp        bool
 	addr            string
 	slavePriority   int //TODO
 	replOffset      int
-	lastRefresh     time.Time
 	reportedRole    instanceRole
 	reportedMaster  *masterInstance
+	sDown           bool
+
+	lastSucessfulPingAt time.Time
+	lastSucessfulInfoAt time.Time
 
 	//each slave has a goroutine that ping by interval
 	pingShutdownChan chan struct{}

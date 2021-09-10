@@ -21,13 +21,13 @@ func (s *Sentinel) slaveInfoRoutine(sl *slaveInstance) {
 		case <-infoTicker.C:
 			info, err := sl.client.Info()
 			if err != nil {
-				logger.Errorf("sl.client.Info: %s", err)
+				s.logger.Errorf("sl.client.Info: %s", err)
 				//TODO continue for now
 				continue
 			}
 			roleSwitched, err := s.parseInfoSlave(sl.masterName, sl.addr, info)
 			if err != nil {
-				logger.Errorf("parseInfoMaster: %v", err)
+				s.logger.Errorf("parseInfoMaster: %v", err)
 				continue
 				// continue for now
 			}
@@ -50,7 +50,7 @@ func (s *Sentinel) slaveRoutine(sl *slaveInstance) {
 		<-ticker.C
 		_, err := sl.client.Ping()
 		if err != nil {
-			logger.Errorf("Ping: %s", err)
+			s.logger.Errorf("Ping: %s", err)
 		}
 
 	}

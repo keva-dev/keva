@@ -3,7 +3,6 @@ package sentinel
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -47,10 +46,12 @@ func (s *Sentinel) updateEpoch(newEpoch int) {
 func (s *Sentinel) selfID() string {
 	return s.runID
 }
+
 func (s *Sentinel) voteLeader(m *masterInstance, reqEpoch int, reqRunID string) (leaderEpoch int, leaderID string) {
 	if reqEpoch > s.getCurrentEpoch() {
 		s.updateEpoch(reqEpoch)
 	}
+	selfID := s.selfID()
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -59,8 +60,8 @@ func (s *Sentinel) voteLeader(m *masterInstance, reqEpoch int, reqRunID string) 
 		m.leaderEpoch = reqEpoch
 
 		// failover start at some other sentinel that we have just voted for
-		if m.leaderID != s.selfID() {
-			m.failOverStartTime = time.Now().Add(time.Duration(rand.Intn(SENTINEL_MAX_DESYNC)))
+		if m.leaderID != selfID {
+			m.failOverStartTime = time.Now()
 		}
 	}
 	leaderEpoch = m.leaderEpoch
@@ -75,12 +76,17 @@ func (s *Sentinel) IsMasterDownByAddr(req *IsMasterDownByAddrArgs, reply *IsMast
 	s.mu.Unlock()
 	if !exist {
 		err := fmt.Errorf("master does not exist")
-		logger.Errorf(err.Error())
+		s.logger.Errorf(err.Error())
 		return err
 	}
 	reply.MasterDown = master.getState() >= masterStateSubjDown
+
 	if req.SelfID != "" {
 		leaderEpoch, leaderID := s.voteLeader(master, req.CurrentEpoch, req.SelfID)
+		s.logger.Debugw(logEventVotedFor,
+			"voted_for", leaderID,
+			"epoch", leaderEpoch,
+		)
 		reply.LeaderEpoch = leaderEpoch
 		reply.VotedLeaderID = leaderID
 	}

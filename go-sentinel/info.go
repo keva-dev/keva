@@ -25,7 +25,7 @@ func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, err
 	s.mu.Unlock()
 	if !ok {
 		err := fmt.Errorf("master does not exist")
-		logger.Errorf(err.Error())
+		s.logger.Errorf(err.Error())
 		return false, err
 	}
 	m.mu.Lock()
@@ -105,6 +105,9 @@ func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, err
 	}
 	currentMasterAddr := fmt.Sprintf("%s:%s", slaveIns.masterHost, slaveIns.masterPort)
 	if currentMasterAddr != masterAddr {
+		s.logger.Errorf("master of slave mismatch, has %s, but slave reported to serve %s, sentinel does not support slave switching master",
+			currentMasterAddr, masterAddr,
+		)
 		//HANDLE switch master
 		//send slaveof to this slave to make this slave serve correct master again
 	}
@@ -130,7 +133,7 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 	s.mu.Unlock()
 	if !ok {
 		err := fmt.Errorf("master %s does not exist", masterAddress)
-		logger.Errorf(err.Error())
+		s.logger.Errorf(err.Error())
 		return false, err
 	}
 	m.mu.Lock()
@@ -188,7 +191,7 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 					}
 					err := s.slaveFactory(newslave)
 					if err != nil {
-						logger.Errorf("s.slaveFactory: %s", err)
+						s.logger.Errorf("s.slaveFactory: %s", err)
 						continue
 					}
 					newSlaves = append(newSlaves, newslave)
@@ -216,7 +219,7 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 	}
 	for _, item := range newSlaves {
 		m.slaves[item.addr] = item
-		s.slaveRoutine(item)
+		go s.slaveRoutine(item)
 		//spawn goroutine for new slave
 	}
 	return false, nil

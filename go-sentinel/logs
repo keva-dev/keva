@@ -1,0 +1,79 @@
+2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:27.627+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:28.433+0700    ERROR   go-sentinel/master.go:327       1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:28.433+0700    DEBUG   go-sentinel/master.go:253       sentinel_became_leader  {"run_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.546+0700    DEBUG   go-sentinel/master.go:227       sleeping for 18.999773967s
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:28.627+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:29.628+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:30.629+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:31.629+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:32.630+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:33.631+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+
+2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
+2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
+2021-09-05T17:41:34.632+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
