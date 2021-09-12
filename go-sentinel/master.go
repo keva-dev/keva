@@ -216,13 +216,16 @@ func (s *Sentinel) masterRoutine(m *masterInstance) {
 					locked(s.mu, func() {
 						s.currentEpoch += 1
 						locked(&m.mu, func() {
+							if m.failOverState != failOverWaitLeaderElection {
+								s.logger.Debugw(logEventFailoverStateChanged,
+									"new_state", failOverWaitLeaderElection,
+									"epoch", s.currentEpoch,
+								)
+							}
 							m.failOverState = failOverWaitLeaderElection
 							m.failOverStartTime = time.Now()
 							m.failOverEpoch = s.currentEpoch
-							s.logger.Debugw(logEventFailoverStateChanged,
-								"new_state", failOverWaitLeaderElection,
-								"epoch", s.currentEpoch,
-							)
+
 						})
 					})
 					// mostly, when obj down is met, multiples sentinels will try to send request for vote to be leader
@@ -601,7 +604,14 @@ var (
 	failOverSelectSlave        failOverState = 2
 	failOverPromoteSlave       failOverState = 3
 	failOverReconfSlave        failOverState = 4
-	failOverStateMap                         = map[failOverState]string{
+	failOverStateValueMap                    = map[string]failOverState{
+		"none":                 failOverNone,
+		"wait_leader_election": failOverWaitLeaderElection,
+		"select_slave":         failOverSelectSlave,
+		"promote_slave":        failOverPromoteSlave,
+		"reconfig_slave":       failOverReconfSlave,
+	}
+	failOverStateMap = map[failOverState]string{
 		0: "none",
 		1: "wait_leader_election",
 		2: "select_slave",

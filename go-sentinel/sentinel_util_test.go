@@ -1,6 +1,9 @@
 package sentinel
 
 import (
+	"fmt"
+
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zaptest/observer"
 )
 
@@ -49,11 +52,16 @@ func (suite *testSuite) handleLogEventBecameTermLeader(instanceIdx int, log obse
 
 func (suite *testSuite) handleLogEventFailoverStateChanged(instanceIdx int, log observer.LoggedEntry) {
 	ctxMap := log.ContextMap()
-	newState := ctxMap["new_state"].(failOverState)
+	newStateStr := ctxMap["new_state"].(string)
+	newState, ok := failOverStateValueMap[newStateStr]
+
+	if !ok {
+		panic(fmt.Sprintf("unknown value for failover state: %s", newStateStr))
+	}
 
 	suite.mu.Lock()
 	defer suite.mu.Unlock()
-	oldState := suite.failOverState
+	oldState := suite.failOverStates[instanceIdx]
 	switch newState {
 	case failOverWaitLeaderElection:
 		fallthrough
@@ -63,17 +71,19 @@ func (suite *testSuite) handleLogEventFailoverStateChanged(instanceIdx int, log 
 		fallthrough
 	case failOverReconfSlave:
 		if newState-oldState != 1 {
-			suite.t.Fatalf("invalid failover state transition from %s to %s", oldState, newState)
+			fmt.Println("here")
+			fmt.Println(newState, oldState)
+			assert.Failf(suite.t, "log consume error", "invalid failover state transition from %s to %s", oldState, newState)
 		}
 	case failOverNone:
-		if oldState != failOverWaitLeaderElection {
-			suite.t.Fatalf("can only transition from %s to %s, but has %s to %s",
+		if oldState != failOverWaitLeaderElection && oldState != failOverSelectSlave {
+			assert.Failf(suite.t, "log consume error", "can only transition from %s to %s, but have %s to %s",
 				failOverWaitLeaderElection, failOverNone, oldState, failOverNone)
 		}
 	default:
-		suite.t.Fatalf("invalid failover state: %d", newState)
+		assert.Failf(suite.t, "log consume error", "invalid failover state: %d", newState)
 	}
-	suite.failOverState = newState
+	suite.failOverStates[instanceIdx] = newState
 }
 
 func (suite *testSuite) handleLogEventNeighborVotedFor(instanceIdx int, log observer.LoggedEntry) {

@@ -49,11 +49,11 @@ type testSuite struct {
 	t            *testing.T
 }
 type history struct {
-	currentLeader string
-	currentTerm   int
-	termsVote     map[int][]termInfo // key by term seq, val is array of each sentinels' term info
-	termsLeader   map[int]string
-	failOverState failOverState
+	currentLeader  string
+	currentTerm    int
+	termsVote      map[int][]termInfo // key by term seq, val is array of each sentinels' term info
+	termsLeader    map[int]string
+	failOverStates map[int]failOverState // capture current failoverstate of each instance
 }
 type termInfo struct {
 	selfVote      string
@@ -133,8 +133,9 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 		conf:      conf,
 		master:    master,
 		history: history{
-			termsVote:   map[int][]termInfo{},
-			termsLeader: map[int]string{},
+			termsVote:      map[int][]termInfo{},
+			termsLeader:    map[int]string{},
+			failOverStates: map[int]failOverState{},
 		},
 		mapRunIDtoIdx: mapRunIDToIdx,
 		logObservers:  logObservers,

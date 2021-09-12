@@ -1,79 +1,44 @@
-2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:27.546+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:27.627+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:28.433+0700    ERROR   go-sentinel/master.go:327       1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:28.433+0700    DEBUG   go-sentinel/master.go:253       sentinel_became_leader  {"run_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.546+0700    DEBUG   go-sentinel/master.go:227       sleeping for 18.999773967s
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:28.547+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:28.627+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:29.628+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.548+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:30.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:30.629+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.549+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:31.629+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:32.550+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:32.630+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:33.631+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
-
-2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.551+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "fe4851e3-b439-4ee4-ab57-809560bc748a", "voted_for": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "epoch": 1}
-2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:34.552+0700    DEBUG   go-sentinel/master.go:394       neighbor_sentinel_voted_for     {"neighbor_id": "8c9a28f2-1fcf-4dcd-8a12-455deadeb651", "voted_for": "1e2b243f-28d1-49fa-bdab-3cc91ab59af3", "epoch": 1}
-2021-09-05T17:41:34.632+0700    ERROR   go-sentinel/master.go:327       fe4851e3-b439-4ee4-ab57-809560bc748a voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,MEEE 1e2b243f-28d1-49fa-bdab-3cc91ab59af3 voted for 8c9a28f2-1fcf-4dcd-8a12-455deadeb651,
+2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2000,a6e4e0ec-ca82-4465-bc87-c6a3f141b691,0,mymaster,localhost,6767,0
+2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2000,a6e4e0ec-ca82-4465-bc87-c6a3f141b691,0,mymaster,localhost,6767,0
+2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2002,7364c7b7-fae5-4ef0-be79-58c9c5154a0f,0,mymaster,localhost,6767,0
+2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2001,a08675f8-36fc-4f53-931a-b226f479118d,0,mymaster,localhost,6767,0
+2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2002,7364c7b7-fae5-4ef0-be79-58c9c5154a0f,0,mymaster,localhost,6767,0
+2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2001,a08675f8-36fc-4f53-931a-b226f479118d,0,mymaster,localhost,6767,0
+2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
+2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
+2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
+2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a08675f8-36fc-4f53-931a-b226f479118d", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a08675f8-36fc-4f53-931a-b226f479118d", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
+=== RUN   TestODown/5_instances_o_down
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
+2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+here
+wait_leader_election wait_leader_election
+panic: Fail in goroutine after TestODown/3_instances_o_down has completed
