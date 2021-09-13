@@ -105,12 +105,12 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 			testLock.Unlock()
 			return cl, nil
 		}
-		err = s.Start()
-		assert.NoError(t, err)
-
 		customLogger, observer := customLogObserver()
 		logObservers[i] = observer
 		s.logger = customLogger
+		err = s.Start()
+		assert.NoError(t, err)
+
 		sentinels = append(sentinels, s)
 		defer s.Shutdown()
 	}
@@ -346,6 +346,8 @@ func TestLeaderVoteNotConflict(t *testing.T) {
 			m.mu.Unlock()
 		}
 		gr2.Wait()
+		suite.mu.Lock()
+		defer suite.mu.Unlock()
 
 		for idx := range suite.instances {
 			thisInstanceHistory := suite.termsVote[1][idx]
