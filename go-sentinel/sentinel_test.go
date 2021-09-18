@@ -83,11 +83,18 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 	}
 
 	master := NewToyKeva()
+	master.turnToMaster()
+	slaveMap := master.withSlaves(3)
+	toySlaveFactory := func(sl *slaveInstance) error {
+		toyInstance := slaveMap[sl.addr]
+		sl.client = NewToyKevaClient(toyInstance)
+		return nil
+	}
+	// make master remember slaves
 	sentinels := []*Sentinel{}
 	links := make([]*toyClient, numInstances)
 	logObservers := make([]*observer.ObservedLogs, numInstances)
 	testLock := &sync.Mutex{}
-	master.turnToMaster()
 	basePort := 2000
 	mapRunIDToIdx := map[string]int{}
 	mapIdxToRunID := map[int]string{}
@@ -105,6 +112,8 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 			testLock.Unlock()
 			return cl, nil
 		}
+
+		s.slaveFactory = toySlaveFactory
 		customLogger, observer := customLogObserver()
 		logObservers[i] = observer
 		s.logger = customLogger
@@ -275,12 +284,15 @@ func TestODown(t *testing.T) {
 }
 func (suite *testSuite) checkTermVoteOfSentinel(t *testing.T, sentinelIdx int, term int) {
 	currentSentinel := suite.instances[sentinelIdx]
-	eventually(t, func() bool {
+	reached := eventually(t, func() bool {
 		suite.mu.Lock()
 		defer suite.mu.Unlock()
 		termInfo := suite.termsVote[term][sentinelIdx]
 		return termInfo.selfVote != ""
 	}, 10*time.Second, "sentinel %s never votes for any instance in term %d", currentSentinel.runID, term)
+	if !reached {
+		assert.FailNowf(suite.t, "sentinel did not vote for any instance", "")
+	}
 
 }
 
@@ -395,6 +407,18 @@ func TestLeaderElection(t *testing.T) {
 		assertion(t, 3)
 	})
 }
+
+// func TestReconfSlave(t *testing.T) {
+// 	assertion := func(t *testing.T, numInstances int) {
+// 		suite := setupWithCustomConfig(t, numInstances, func(c *Config) {
+// 			c.Masters[0].Quorum = numInstances/2 + 1 // force normal quorum
+// 		})
+// 		suite.master.kill()
+// 		time.Sleep(suite.conf.Masters[0].DownAfter)
+// 		//TODO: check more info of this recognized leader
+// 		suite.checkClusterHasLeader()
+// 	}
+// }
 func (s *testSuite) checkClusterHasLeader() {
 	eventually(s.t, func() bool {
 		s.mu.Lock()

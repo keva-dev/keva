@@ -193,6 +193,7 @@ func (s *Sentinel) masterRoutine(m *masterInstance) {
 					s.askSentinelsIfMasterIsDown(m)
 					s.checkObjDown(m)
 					if m.getState() == masterStateObjDown {
+						s.notifySlaveRoutines(m)
 						break SdownLoop
 					}
 				case masterStateObjDown:
@@ -315,6 +316,14 @@ func (s *Sentinel) masterRoutine(m *masterInstance) {
 	}
 }
 
+func (s *Sentinel) notifySlaveRoutines(m *masterInstance) {
+	m.mu.Lock()
+	for idx := range m.slaves {
+		m.slaves[idx].masterDownNotify <- struct{}{}
+	}
+	m.mu.Unlock()
+}
+
 // This function is called in context current master is subj down only
 // Redis version of this function also supports when master is alive, so some logic is missing
 func (s *Sentinel) selectSlave(m *masterInstance) *slaveInstance {
@@ -358,38 +367,6 @@ func (s *Sentinel) selectSlave(m *masterInstance) *slaveInstance {
 		return chosen.findBack
 	}
 	return nil
-}
-
-type slaveCandidates []slaveCandidate
-type slaveCandidate struct {
-	slavePriority int
-	replOffset    int
-	runID         string
-	findBack      *slaveInstance
-}
-
-func (sl slaveCandidates) Len() int      { return len(sl) }
-func (sl slaveCandidates) Swap(i, j int) { sl[i], sl[j] = sl[j], sl[i] }
-func (sl slaveCandidates) Less(i, j int) bool {
-	sli, slj := sl[i], sl[j]
-	if sli.slavePriority != slj.slavePriority {
-		return sli.slavePriority-slj.slavePriority < 0
-	}
-	if sli.replOffset > slj.replOffset {
-		return false
-	} else if sli.replOffset < slj.replOffset {
-		return true
-	}
-	// equal replication offset, compare lexicongraphically
-	cmp := strings.Compare(sli.runID, slj.runID)
-	switch cmp {
-	case -1:
-		return true
-	case 0:
-		return true
-	default:
-		return false
-	}
 }
 
 func (s *Sentinel) checkWhoIsLeader(m *masterInstance) (string, int) {
@@ -500,6 +477,7 @@ func (s *Sentinel) askOtherSentinelsEach1Sec(ctx context.Context, m *masterInsta
 				} else {
 					sentinel.mu.Lock()
 					sentinel.sdown = reply.MasterDown
+
 					if reply.VotedLeaderID != "" {
 						s.logger.Debugw(logEventNeighborVotedFor,
 							"neighbor_id", sentinel.runID,

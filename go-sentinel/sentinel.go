@@ -11,14 +11,17 @@ import (
 	"github.com/spf13/viper"
 	kevago "github.com/tuhuynh27/keva/go-client"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func newLogger() *zap.SugaredLogger {
-	dlogger, err := zap.NewDevelopment()
+	config := zap.NewDevelopmentConfig()
+	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	logger, err := config.Build()
 	if err != nil {
 		panic(err)
 	}
-	return dlogger.Sugar()
+	return logger.Sugar()
 }
 
 type Config struct {
@@ -56,10 +59,14 @@ type Sentinel struct {
 	masterInstances map[string]*masterInstance //key by address ip:port
 	currentEpoch    int
 	runID           string
-	slaveFactory    func(*slaveInstance) error
-	clientFactory   func(string) (internalClient, error)
-	listener        net.Listener
-	logger          *zap.SugaredLogger
+
+	//given a preassigned slaveInstance struct, assign missing fields to make it complete
+	// - create client from given address, for example
+	slaveFactory func(*slaveInstance) error
+
+	clientFactory func(string) (internalClient, error)
+	listener      net.Listener
+	logger        *zap.SugaredLogger
 }
 
 func defaultSlaveFactory(sl *slaveInstance) error {

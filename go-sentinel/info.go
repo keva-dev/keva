@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, error) {
+func (s *Sentinel) parseInfoSlave(m *masterInstance, slaveAddr, info string) (bool, error) {
 	r := bufio.NewScanner(strings.NewReader(info))
 	r.Split(bufio.ScanLines)
 	role, err := s.preparseInfo(r)
@@ -20,14 +20,7 @@ func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, err
 	if role != instanceRoleSlave {
 		return true, nil
 	}
-	s.mu.Lock()
-	m, ok := s.masterInstances[masterName]
-	s.mu.Unlock()
-	if !ok {
-		err := fmt.Errorf("master does not exist")
-		s.logger.Errorf(err.Error())
-		return false, err
-	}
+
 	m.mu.Lock()
 
 	slaveIns, ok := m.slaves[slaveAddr]
@@ -35,6 +28,7 @@ func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, err
 		slaveIns = &slaveInstance{mu: sync.Mutex{}}
 		m.slaves[slaveAddr] = slaveIns //LOGIC of new slave here
 	}
+	m.mu.Unlock()
 
 	//to compare later
 	masterAddr := fmt.Sprintf("%s:%s", m.ip, m.port)
@@ -48,12 +42,12 @@ func (s *Sentinel) parseInfoSlave(masterName, slaveAddr, info string) (bool, err
 		}
 		line := r.Text()
 		if strings.HasPrefix(line, "run_id:") {
-			if len(m.runID) == 0 {
-				m.runID = line[7:]
+			if len(slaveIns.runID) == 0 {
+				slaveIns.runID = line[7:]
 			} else {
-				if len(m.runID) != len(line[7:]) && m.runID != line[7:] {
+				if len(slaveIns.runID) != len(line[7:]) && slaveIns.runID != line[7:] {
 					//reboot logic
-					m.runID = line[7:]
+					slaveIns.runID = line[7:]
 				}
 			}
 			continue
@@ -164,18 +158,15 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 		if strings.HasPrefix(line, "slave") {
 			parts := strings.Split(line[5:], ":")
 			if len(parts) == 2 {
-				idx, err := strconv.Atoi(parts[0])
+				_, err := strconv.Atoi(parts[0])
 				if err != nil {
 					fmt.Printf("invalid line: %s", line)
 					continue
 				}
-				if idx > len(m.slaves) {
-					fmt.Printf("invalid index for slave %d of master %s", idx, masterAddress)
-					continue
-				}
+
 				matches := slaveInfoRegexp.FindStringSubmatch(parts[1])
 				if len(matches) != 6 {
-					fmt.Printf("invalid slave info syntax")
+					s.logger.Errorf("invalid slave info syntax: %s", parts[1])
 					continue
 				}
 				replOffset, _ := strconv.Atoi(matches[4])
@@ -184,10 +175,12 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 
 				if !exist {
 					newslave := &slaveInstance{
-						masterHost: m.ip,
-						masterPort: m.port,
-						addr:       addr,
-						replOffset: replOffset,
+						masterHost:       m.ip,
+						masterPort:       m.port,
+						addr:             addr,
+						replOffset:       replOffset,
+						reportedMaster:   m,
+						masterDownNotify: make(chan struct{}, 1),
 					}
 					err := s.slaveFactory(newslave)
 					if err != nil {

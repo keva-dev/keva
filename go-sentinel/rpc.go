@@ -66,6 +66,10 @@ func (s *Sentinel) voteLeader(m *masterInstance, reqEpoch int, reqRunID string) 
 	}
 	leaderEpoch = m.leaderEpoch
 	leaderID = m.leaderID
+	s.logger.Debugw(logEventVotedFor,
+		"voted_for", leaderID,
+		"epoch", leaderEpoch,
+	)
 	return
 }
 
@@ -83,12 +87,14 @@ func (s *Sentinel) IsMasterDownByAddr(req *IsMasterDownByAddrArgs, reply *IsMast
 
 	if req.SelfID != "" {
 		leaderEpoch, leaderID := s.voteLeader(master, req.CurrentEpoch, req.SelfID)
-		s.logger.Debugw(logEventVotedFor,
-			"voted_for", leaderID,
-			"epoch", leaderEpoch,
-		)
 		reply.LeaderEpoch = leaderEpoch
 		reply.VotedLeaderID = leaderID
+	} else {
+		// return its current known leader anyway
+		master.mu.Lock()
+		reply.LeaderEpoch = master.leaderEpoch
+		reply.VotedLeaderID = master.leaderID
+		master.mu.Unlock()
 	}
 	return nil
 }

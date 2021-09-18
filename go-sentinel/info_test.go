@@ -2,6 +2,8 @@ package sentinel
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parseInfoSlave(t *testing.T) {
@@ -35,22 +37,24 @@ func Test_parseInfoSlave(t *testing.T) {
 // 	assert.Equal(t, "127.0.0.1:6379", slave.addr)
 // 	assert.Equal(t, 42, slave.replOffset)
 // }
-// func Test_slaveInfoRegexp(t *testing.T) {
-// 	ok := slaveInfoRegexp.MatchString("ip=127.0.0.1,port=abc,state=online,offset=0,lag=0")
-// 	assert.False(t, ok)
-// 	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=something,offset=0,lag=0")
-// 	assert.False(t, ok)
-// 	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=offline,offset=abc,lag=0")
-// 	assert.False(t, ok)
-// 	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=online,offset=0,lag=abc")
-// 	assert.False(t, ok)
-// 	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=online,offset=0,lag=0")
-// 	assert.True(t, ok)
-// 	matches := slaveInfoRegexp.FindStringSubmatch("ip=127.0.0.1,port=123,state=online,offset=43,lag=74")
-// 	assert.Equal(t, 6, len(matches))
-// 	assert.Equal(t, "127.0.0.1", matches[1])
-// 	assert.Equal(t, "123", matches[2])
-// 	assert.Equal(t, "online", matches[3])
-// 	assert.Equal(t, "43", matches[4])
-// 	assert.Equal(t, "74", matches[5])
-// }
+func Test_slaveInfoRegexp(t *testing.T) {
+
+	ok := slaveInfoRegexp.MatchString("ip=127.0.0.1,port=abc,state=online,offset=0,lag=0")
+
+	assert.False(t, ok)
+	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=something,offset=0,lag=0")
+	assert.False(t, ok)
+	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=offline,offset=abc,lag=0")
+	assert.False(t, ok)
+	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=online,offset=0,lag=abc")
+	assert.False(t, ok)
+	ok = slaveInfoRegexp.MatchString("ip=127.0.0.1,port=123,state=online,offset=0,lag=0")
+	assert.True(t, ok)
+	matches := slaveInfoRegexp.FindStringSubmatch("ip=127.0.0.1,port=123,state=online,offset=43,lag=74")
+	assert.Equal(t, 6, len(matches))
+	assert.Equal(t, "127.0.0.1", matches[1])
+	assert.Equal(t, "123", matches[2])
+	assert.Equal(t, "online", matches[3])
+	assert.Equal(t, "43", matches[4])
+	assert.Equal(t, "74", matches[5])
+}

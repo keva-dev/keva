@@ -3,6 +3,7 @@ package sentinel
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
@@ -10,13 +11,13 @@ import (
 
 // ToyKeva simulator used for testing purpose
 type ToyKeva struct {
-	mu        *sync.Mutex
-	alive     bool
-	role      string
-	id        string
-	slaves    []toySlave
-	sentinels map[string]toySentinel
-	subs      map[string]chan string //key by fake sessionid
+	mu         *sync.Mutex
+	alive      bool
+	role       string
+	id         string
+	slaves     []*ToyKeva
+	subs       map[string]chan string //key by fake sessionid
+	*slaveInfo                        // only set if current keva is a slave
 }
 
 func (keva *ToyKeva) info() string {
@@ -26,28 +27,23 @@ func (keva *ToyKeva) info() string {
 	ret.WriteString(fmt.Sprintf("role:%s\n", keva.role))
 	ret.WriteString(fmt.Sprintf("run_id:%s\n", keva.id))
 	for idx, sl := range keva.slaves {
+		sl.mu.Lock()
+		state := "online"
+		if !sl.alive {
+			state = "offline"
+		}
 		ret.WriteString(fmt.Sprintf("slave%d:ip=%s,port=%s,state=%s,offset=%d,lag=%d\n",
-			idx, sl.addr, sl.state, sl.port, sl.offset, sl.lag,
+			idx, sl.host, sl.port, state, sl.offset, sl.lag,
 		))
+		sl.mu.Unlock()
 	}
 	return ret.String()
 }
 
-type toySentinel struct {
-	addr        string
-	port        string
-	runID       string
-	epoch       int
-	masterEpoch int
-	masterName  string
-	masterAddr  string
-	masterPort  string
-}
-
-type toySlave struct {
-	addr   string
+type slaveInfo struct {
+	// runID  string
+	host   string
 	port   string
-	state  string
 	offset int
 	lag    int
 }
@@ -77,6 +73,32 @@ func NewToyKeva() *ToyKeva {
 		alive: true,
 	}
 }
+
+func (keva *ToyKeva) withSlaves(num int) map[string]*ToyKeva {
+	if keva.role != "master" {
+		panic("cannot assign slaves to non master keva")
+	}
+	slaves := []*ToyKeva{}
+	slaveMap := map[string]*ToyKeva{}
+
+	for i := 0; i < num; i++ {
+		newSlave := NewToyKeva()
+		newSlave.turnToSlave()
+		newSlave.slaveInfo = &slaveInfo{
+			host:   "localhost",
+			port:   strconv.Itoa(i), // fake port, toy master does not call toy slave through network call
+			offset: 0,
+			lag:    0, // TODO: don't understand what it means
+		}
+		addr := fmt.Sprintf("%s:%s", newSlave.host, newSlave.port)
+		slaves = append(slaves, newSlave)
+		slaveMap[addr] = newSlave
+	}
+	keva.slaves = slaves
+
+	return slaveMap
+}
+
 func (keva *ToyKeva) turnToSlave() {
 	keva.role = "slave"
 	keva.alive = true

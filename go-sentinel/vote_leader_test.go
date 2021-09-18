@@ -5,11 +5,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 )
 
 func Test_VoteLeader(t *testing.T) {
 	s := &Sentinel{
-		mu: &sync.Mutex{},
+		mu:     &sync.Mutex{},
+		logger: zap.NewNop().Sugar(),
 	}
 	m := &masterInstance{
 		mu: sync.Mutex{},
