@@ -21,10 +21,11 @@ public class ReplicationServiceImpl implements ReplicationService {
     private final ConcurrentHashMap<String, Replica> replicas = new ConcurrentHashMap<>();
     private final StorageService storageService;
     private final String replicationId;
-    private WriteLog writeLog;
+    private final WriteLog writeLog;
 
-    public ReplicationServiceImpl(StorageService storageService) {
+    public ReplicationServiceImpl(StorageService storageService, WriteLog writeLog) {
         this.storageService = storageService;
+        this.writeLog = writeLog;
         replicationId = UUID.randomUUID().toString();
     }
 
@@ -33,11 +34,6 @@ public class ReplicationServiceImpl implements ReplicationService {
         final String host = s[0];
         final int port = Integer.parseInt(s[1]);
         return new InetSocketAddress(host, port);
-    }
-
-    @Override
-    public void initWriteLog(int size) {
-        writeLog = new WriteLog(size);
     }
 
     @Override

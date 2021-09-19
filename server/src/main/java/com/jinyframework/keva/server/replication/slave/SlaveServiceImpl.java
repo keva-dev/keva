@@ -1,22 +1,32 @@
 package com.jinyframework.keva.server.replication.slave;
 
+import com.jinyframework.keva.server.command.CommandService;
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.replication.master.ReplicationService;
+import com.jinyframework.keva.server.core.WriteLog;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class SlaveServiceImpl implements SlaveService {
-    private final ReplicationService replicationService;
+    private final ScheduledExecutorService healthCheckExecutor;
+    private final WriteLog writeLog;
+    private final CommandService commandService;
     private String masterId;
 
-    public SlaveServiceImpl(ReplicationService replicationService) {
-        this.replicationService = replicationService;
+    public SlaveServiceImpl(WriteLog writeLog, CommandService commandService) {
+        this.healthCheckExecutor = Executors.newSingleThreadScheduledExecutor();
+        this.writeLog = writeLog;
+        this.commandService = commandService;
     }
 
     private static InetSocketAddress parseMaster(String addr) {
@@ -34,19 +44,56 @@ public class SlaveServiceImpl implements SlaveService {
         while (!success) {
             success = syncClient.connect();
         }
-        final CompletableFuture<Object> res = syncClient.sendSync(config.getHostname(), config.getPort());
+        String slaveHostName = config.getHostname();
+        Integer slavePort = config.getPort();
+        final CompletableFuture<Object> res = syncClient.sendSync(slaveHostName, slavePort);
         final String[] respContent = res.get().toString().split(" ");
         if ("F".equals(respContent[0])) {
-            log.info("Performing full synchronization");
-            final byte[] snapContent = Base64.getDecoder().decode(respContent[3]);
-            final Path kdbFile = Path.of(config.getSnapshotLocation(), "dump.kdb");
-            Files.createDirectories(Path.of(config.getSnapshotLocation()));
-            Files.write(kdbFile, snapContent);
-            masterId = respContent[2];
-            log.info("Finished writing snapshot file");
-            // restart storage service to apply changes
+            doFullSync(config, respContent);
         } else {
             throw new Exception("Failed to full sync with master");
         }
+
+        healthCheckExecutor.scheduleAtFixedRate(syncTask(config, writeLog, syncClient, slaveHostName, slavePort), 5, 1, TimeUnit.SECONDS);
+    }
+
+    private Runnable syncTask(ConfigHolder config, WriteLog writeLog, SyncClient syncClient, String slaveHostName, Integer slavePort) {
+        return () -> {
+            try {
+                CompletableFuture<Object> res = syncClient.sendSync(slaveHostName, slavePort, masterId, writeLog.getCurrentOffset());
+                final String[] respContent = res.get().toString().split(" ");
+                if ("F".equals(respContent[0])) {
+                    doFullSync(config, respContent);
+                } else if ("P".equals(respContent[0])) {
+                    doPartialSync(respContent);
+                } else {
+                    throw new Exception("Failed to full sync with master");
+                }
+            } catch (Exception e) {
+                log.error("Syncing with master error: ", e);
+            }
+        };
+    }
+
+    private void doPartialSync(String[] respContent) {
+        log.info("Performing partial synchronization");
+        final String strListOfCommands = new String(Base64.getDecoder()
+                                                          .decode(respContent[3]), StandardCharsets.UTF_8);
+        String[] listOfCommands = strListOfCommands.split("\n");
+        for (String command : listOfCommands) {
+            commandService.handleCommand(command);
+        }
+    }
+
+
+    private void doFullSync(ConfigHolder config, String[] respContent) throws IOException {
+        log.info("Performing full synchronization");
+        final byte[] snapContent = Base64.getDecoder().decode(respContent[3]);
+        final Path kdbFile = Path.of(config.getSnapshotLocation(), "dump.kdb");
+        Files.createDirectories(Path.of(config.getSnapshotLocation()));
+        Files.write(kdbFile, snapContent);
+        masterId = respContent[1];
+        log.info("Finished writing snapshot file");
+        // restart storage service to apply changes
     }
 }

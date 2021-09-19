@@ -1,7 +1,6 @@
 package com.jinyframework.keva.server.command;
 
 import com.jinyframework.keva.server.replication.master.ReplicationService;
-import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -19,7 +18,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Object handleCommand(ChannelHandlerContext ctx, String line) {
+    public Object handleCommand(String line) {
         Object output;
         try {
             val args = CommandService.parseTokens(line);

@@ -25,7 +25,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-        Object res = commandService.handleCommand(ctx, msg);
+        Object res = commandService.handleCommand(msg);
         if (res == null) {
             res = "null";
         }

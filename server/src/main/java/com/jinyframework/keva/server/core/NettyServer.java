@@ -37,6 +37,7 @@ public class NettyServer implements IServer {
     private CommandService commandService;
     @Getter
     private ReplicationService replicationService;
+    private WriteLog writeLog;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
@@ -46,11 +47,12 @@ public class NettyServer implements IServer {
     private void initServices() {
         connectionService = new ConnectionServiceImpl();
         storageService = new NoHeapStorageServiceImpl();
-        replicationService = new ReplicationServiceImpl(storageService);
-        slaveService = new SlaveServiceImpl(replicationService);
+        writeLog = new WriteLog(config.getWriteLogSize());
+        replicationService = new ReplicationServiceImpl(storageService, writeLog);
 
         final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
         commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
+        slaveService = new SlaveServiceImpl(writeLog, commandService);
     }
 
     public ServerBootstrap bootstrapServer() {
@@ -63,11 +65,11 @@ public class NettyServer implements IServer {
     }
 
     public void bootstrapReplication() throws Exception {
-        if (config.getReplicaOf() != null && !config.getReplicaOf().isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
+        if (config.getReplicaOf() != null && !config.getReplicaOf()
+                                                    .isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
             // start slave service and sync snapshot file in blocking manner
             slaveService.start(config);
         }
-        replicationService.initWriteLog(config.getWriteLogSize());
     }
 
     public void bootstrapStorage() {

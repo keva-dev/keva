@@ -10,5 +10,5 @@ public interface CommandService {
         return new ArrayList<>(Arrays.asList(line.split(" ")));
     }
 
-    Object handleCommand(ChannelHandlerContext ctx, String line);
+    Object handleCommand(String line);
 }

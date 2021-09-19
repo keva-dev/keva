@@ -73,7 +73,6 @@ class SyncClientTest {
         assertTrue(syncClient.connect());
         final CompletableFuture<Object> res = syncClient.sendSync("localhost", PortUtil.getAvailablePort());
         final String[] respContent = res.get().toString().split(" ");
-        log.info(Arrays.toString(respContent));
         if ("F".equals(respContent[0])) {
             log.info("Performing full synchronization");
             final byte[] actual = Base64.getDecoder().decode(respContent[3]);
@@ -88,7 +87,7 @@ class SyncClientTest {
 
     @Test
     @Timeout(10)
-    @Order(1)
+    @Order(2)
     void partialSync_noNewWrite() throws Exception {
         final SyncClient syncClient = new SyncClient(host, port);
         assertTrue(syncClient.connect());
