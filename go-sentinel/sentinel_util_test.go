@@ -33,6 +33,20 @@ func (suite *testSuite) handleLogEventSentinelVotedFor(instanceIdx int, log obse
 	}
 	suite.termsVote[term][instanceIdx] = termInfo
 }
+func (suite *testSuite) handleLogEventSelectedSlave(instanceIdx int, log observer.LoggedEntry) {
+	ctxMap := log.ContextMap()
+	selectedSlave := ctxMap["slave_id"].(string)
+	term := int(ctxMap["epoch"].(int64))
+	suite.mu.Lock()
+	defer suite.mu.Unlock()
+	previousSelected, exist := suite.termsSelectedSlave[term]
+	if exist {
+		suite.t.Fatalf("term %d has multiple selected slave recognition event, previously is %s and current is %s",
+			term, previousSelected, selectedSlave)
+	}
+	suite.termsSelectedSlave[term] = selectedSlave
+	suite.currentLeader = selectedSlave
+}
 
 func (suite *testSuite) handleLogEventBecameTermLeader(instanceIdx int, log observer.LoggedEntry) {
 	ctxMap := log.ContextMap()

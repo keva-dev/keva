@@ -44,16 +44,18 @@ type testSuite struct {
 	links         []*toyClient
 	conf          Config
 	master        *ToyKeva
+	slavesMap     map[string]*ToyKeva
 	history
 	logObservers []*observer.ObservedLogs
 	t            *testing.T
 }
 type history struct {
-	currentLeader  string
-	currentTerm    int
-	termsVote      map[int][]termInfo // key by term seq, val is array of each sentinels' term info
-	termsLeader    map[int]string
-	failOverStates map[int]failOverState // capture current failoverstate of each instance
+	currentLeader      string
+	currentTerm        int
+	termsVote          map[int][]termInfo // key by term seq, val is array of each sentinels' term info
+	termsLeader        map[int]string
+	termsSelectedSlave map[int]string
+	failOverStates     map[int]failOverState // capture current failoverstate of each instance
 }
 type termInfo struct {
 	selfVote      string
@@ -138,9 +140,10 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 	suite := &testSuite{
 		instances: sentinels,
 		links:     links,
-		mu:        new(sync.Mutex),
+		mu:        testLock,
 		conf:      conf,
 		master:    master,
+		slavesMap: slaveMap,
 		history: history{
 			termsVote:      map[int][]termInfo{},
 			termsLeader:    map[int]string{},
@@ -169,6 +172,8 @@ func (s *testSuite) consumeLogs(instanceIdx int, observer *observer.ObservedLogs
 				s.handleLogEventNeighborVotedFor(instanceIdx, entry)
 			case logEventFailoverStateChanged:
 				s.handleLogEventFailoverStateChanged(instanceIdx, entry)
+			case logEventSelectedSlave:
+				s.handleLogEventSelectedSlave(instanceIdx, entry)
 			}
 		}
 		time.Sleep(100 * time.Millisecond)
@@ -408,24 +413,66 @@ func TestLeaderElection(t *testing.T) {
 	})
 }
 
-// func TestReconfSlave(t *testing.T) {
-// 	assertion := func(t *testing.T, numInstances int) {
-// 		suite := setupWithCustomConfig(t, numInstances, func(c *Config) {
-// 			c.Masters[0].Quorum = numInstances/2 + 1 // force normal quorum
-// 		})
-// 		suite.master.kill()
-// 		time.Sleep(suite.conf.Masters[0].DownAfter)
-// 		//TODO: check more info of this recognized leader
-// 		suite.checkClusterHasLeader()
-// 	}
-// }
+func TestReconfSlave(t *testing.T) {
+	assertion := func(t *testing.T, numInstances int, slaveCustomizer func(*testSuite) *ToyKeva) {
+		suite := setupWithCustomConfig(t, numInstances, func(c *Config) {
+			c.Masters[0].Quorum = numInstances/2 + 1 // force normal quorum
+		})
+		expectedChosenSlave := slaveCustomizer(suite)
+
+		suite.master.kill()
+		time.Sleep(suite.conf.Masters[0].DownAfter)
+		//TODO: check more info of this recognized leader
+		suite.checkClusterHasLeader()
+		selectedSlave := suite.checkTermSelectedSlave(1)
+		assert.Equal(t, expectedChosenSlave.id, selectedSlave)
+	}
+	t.Run("select slave by highest offset", func(t *testing.T) {
+		assertion(t, 3, func(suite *testSuite) *ToyKeva {
+			for idx := range suite.slavesMap {
+				slave := suite.slavesMap[idx]
+				slave.mu.Lock()
+				slave.offset = 10
+				slave.mu.Unlock()
+				return slave
+			}
+			return nil
+		})
+	})
+	t.Run("select slave by highest priority", func(t *testing.T) {
+		assertion(t, 3, func(suite *testSuite) *ToyKeva {
+			for idx := range suite.slavesMap {
+				slave := suite.slavesMap[idx]
+				slave.mu.Lock()
+				slave.priority = 10
+				slave.mu.Unlock()
+				return slave
+			}
+			return nil
+		})
+	})
+}
+func (s *testSuite) checkTermSelectedSlave(term int) string {
+	var ret string
+	eventually(s.t, func() bool {
+		s.mu.Lock()
+		defer s.mu.Unlock()
+		selected, exist := s.termsSelectedSlave[term]
+		if exist && selected != "" {
+			ret = selected
+			return true
+		}
+		return false
+	}, 10*time.Second)
+	return ret
+}
+
 func (s *testSuite) checkClusterHasLeader() {
 	eventually(s.t, func() bool {
 		s.mu.Lock()
 		defer s.mu.Unlock()
 		return s.currentLeader != ""
 	}, 10*time.Second)
-
 }
 
 func getSentinelMaster(masterAddr string, s *Sentinel) *masterInstance {

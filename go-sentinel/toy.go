@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 // ToyKeva simulator used for testing purpose
 type ToyKeva struct {
+	host string
+	port string
+
 	mu         *sync.Mutex
 	alive      bool
+	diedAt     *time.Time
 	role       string
 	id         string
 	slaves     []*ToyKeva
@@ -37,21 +42,43 @@ func (keva *ToyKeva) info() string {
 		))
 		sl.mu.Unlock()
 	}
+	if keva.role == "slave" {
+		ret.WriteString(fmt.Sprintf("master_host:%s\n", keva.master.host))
+		ret.WriteString(fmt.Sprintf("master_port:%s\n", keva.master.port))
+		if !keva.master.isAlive() {
+			ret.WriteString(fmt.Sprintf("master_link_down_since_seconds:%d\n", int(keva.master.diedSince().Seconds())))
+			ret.WriteString("master_link_status:down\n")
+		} else {
+			ret.WriteString("master_link_down_since_seconds:-1\n")
+			ret.WriteString("master_link_status:up\n")
+		}
+	}
+	ret.WriteString(fmt.Sprintf("slave_repl_offset:%d\n", keva.offset))
+	ret.WriteString(fmt.Sprintf("slave_priority:%d\n", keva.priority))
 	return ret.String()
 }
 
 type slaveInfo struct {
 	// runID  string
-	host   string
-	port   string
-	offset int
-	lag    int
+
+	offset   int
+	lag      int
+	priority int
+	master   *ToyKeva
+}
+
+func (keva *ToyKeva) diedSince() time.Duration {
+	keva.mu.Lock()
+	defer keva.mu.Unlock()
+	return time.Since(*keva.diedAt)
 }
 
 func (keva *ToyKeva) kill() {
 	keva.mu.Lock()
 	defer keva.mu.Unlock()
 	keva.alive = false
+	now := time.Now()
+	keva.diedAt = &now
 }
 
 func (keva *ToyKeva) isAlive() bool {
@@ -84,11 +111,12 @@ func (keva *ToyKeva) withSlaves(num int) map[string]*ToyKeva {
 	for i := 0; i < num; i++ {
 		newSlave := NewToyKeva()
 		newSlave.turnToSlave()
+		newSlave.host = "localhost"
+		newSlave.port = strconv.Itoa(i) // fake port, toy master does not call toy slave through network call
 		newSlave.slaveInfo = &slaveInfo{
-			host:   "localhost",
-			port:   strconv.Itoa(i), // fake port, toy master does not call toy slave through network call
 			offset: 0,
 			lag:    0, // TODO: don't understand what it means
+			master: keva,
 		}
 		addr := fmt.Sprintf("%s:%s", newSlave.host, newSlave.port)
 		slaves = append(slaves, newSlave)

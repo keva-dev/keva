@@ -299,6 +299,14 @@ func (s *Sentinel) masterRoutine(m *masterInstance) {
 						m.failOverState = failOverPromoteSlave
 						epoch := m.failOverEpoch
 						m.mu.Unlock()
+						slave.mu.Lock()
+						slaveAddr := slave.addr
+						slaveID := slave.runID
+						s.logger.Debugw(logEventSelectedSlave,
+							"slave_addr", slaveAddr,
+							"slave_id", slaveID,
+							"epoch", epoch,
+						)
 
 						s.logger.Debugw(logEventFailoverStateChanged,
 							"new_state", failOverPromoteSlave,
@@ -307,8 +315,10 @@ func (s *Sentinel) masterRoutine(m *masterInstance) {
 					}
 					//TODO
 				case failOverPromoteSlave:
+					time.Sleep(1 * time.Second)
 					//TODO
 				case failOverReconfSlave:
+					time.Sleep(1 * time.Second)
 					//TODO
 				}
 			}
@@ -349,9 +359,11 @@ func (s *Sentinel) selectSlave(m *masterInstance) *slaveInstance {
 				return
 			}
 
-			if time.Since(slave.masterDownSince) > maxDownTime {
+			// accept the fact that this slave still does not see master is down somehow
+			if slave.masterDownSinceSec > maxDownTime {
 				return
 			}
+
 			// copy to compare, avoid locking
 			qualifiedSlaves = append(qualifiedSlaves, slaveCandidate{
 				slavePriority: slave.slavePriority,

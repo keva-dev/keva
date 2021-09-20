@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 func (s *Sentinel) parseInfoSlave(m *masterInstance, slaveAddr, info string) (bool, error) {
@@ -54,8 +55,11 @@ func (s *Sentinel) parseInfoSlave(m *masterInstance, slaveAddr, info string) (bo
 		}
 		//master_link_down_since_seconds:-1
 		if len(line) >= 32 && line[:30] == "master_link_down_since_seconds" {
-			// slaveIns.masterDownSince
-			//
+			intSec, err := strconv.Atoi(line[:30])
+			if err != nil {
+				continue
+			}
+			slaveIns.masterDownSinceSec = time.Duration(intSec)
 			continue
 		}
 		if len(line) >= 12 && line[:12] == "master_host:" {
@@ -171,7 +175,7 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 				}
 				replOffset, _ := strconv.Atoi(matches[4])
 				addr := fmt.Sprintf("%s:%s", matches[1], matches[2])
-				slave, exist := m.slaves[addr]
+				_, exist := m.slaves[addr]
 
 				if !exist {
 					newslave := &slaveInstance{
@@ -189,11 +193,6 @@ func (s *Sentinel) parseInfoMaster(masterAddress string, info string) (bool, err
 					}
 					newSlaves = append(newSlaves, newslave)
 
-				} else {
-					slaveCheck[addr] = true
-					slave.mu.Lock()
-					slave.replOffset = replOffset
-					slave.mu.Unlock()
 				}
 				//TODO: check if indx of slave matters
 				//temporarily use addr to define uniqueness for now

@@ -215,20 +215,20 @@ var (
 )
 
 type slaveInstance struct {
-	runID           string
-	masterName      string
-	killed          bool
-	mu              sync.Mutex
-	masterDownSince time.Time
-	masterHost      string
-	masterPort      string
-	masterUp        bool
-	addr            string
-	slavePriority   int //TODO
-	replOffset      int
-	reportedRole    instanceRole
-	reportedMaster  *masterInstance
-	sDown           bool
+	runID              string
+	masterName         string
+	killed             bool
+	mu                 sync.Mutex
+	masterDownSinceSec time.Duration
+	masterHost         string
+	masterPort         string
+	masterUp           bool
+	addr               string
+	slavePriority      int //TODO
+	replOffset         int
+	reportedRole       instanceRole
+	reportedMaster     *masterInstance
+	sDown              bool
 
 	lastSucessfulPingAt time.Time
 	lastSucessfulInfoAt time.Time
