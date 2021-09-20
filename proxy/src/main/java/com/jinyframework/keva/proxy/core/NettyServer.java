@@ -21,9 +21,7 @@ public class NettyServer implements IServer {
     static final ServerHandler SERVER_HANDLER = new ServerHandler();
     private final ConfigHolder config;
     EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    // Should only use 1 thread to handle to keep order of commands
     EventLoopGroup workerGroup = new NioEventLoopGroup(1);
-
 
     public NettyServer(ConfigHolder config) {
         this.config = config;

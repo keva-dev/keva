@@ -1,13 +1,19 @@
 package com.jinyframework.keva.proxy.balance;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.jinyframework.keva.proxy.core.StringCodecLineFrameInitializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -26,11 +32,16 @@ public class Shard {
 	private final int port;
 	Bootstrap b;
 	private Channel channel;
+	private final Queue<Request> cmdBuffer;
+	private final AtomicBoolean isAlive = new AtomicBoolean(true);
+	private final ExecutorService workerPool = Executors.newFixedThreadPool(1);
 
 	public Shard(String host, int port) {
 		this.host = host;
 		this.port = port;
+		cmdBuffer = new LinkedList<>();
 		lastCommunicated = new AtomicLong(System.currentTimeMillis());
+		workerPool.submit(this.commandRelayTask());
 	}
 
 	public void init() {
@@ -41,6 +52,7 @@ public class Shard {
 			.option(ChannelOption.SO_KEEPALIVE, true)
 			.handler(new LoggingHandler(LogLevel.INFO))
 			.handler(new StringCodecLineFrameInitializer());
+		log.info("Init new shard {}:{}", host, port);
 	}
 
 	public boolean connect() {
@@ -50,22 +62,44 @@ public class Shard {
 		if (b == null) {
 			init();
 		}
-		int count = 0;
-		while (count < 3) {
-			final ChannelFuture future = b.connect(host, port).awaitUninterruptibly();
-			if (future.isSuccess()) {
-				channel = future.channel();
-				return true;
-			} else {
-				count++;
-			}
+
+		final ChannelFuture future = b.connect(host, port).awaitUninterruptibly();
+		if (future.isSuccess()) {
+			channel = future.channel();
+			isAlive.getAndSet(true);
+			return true;
 		}
+		isAlive.getAndSet(false);
 		return false;
 	}
 
-	public CompletableFuture<Object> send(String msg) {
+	public Runnable commandRelayTask() {
+		return () -> {
+			Request request;
+			while (isAlive.get()) {
+				try {
+					request = getCmdBuffer().poll();
+					if (request != null) {
+						String res = (String)this.send(request.getRequestContent()).get();
+						ChannelHandlerContext context = request.getChannelContext();
+						context.writeAndFlush(res);
+					}
+				} catch (Exception e) {
+					log.trace("Failed to forward command: ", e);
+					if (e instanceof InterruptedException) {
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+		};
+	}
+
+	public void buffer(Request request) {
+		cmdBuffer.add(request);
+	}
+
+	private CompletableFuture<Object> send(String msg) {
 		final CompletableFuture<Object> resPromise = new CompletableFuture<>();
-		// lazy initialization, only try to connect when sending
 		if (!connect()) {
 			resPromise.completeExceptionally(new IOException("Lost connection to server"));
 			return resPromise;

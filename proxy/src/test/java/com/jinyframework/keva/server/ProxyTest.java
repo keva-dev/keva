@@ -13,13 +13,12 @@ import com.jinyframework.keva.proxy.core.NettyServer;
 import com.jinyframework.keva.server.core.IServer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
 import util.PortUtil;
 import util.SocketClient;
 
 @Slf4j
 @DisplayName("Netty Server")
-public class ServerTest extends AbstractServerTest {
+public class ProxyTest extends AbstractProxyTest {
 	static String host = "localhost";
 	static List<IServer> shards = new ArrayList<>();
 

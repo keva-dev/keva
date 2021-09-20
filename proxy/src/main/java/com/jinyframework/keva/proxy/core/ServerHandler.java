@@ -22,12 +22,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-        Object res = commandService.handleCommand(ctx, msg);
-        if (res == null) {
-            res = "null";
-        }
-        ctx.write(res);
-        ctx.writeAndFlush("\n");
+        commandService.handleCommand(ctx, msg);
     }
 
     @Override

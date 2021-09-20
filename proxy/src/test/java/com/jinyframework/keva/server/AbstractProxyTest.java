@@ -12,11 +12,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import server.IServer;
 import util.SocketClient;
 
-public abstract class AbstractServerTest {
+@Slf4j
+public abstract class AbstractProxyTest {
     static SocketClient client;
     static IServer server;
 
@@ -44,7 +46,9 @@ public abstract class AbstractServerTest {
     @Test
     void getSetNull() {
         try {
+            log.info("Start get null test");
             val getNull = client.exchange("get anotherkey");
+            log.info("Got result");
             assertEquals("null", getNull);
         } catch (Exception e) {
             fail(e);

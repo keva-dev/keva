@@ -15,5 +15,5 @@ public interface CommandService {
         return String.join(" ", tokens);
     }
 
-    Object handleCommand(ChannelHandlerContext ctx, String line);
+    void handleCommand(ChannelHandlerContext ctx, String line);
 }

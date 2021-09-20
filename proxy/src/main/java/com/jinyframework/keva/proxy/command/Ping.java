@@ -1,12 +1,11 @@
 package com.jinyframework.keva.proxy.command;
 
-import java.util.List;
-
-import command.CommandHandler;
+import io.netty.channel.ChannelHandlerContext;
 
 public class Ping implements CommandHandler {
     @Override
-    public String handle(List<String> args) {
-        return "PONG";
+    public void handle(ChannelHandlerContext ctx, String line) {
+       ctx.write("PONG");
+       ctx.flush();
     }
 }

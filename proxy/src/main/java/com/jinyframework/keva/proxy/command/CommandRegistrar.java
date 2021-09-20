@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import command.CommandHandler;
 import lombok.val;
 
 public final class CommandRegistrar {

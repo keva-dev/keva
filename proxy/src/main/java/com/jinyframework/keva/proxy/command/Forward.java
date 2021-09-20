@@ -3,12 +3,14 @@ package com.jinyframework.keva.proxy.command;
 import java.util.List;
 
 import com.jinyframework.keva.proxy.ServiceInstance;
-import command.CommandHandler;
+import com.jinyframework.keva.proxy.balance.Request;
+import io.netty.channel.ChannelHandlerContext;
+import lombok.val;
 
 public class Forward implements CommandHandler {
 	@Override
-	public Object handle(List<String> args) {
-		String request = CommandService.parseLine(args);
-		return ServiceInstance.getLoadBalancingService().forwardRequest(request, args.get(1));
+	public void handle(ChannelHandlerContext ctx, String line) {
+		val args = CommandService.parseTokens(line);
+		ServiceInstance.getLoadBalancingService().forwardRequest(new Request(ctx, line), args.get(1));
 	}
 }
