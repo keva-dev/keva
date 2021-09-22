@@ -162,8 +162,8 @@ func (s *Sentinel) Start() error {
 		return fmt.Errorf("reported address of master %s is not currently in master role", m.Name)
 	}
 
-	go s.masterRoutine(master)
 	go s.serveRPC()
+	go s.masterRoutine(master)
 	return nil
 }
 

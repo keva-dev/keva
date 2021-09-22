@@ -430,7 +430,20 @@ func TestReconfSlave(t *testing.T) {
 		//TODO: check more info of this recognized leader
 		suite.checkClusterHasLeader()
 		selectedSlave := suite.checkTermSelectedSlave(1)
-		assert.Equal(t, expectedChosenSlave.id, selectedSlave)
+		suite.mu.Lock()
+		var selected *ToyKeva
+		for idx := range suite.slavesMap {
+			sl := suite.slavesMap[idx]
+			if sl.id == selectedSlave {
+				selected = sl
+			}
+		}
+		fmt.Printf("expected chosen %s", expectedChosenSlave.slaveInfo.String())
+
+		suite.mu.Unlock()
+		assert.Equal(t, expectedChosenSlave.id, selectedSlave, "wrong slave selected", "want %s, but have %s", expectedChosenSlave.slaveInfo.String(),
+			selected.slaveInfo.String(),
+		)
 	}
 	t.Run("select slave by highest offset", func(t *testing.T) {
 		assertion(t, 3, func(suite *testSuite) *ToyKeva {
@@ -468,7 +481,7 @@ func (s *testSuite) checkTermSelectedSlave(term int) string {
 			return true
 		}
 		return false
-	}, 10*time.Second)
+	}, 5*time.Second)
 	return ret
 }
 

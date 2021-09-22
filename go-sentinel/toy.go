@@ -62,6 +62,10 @@ func (keva *ToyKeva) info() string {
 	return ret.String()
 }
 
+func (sl *slaveInfo) String() string {
+	return fmt.Sprintf("offset: %d, priority: %d", sl.offset, sl.priority)
+}
+
 type slaveInfo struct {
 	// runID  string
 
@@ -101,6 +105,7 @@ type toyClient struct {
 
 func NewToyKeva(host, port string) *ToyKeva {
 	return &ToyKeva{
+		id:    uuid.NewString(),
 		mu:    &sync.Mutex{},
 		subs:  map[string]chan string{},
 		alive: true,
@@ -123,6 +128,7 @@ func (keva *ToyKeva) withSlaves(num int) map[string]*ToyKeva {
 		newSlave.slaveInfo = &slaveInfo{
 			masterHost: keva.host,
 			masterPort: keva.port,
+			priority:   1,
 			offset:     0,
 			lag:        0, // TODO: don't understand what it means
 			master:     keva,

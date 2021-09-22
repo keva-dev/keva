@@ -92,7 +92,7 @@ func (s *Sentinel) parseInfoSlave(m *masterInstance, slaveAddr, info string) (bo
 			continue
 		}
 		if len(line) >= 18 && line[:18] == "slave_repl_offset:" {
-			offset, err := strconv.Atoi(line[:18])
+			offset, err := strconv.Atoi(line[18:])
 			if err != nil {
 				continue
 			}

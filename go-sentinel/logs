@@ -1,7 +1,0 @@
-=== RUN   TestReconfSlave
-=== RUN   TestReconfSlave/select_slave_by_highest_offset
-2021/09/22 20:57:45 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/22 20:57:45 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/22 20:57:45 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/22 20:57:45 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-FAIL	github.com/tuhuynh27/keva/go-sentinel	1.136s

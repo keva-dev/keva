@@ -85,8 +85,6 @@ func (suite *testSuite) handleLogEventFailoverStateChanged(instanceIdx int, log 
 		fallthrough
 	case failOverReconfSlave:
 		if newState-oldState != 1 {
-			fmt.Println("here")
-			fmt.Println(newState, oldState)
 			assert.Failf(suite.t, "log consume error", "invalid failover state transition from %s to %s", oldState, newState)
 		}
 	case failOverNone:
