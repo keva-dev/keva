@@ -1,44 +1,7 @@
-2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:04 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:04 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2000,a6e4e0ec-ca82-4465-bc87-c6a3f141b691,0,mymaster,localhost,6767,0
-2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2000,a6e4e0ec-ca82-4465-bc87-c6a3f141b691,0,mymaster,localhost,6767,0
-2021-09-11T23:13:05.053+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2002,7364c7b7-fae5-4ef0-be79-58c9c5154a0f,0,mymaster,localhost,6767,0
-2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2001,a08675f8-36fc-4f53-931a-b226f479118d,0,mymaster,localhost,6767,0
-2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2002,7364c7b7-fae5-4ef0-be79-58c9c5154a0f,0,mymaster,localhost,6767,0
-2021-09-11T23:13:05.056+0700    INFO    go-sentinel/master.go:147       subscribeHello: connected to new sentinel: localhost,2001,a08675f8-36fc-4f53-931a-b226f479118d,0,mymaster,localhost,6767,0
-2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
-2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
-2021-09-11T23:13:11.049+0700    WARN    go-sentinel/master.go:33        master mymaster is subjectively down
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/master.go:220       failover_state_change   {"new_state": "wait_leader_election", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
-2021-09-11T23:13:12.049+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a08675f8-36fc-4f53-931a-b226f479118d", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a08675f8-36fc-4f53-931a-b226f479118d", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
-=== RUN   TestODown/5_instances_o_down
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "voted_for": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/rpc.go:86   sentinel_voted_for      {"voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021-09-11T23:13:12.050+0700    DEBUG   go-sentinel/master.go:504       neighbor_sentinel_voted_for     {"neighbor_id": "a6e4e0ec-ca82-4465-bc87-c6a3f141b691", "voted_for": "7364c7b7-fae5-4ef0-be79-58c9c5154a0f", "epoch": 1}
-2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-2021/09/11 23:13:12 rpc.Register: method "Start" has 1 input parameters; needs exactly three
-here
-wait_leader_election wait_leader_election
-panic: Fail in goroutine after TestODown/3_instances_o_down has completed
+=== RUN   TestReconfSlave
+=== RUN   TestReconfSlave/select_slave_by_highest_offset
+2021/09/22 20:57:45 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/22 20:57:45 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+2021/09/22 20:57:45 rpc.Register: method "Shutdown" has 1 input parameters; needs exactly three
+2021/09/22 20:57:45 rpc.Register: method "Start" has 1 input parameters; needs exactly three
+FAIL	github.com/tuhuynh27/keva/go-sentinel	1.136s

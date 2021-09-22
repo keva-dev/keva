@@ -132,7 +132,7 @@ func (s *Sentinel) subscribeHello(m *masterInstance) {
 		if !ok {
 			client, err := newRPCClient(parts[0], parts[1])
 			if err != nil {
-				s.logger.Errorf("newRPCClient: cannot create new client to other sentinel with info: %s", newmsg)
+				s.logger.Errorf("newRPCClient: cannot create new client to other sentinel with info: %s: %w", newmsg, err)
 				m.mu.Unlock()
 				continue
 			}

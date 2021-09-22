@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -83,8 +84,11 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 	if customConf != nil {
 		customConf(&conf)
 	}
+	masterAddr := conf.Masters[0].Addr
+	parts := strings.Split(masterAddr, ":")
+	host, port := parts[0], parts[1]
 
-	master := NewToyKeva()
+	master := NewToyKeva(host, port)
 	master.turnToMaster()
 	slaveMap := master.withSlaves(3)
 	toySlaveFactory := func(sl *slaveInstance) error {
@@ -102,8 +106,8 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 	mapIdxToRunID := map[int]string{}
 	for i := 0; i < numInstances; i++ {
 		s, err := NewFromConfig(conf)
-		s.conf.Port = strconv.Itoa(basePort + i)
 		assert.NoError(t, err)
+		s.conf.Port = strconv.Itoa(basePort + i)
 		mapRunIDToIdx[s.runID] = i
 		mapIdxToRunID[i] = s.runID
 
@@ -145,9 +149,10 @@ func setupWithCustomConfig(t *testing.T, numInstances int, customConf func(*Conf
 		master:    master,
 		slavesMap: slaveMap,
 		history: history{
-			termsVote:      map[int][]termInfo{},
-			termsLeader:    map[int]string{},
-			failOverStates: map[int]failOverState{},
+			termsVote:          map[int][]termInfo{},
+			termsLeader:        map[int]string{},
+			failOverStates:     map[int]failOverState{},
+			termsSelectedSlave: map[int]string{},
 		},
 		mapRunIDtoIdx: mapRunIDToIdx,
 		logObservers:  logObservers,

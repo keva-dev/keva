@@ -27,11 +27,13 @@ type ToyKeva struct {
 
 func (keva *ToyKeva) info() string {
 	keva.mu.Lock()
-	defer keva.mu.Unlock()
 	var ret = bytes.Buffer{}
 	ret.WriteString(fmt.Sprintf("role:%s\n", keva.role))
 	ret.WriteString(fmt.Sprintf("run_id:%s\n", keva.id))
-	for idx, sl := range keva.slaves {
+	slaves := keva.slaves
+	keva.mu.Unlock()
+	for idx := range slaves {
+		sl := keva.slaves[idx]
 		sl.mu.Lock()
 		state := "online"
 		if !sl.alive {
@@ -42,9 +44,11 @@ func (keva *ToyKeva) info() string {
 		))
 		sl.mu.Unlock()
 	}
+	keva.mu.Lock()
+	defer keva.mu.Unlock()
 	if keva.role == "slave" {
-		ret.WriteString(fmt.Sprintf("master_host:%s\n", keva.master.host))
-		ret.WriteString(fmt.Sprintf("master_port:%s\n", keva.master.port))
+		ret.WriteString(fmt.Sprintf("master_host:%s\n", keva.masterHost))
+		ret.WriteString(fmt.Sprintf("master_port:%s\n", keva.masterPort))
 		if !keva.master.isAlive() {
 			ret.WriteString(fmt.Sprintf("master_link_down_since_seconds:%d\n", int(keva.master.diedSince().Seconds())))
 			ret.WriteString("master_link_status:down\n")
@@ -52,19 +56,21 @@ func (keva *ToyKeva) info() string {
 			ret.WriteString("master_link_down_since_seconds:-1\n")
 			ret.WriteString("master_link_status:up\n")
 		}
+		ret.WriteString(fmt.Sprintf("slave_repl_offset:%d\n", keva.offset))
+		ret.WriteString(fmt.Sprintf("slave_priority:%d\n", keva.priority))
 	}
-	ret.WriteString(fmt.Sprintf("slave_repl_offset:%d\n", keva.offset))
-	ret.WriteString(fmt.Sprintf("slave_priority:%d\n", keva.priority))
 	return ret.String()
 }
 
 type slaveInfo struct {
 	// runID  string
 
-	offset   int
-	lag      int
-	priority int
-	master   *ToyKeva
+	masterHost string
+	masterPort string
+	offset     int
+	lag        int
+	priority   int
+	master     *ToyKeva
 }
 
 func (keva *ToyKeva) diedSince() time.Duration {
@@ -93,11 +99,13 @@ type toyClient struct {
 	mu        *sync.Mutex
 }
 
-func NewToyKeva() *ToyKeva {
+func NewToyKeva(host, port string) *ToyKeva {
 	return &ToyKeva{
 		mu:    &sync.Mutex{},
 		subs:  map[string]chan string{},
 		alive: true,
+		host:  host,
+		port:  port,
 	}
 }
 
@@ -109,14 +117,15 @@ func (keva *ToyKeva) withSlaves(num int) map[string]*ToyKeva {
 	slaveMap := map[string]*ToyKeva{}
 
 	for i := 0; i < num; i++ {
-		newSlave := NewToyKeva()
+		newSlave := NewToyKeva("localhost", strconv.Itoa(i)) // fake port, toy master does not call toy slave through network call
 		newSlave.turnToSlave()
 		newSlave.host = "localhost"
-		newSlave.port = strconv.Itoa(i) // fake port, toy master does not call toy slave through network call
 		newSlave.slaveInfo = &slaveInfo{
-			offset: 0,
-			lag:    0, // TODO: don't understand what it means
-			master: keva,
+			masterHost: keva.host,
+			masterPort: keva.port,
+			offset:     0,
+			lag:        0, // TODO: don't understand what it means
+			master:     keva,
 		}
 		addr := fmt.Sprintf("%s:%s", newSlave.host, newSlave.port)
 		slaves = append(slaves, newSlave)
