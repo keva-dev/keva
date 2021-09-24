@@ -19,6 +19,9 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-core', version: '1.0.9'
     compile group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}"
     compile group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}"
+    implementation group: 'io.projectreactor.netty', name: 'reactor-netty-core', version: '1.0.7'
+    implementation group: 'io.projectreactor.netty', name: 'reactor-netty-http', version: '1.0.7'
+    implementation 'com.google.code.gson:gson:2.8.6'
 }
 
 shadowJar {

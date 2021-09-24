@@ -20,6 +20,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -89,12 +90,17 @@ public class NettyServer implements IServer {
     }
 
     @Override
+    @SneakyThrows
     public void run() {
         try {
             bootstrapReplication();
             bootstrapStorage();
             final ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
+
+            new Thread(() -> {
+                new NettyRestServer(commandService).run();
+            }).start();
 
             sync.channel().closeFuture().sync();
         } catch (InterruptedException e) {
