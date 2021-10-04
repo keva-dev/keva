@@ -28,13 +28,14 @@ public class CommandServiceImpl implements CommandService {
             } catch (IllegalArgumentException e) {
                 command = CommandName.UNSUPPORTED;
             }
+            args.remove(0);
 
             val handler = commandHandlerMap.get(command);
-            args.remove(0);
-            output = handler.handle(args);
-
-            // forward committed change to replicas
-            replicationService.filterAndBuffer(command, line);
+            synchronized (this) {
+                output = handler.handle(args);
+                // forward committed change to replicas
+                replicationService.filterAndBuffer(command, line);
+            }
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
             output = "ERROR";
