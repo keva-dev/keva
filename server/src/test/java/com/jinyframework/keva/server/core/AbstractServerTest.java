@@ -177,8 +177,8 @@ public abstract class AbstractServerTest {
         }
     }
 
-    // @Test
-    // @Timeout(5)
+     @Test
+     @Timeout(5)
     void getSetLongKeyString() {
         try {
             final int aKB = 1026;

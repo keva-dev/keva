@@ -37,7 +37,6 @@ class SyncClientTest {
                                              .hostname(host)
                                              .port(port)
                                              .build());
-        masterId = server.getReplicationService().getReplicationId();
         new Thread(() -> {
             try {
                 server.run();
@@ -55,6 +54,7 @@ class SyncClientTest {
 
         // Wait for server to start
         TimeUnit.SECONDS.sleep(6);
+        masterId = server.getReplicationService().getReplicationId();
     }
 
     @AfterAll

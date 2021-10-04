@@ -32,11 +32,11 @@ class ReplicationBasicRelayTest {
         Files.createDirectories(Path.of(snapLoc));
 
         final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
-                                                           .snapshotEnabled(true)
-                                                           .snapshotLocation(snapLoc)
-                                                           .hostname(host)
-                                                           .port(port)
-                                                           .build());
+                .snapshotEnabled(true)
+                .snapshotLocation(snapLoc)
+                .hostname(host)
+                .port(port)
+                .build());
 
         new Thread(() -> {
             try {
@@ -62,29 +62,22 @@ class ReplicationBasicRelayTest {
         Files.createDirectories(Path.of(snapLoc));
 
         final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
-                                                           .snapshotEnabled(true)
-                                                           .snapshotLocation(snapLoc)
-                                                           .replicaOf(master)
-                                                           .hostname(host)
-                                                           .port(port)
-                                                           .build());
+                .snapshotEnabled(true)
+                .snapshotLocation(snapLoc)
+                .replicaOf(master)
+                .hostname(host)
+                .port(port)
+                .build());
 
-        new Thread(() -> {
-            try {
-                server.run();
-            } catch (Exception e) {
-                log.warn(e.getMessage());
-            } finally {
-                try {
-                    Files.deleteIfExists(Path.of(snapLoc, "dump.kdb"));
-                    Files.deleteIfExists(Path.of(snapLoc));
-                } catch (IOException e) {
-                    log.warn(e.getMessage());
-                }
-            }
-        }).start();
+        new Thread(server).start();
 
         return server;
+    }
+
+    @SneakyThrows
+    void cleanUpSlave(String snapLoc) {
+        Files.deleteIfExists(Path.of(snapLoc, "dump.kdb"));
+        Files.deleteIfExists(Path.of(snapLoc));
     }
 
     @BeforeEach
@@ -120,6 +113,7 @@ class ReplicationBasicRelayTest {
         assertEquals("null", slave1Client.exchange("get abc"));
         assertEquals("null", slave2Client.exchange("get abc"));
         assertEquals("1", masterClient.exchange("set abc helloslave"));
+        TimeUnit.MILLISECONDS.sleep(1);
         assertEquals("helloslave", slave1Client.exchange("get abc"));
         assertEquals("helloslave", slave2Client.exchange("get abc"));
 
@@ -128,6 +122,8 @@ class ReplicationBasicRelayTest {
         slave2Client.disconnect();
         slave1.shutdown();
         slave2.shutdown();
+        cleanUpSlave("slavetest" + slave1Port);
+        cleanUpSlave("slavetest" + slave2Port);
     }
 
     @Test
@@ -157,6 +153,8 @@ class ReplicationBasicRelayTest {
         slave2Client.disconnect();
         slave1.shutdown();
         slave2.shutdown();
+        cleanUpSlave("slavetest" + slave1Port);
+        cleanUpSlave("slavetest" + slave2Port);
     }
 
     @Test
@@ -184,5 +182,57 @@ class ReplicationBasicRelayTest {
 
         masterClient.disconnect();
         slave1.shutdown();
+        cleanUpSlave("slavetest" + slave1Port);
+        cleanUpSlave("slavetest" + slave2Port);
+    }
+
+    @Test
+    @Timeout(25)
+    void partialSync() throws Exception {
+        final int slave1Port = PortUtil.getAvailablePort();
+        final int slave2Port = PortUtil.getAvailablePort();
+        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        TimeUnit.SECONDS.sleep(6);
+
+        final SocketClient masterClient = new SocketClient("localhost", masterPort);
+        masterClient.connect();
+        final SocketClient slave1Client = new SocketClient("localhost", slave1Port);
+        final SocketClient slave2Client = new SocketClient("localhost", slave2Port);
+        slave1Client.connect();
+        slave2Client.connect();
+
+        assertEquals("null", slave1Client.exchange("get abc"));
+        assertEquals("null", slave2Client.exchange("get abc"));
+        assertEquals("1", masterClient.exchange("set abc helloslave"));
+        TimeUnit.MILLISECONDS.sleep(1);
+        assertEquals("helloslave", slave1Client.exchange("get abc"));
+        assertEquals("helloslave", slave2Client.exchange("get abc"));
+
+
+        slave2.shutdown();
+        slave2Client.disconnect();
+        // wait for it to shut down
+        TimeUnit.SECONDS.sleep(2);
+
+        assertEquals("1", masterClient.exchange("set psync success"));
+
+        new Thread(() -> slave2.run(false)).start();
+        // wait for slave2 to restart and perform partial sync
+        TimeUnit.SECONDS.sleep(6);
+
+        slave2Client.connect();
+        assertEquals("helloslave", slave1Client.exchange("get abc"));
+        assertEquals("helloslave", slave2Client.exchange("get abc"));
+        assertEquals("success", slave2Client.exchange("get psync"));
+        assertEquals("success", slave1Client.exchange("get psync"));
+
+        masterClient.disconnect();
+        slave1Client.disconnect();
+        slave2Client.disconnect();
+        slave1.shutdown();
+        slave2.shutdown();
+        cleanUpSlave("slavetest" + slave1Port);
+        cleanUpSlave("slavetest" + slave2Port);
     }
 }

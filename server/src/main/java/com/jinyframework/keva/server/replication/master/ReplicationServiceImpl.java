@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -16,14 +17,16 @@ import java.util.concurrent.*;
 public class ReplicationServiceImpl implements ReplicationService {
     private static final String SYNC_RESP_FORMAT = "%s %s %d %s";
     private final Set<CommandName> writeCommands = EnumSet.of(CommandName.SET, CommandName.DEL);
-    private final ScheduledExecutorService healthCheckerPool = Executors.newScheduledThreadPool(1);
-    private final ExecutorService repWorkerPool = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService healthCheckerPool;
+    private final ExecutorService repWorkerPool;
     private final ConcurrentHashMap<String, Replica> replicas = new ConcurrentHashMap<>();
     private final StorageService storageService;
     private final String replicationId;
     private final WriteLog writeLog;
 
-    public ReplicationServiceImpl(StorageService storageService, WriteLog writeLog) {
+    public ReplicationServiceImpl(ScheduledExecutorService healthCheckerPool, ExecutorService repWorkerPool, StorageService storageService, WriteLog writeLog) {
+        this.healthCheckerPool = healthCheckerPool;
+        this.repWorkerPool = repWorkerPool;
         this.storageService = storageService;
         this.writeLog = writeLog;
         replicationId = UUID.randomUUID().toString();
@@ -47,7 +50,7 @@ public class ReplicationServiceImpl implements ReplicationService {
         final Base64.Encoder encoder = Base64.getEncoder();
         addReplica(host + ':' + port);
         if (masterId == null || masterId.isBlank()
-                    || offset < writeLog.getMinOffset() || !replicationId.equals(masterId)) {
+                || offset < writeLog.getMinOffset() || !replicationId.equals(masterId)) {
             // perform a full sync
             // F {masterId} {currentOffset} {syncFileContent}
             final String content = encoder.encodeToString(
@@ -56,8 +59,10 @@ public class ReplicationServiceImpl implements ReplicationService {
         } else {
             // perform a partial sync
             // P {masterId} {currentOffset} {encodedListOfCommands}
+            ArrayList<String> list = writeLog.copyFromOffset(offset);
+            log.info("psync commands: {}", list);
             final String commands = encoder.encodeToString(String.join("\n",
-                    writeLog.copyFromOffset(offset)).getBytes());
+                    list).getBytes(StandardCharsets.UTF_8));
             response = String.format(SYNC_RESP_FORMAT, 'P', masterId, writeLog.getCurrentOffset(), commands);
         }
         return response;
