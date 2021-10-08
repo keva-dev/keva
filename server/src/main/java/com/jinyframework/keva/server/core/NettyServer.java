@@ -99,7 +99,7 @@ public class NettyServer implements IServer {
             final ChannelFuture sync = server.bind(config.getPort()).sync();
 
             new Thread(() -> {
-                new NettyRestServer(commandService).run();
+                new NettyRestServer(config.getRestPort(), commandService).run();
             }).start();
 
             sync.channel().closeFuture().sync();

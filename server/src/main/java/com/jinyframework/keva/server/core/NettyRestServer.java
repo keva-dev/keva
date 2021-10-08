@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import reactor.netty.http.server.HttpServer;
 
 public class NettyRestServer implements IServer {
+    private final int port;
     private final Gson gson = new Gson();
     private final CommandService commandService;
 
-    public NettyRestServer(CommandService commandService) {
+    public NettyRestServer(int port, CommandService commandService) {
+        this.port = port;
         this.commandService = commandService;
     }
 
@@ -21,7 +23,7 @@ public class NettyRestServer implements IServer {
 
     @Override
     public void run() {
-        HttpServer.create().port(6768).route(routes -> {
+        HttpServer.create().port(port).route(routes -> {
             routes.post("/command/{command}", (req, res) ->
                 res.sendString(req.receive().asString().map(body -> {
                     String command = req.param("command");

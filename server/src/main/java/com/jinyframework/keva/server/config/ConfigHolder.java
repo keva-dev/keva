@@ -22,6 +22,10 @@ public class ConfigHolder {
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
+    @ConfigProp(name = "restPort", defaultVal = "7767")
+    @CliProp(name = "p", type = CliPropType.VAL)
+    private Integer restPort;
+
     @ConfigProp(name = "snapshot_location", defaultVal = "./")
     @CliProp(name = "sl", type = CliPropType.VAL)
     private String snapshotLocation;
