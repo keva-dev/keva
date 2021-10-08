@@ -32,6 +32,7 @@ public class CommandServiceImpl implements CommandService {
 
             val handler = commandHandlerMap.get(command);
             args.remove(0);
+
             output = handler.handle(args);
 
             // forward committed change to replicas
