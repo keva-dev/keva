@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.protocol.redis.InlineReply;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.storage.StorageService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,16 +22,16 @@ public class FSync implements CommandHandler {
     }
 
     @Override
-    public Object handle(List<String> args) {
+    public InlineReply handle(List<String> args) {
         // send snapshot to replica
         try {
             // register replica and start buffering commands to forward
             log.info(String.valueOf(args));
             replicationService.addReplica(args.get(0) + ':' + args.get(1));
-            return Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(storageService.getSnapshotPath() + "/" + "dump.kdb")));
+            return new InlineReply(Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(storageService.getSnapshotPath() + "/" + "dump.kdb"))));
         } catch (IOException e) {
             log.error("FSYNC failed: ", e);
-            return "null";
+            return new InlineReply("null");
         }
     }
 }

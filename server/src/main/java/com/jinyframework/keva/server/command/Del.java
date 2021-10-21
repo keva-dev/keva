@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.protocol.redis.IntegerReply;
 import com.jinyframework.keva.server.storage.StorageService;
 
 import java.util.List;
@@ -12,12 +13,9 @@ public class Del implements CommandHandler {
     }
 
     @Override
-    public String handle(List<String> args) {
-        try {
-            storageService.remove(args.get(0));
-            return CommandConstant.SUCCESS_CODE;
-        } catch (Exception ignore) {
-            return CommandConstant.FAIL_CODE;
-        }
+    public IntegerReply handle(List<String> args) {
+        return storageService.remove(args.get(0))
+                ? new IntegerReply(1)
+                : new IntegerReply(0);
     }
 }

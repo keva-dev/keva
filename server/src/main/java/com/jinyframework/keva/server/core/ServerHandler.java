@@ -1,18 +1,21 @@
 package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.protocol.redis.Command;
+import com.jinyframework.keva.server.protocol.redis.Reply;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 @ChannelHandler.Sharable
-public class ServerHandler extends SimpleChannelInboundHandler<String> {
+public class ServerHandler extends SimpleChannelInboundHandler<Command> {
     private static final AttributeKey<String> sockIdKey = AttributeKey.newInstance("socketId");
 
     private final ConcurrentMap<String, ClientInfo> clients;
@@ -24,13 +27,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String msg) {
-        Object res = commandService.handleCommand(msg);
-        if (res == null) {
-            res = "null";
-        }
-        ctx.write(res);
-        ctx.writeAndFlush("\n");
+    protected void channelRead0(ChannelHandlerContext ctx, Command msg) throws Exception {
+        byte[] bytes = msg.getName();
+        String name = new String(bytes, StandardCharsets.UTF_8);
+        Reply reply = commandService.handleCommand(name, msg);
+        ctx.write(reply);
     }
 
     @Override
@@ -40,8 +41,8 @@ public class ServerHandler extends SimpleChannelInboundHandler<String> {
         final String remoteAddr = ctx.channel().remoteAddress().toString();
         ctx.channel().attr(sockIdKey).setIfAbsent(socketId);
         clients.put(socketId, ClientInfo.builder()
-                                        .id(socketId)
-                                        .build());
+                .id(socketId)
+                .build());
         log.debug("{} {} connected", remoteAddr, socketId);
     }
 

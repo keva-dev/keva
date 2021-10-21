@@ -1,5 +1,8 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.protocol.redis.Command;
+import com.jinyframework.keva.server.protocol.redis.ErrorReply;
+import com.jinyframework.keva.server.protocol.redis.Reply;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -18,27 +21,24 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public Object handleCommand(String line) {
-        Object output;
+    public Reply<?> handleCommand(String name, Command command) {
+        Reply output;
         try {
-            val args = CommandService.parseTokens(line);
-            CommandName command;
+            CommandName commandName;
             try {
-                command = CommandName.valueOf(args.get(0).toUpperCase());
+                commandName = CommandName.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
-                command = CommandName.UNSUPPORTED;
+                commandName = CommandName.UNSUPPORTED;
             }
-            args.remove(0);
-
-            val handler = commandHandlerMap.get(command);
+            val handler = commandHandlerMap.get(commandName);
             synchronized (this) {
-                output = handler.handle(args);
+                output = handler.handle(command.getObjects());
                 // forward committed change to replicas
-                replicationService.filterAndBuffer(command, line);
+                // replicationService.filterAndBuffer(command, line);
             }
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
-            output = "ERROR";
+            output = new ErrorReply("Error while handling command: " + e.getMessage());
         }
         return output;
     }

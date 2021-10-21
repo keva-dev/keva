@@ -1,13 +1,13 @@
 package com.jinyframework.keva.server.command;
 
 import com.jinyframework.keva.server.core.ConnectionService;
+import com.jinyframework.keva.server.protocol.redis.BulkReply;
 import com.jinyframework.keva.server.replication.master.Replica;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 
 import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
-
 
 public class Info implements CommandHandler {
     private final ReplicationService replicationService;
@@ -19,7 +19,7 @@ public class Info implements CommandHandler {
     }
 
     @Override
-    public String handle(List<String> args) {
+    public BulkReply handle(List<String> args) {
         final HashMap<String, Object> stats = new HashMap<>();
         final long currentConnectedClients = connectionService.getCurrentConnectedClients();
         final int threads = ManagementFactory.getThreadMXBean().getThreadCount();
@@ -40,6 +40,6 @@ public class Info implements CommandHandler {
         }
         stats.put("replicas", index);
 
-        return stats.toString();
+        return new BulkReply(stats.toString());
     }
 }

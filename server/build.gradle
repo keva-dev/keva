@@ -20,6 +20,8 @@ dependencies {
     compile group: 'io.netty', name: 'netty-handler', version: "${nettyVersion}"
     compile group: 'io.netty', name: 'netty-buffer', version: "${nettyVersion}"
 
+    implementation 'com.google.guava:guava:31.0.1-jre'
+
     testImplementation group: 'com.googlecode.multithreadedtc', name: 'multithreadedtc', version: '1.01'
     // MTC lib depends on junit 4
     testImplementation group: 'junit', name: 'junit', version: '4.12'

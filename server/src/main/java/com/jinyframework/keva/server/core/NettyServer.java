@@ -73,7 +73,7 @@ public class NettyServer implements IServer {
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .handler(new LoggingHandler(LogLevel.TRACE))
-                .childHandler(new StringCodecLineFrameInitializer(new ServerHandler(connectionService, commandService)));
+                .childHandler(new RedisCodecInitializer(new ServerHandler(connectionService, commandService)));
         return b;
     }
 
@@ -98,8 +98,8 @@ public class NettyServer implements IServer {
     }
 
     private void initExecutors() {
-        bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup(6);
+        bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
         repWorkerPool = Executors.newCachedThreadPool();
         healthCheckerPool = Executors.newScheduledThreadPool(1);
     }

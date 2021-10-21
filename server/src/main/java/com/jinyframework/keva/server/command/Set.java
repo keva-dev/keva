@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.protocol.redis.StatusReply;
 import com.jinyframework.keva.server.storage.StorageService;
 
 import java.util.List;
@@ -12,15 +13,8 @@ public class Set implements CommandHandler {
     }
 
     @Override
-    public String handle(List<String> args) {
-        try {
-            final boolean success = storageService.putString(args.get(0), args.get(1));
-            if (success) {
-                return CommandConstant.SUCCESS_CODE;
-            }
-            return CommandConstant.FAIL_CODE;
-        } catch (Exception ignore) {
-            return CommandConstant.FAIL_CODE;
-        }
+    public StatusReply handle(List<String> args) {
+        storageService.putString(args.get(0), args.get(1));
+        return StatusReply.OK;
     }
 }

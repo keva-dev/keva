@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.replication.slave;
 
-import com.jinyframework.keva.server.core.StringCodecLineFrameInitializer;
+import com.jinyframework.keva.server.core.RedisCodecInitializer;
 import com.jinyframework.keva.server.replication.FutureHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -39,7 +39,7 @@ public class SyncClient {
          .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
          .option(ChannelOption.SO_KEEPALIVE, true)
          .handler(new LoggingHandler(LogLevel.INFO))
-         .handler(new StringCodecLineFrameInitializer(futureHandler));
+         .handler(new RedisCodecInitializer(futureHandler));
         final ChannelFuture future = b.connect(masterHost, masterPort).awaitUninterruptibly();
         if (future.isSuccess()) {
             channel = future.channel();

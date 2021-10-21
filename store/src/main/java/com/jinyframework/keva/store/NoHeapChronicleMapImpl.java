@@ -59,7 +59,6 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
 
     @Override
     public boolean remove(String key) {
-        chronicleMap.remove(key);
-        return true;
+        return chronicleMap.remove(key) != null;
     }
 }
