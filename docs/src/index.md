@@ -15,9 +15,9 @@ footer: Apache-2.0 Licensed | Copyright © 2021 Keva Team
 ---
 
 <p style="text-align: right; max-width: 960px; margin: auto;">
-<img src="https://img.shields.io/github/workflow/status/tuhuynh27/keva/Build/master?label=build&style=flat-square" alt="GitHub Workflow Status (branch)">
-<img src="https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square" alt="Lines of code">
-<img src="https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square" alt="GitHub">
+<img src="https://img.shields.io/github/workflow/status/keva-dev/keva/Build/master?label=build&style=flat-square" alt="GitHub Workflow Status (branch)">
+<img src="https://img.shields.io/tokei/lines/github/keva-dev/keva?style=flat-square" alt="Lines of code">
+<img src="https://img.shields.io/github/license/keva-dev/keva?style=flat-square" alt="GitHub">
 </p>
 
 <div style="margin-top: 2rem; max-width: 960px; text-align: center; font-size: 1.5rem; font-weight: bold;">Lab Product of</div>

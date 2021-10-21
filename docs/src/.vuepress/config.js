@@ -30,7 +30,7 @@ module.exports = {
    */
   themeConfig: {
     logo: 'https://i.imgur.com/z0c9bV7.png',
-    repo: 'https://github.com/tuhuynh27/keva',
+    repo: 'https://github.com/keva-dev/keva',
     editLinks: false,
     docsDir: '',
     editLinkText: '',
