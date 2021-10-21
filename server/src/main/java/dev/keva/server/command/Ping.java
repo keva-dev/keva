@@ -1,0 +1,13 @@
+package dev.keva.server.command;
+
+import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.protocol.redis.StatusReply;
+
+import java.util.List;
+
+public class Ping implements CommandHandler {
+    @Override
+    public StatusReply handle(List<String> args) {
+        return new StatusReply("PONG");
+    }
+}

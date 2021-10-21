@@ -35,7 +35,7 @@ shadowJar {
 }
 
 application {
-    mainClassName = 'com.jinyframework.keva.server.Application'
+    mainClassName = 'dev.keva.server.Application'
 }
 
 test {
