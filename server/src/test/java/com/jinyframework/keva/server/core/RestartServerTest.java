@@ -1,7 +1,6 @@
 package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.factory.AppFactory;
 import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +19,11 @@ public class RestartServerTest {
     @Test
     public void whenRestart_withValueSet_verifyValueExist() throws InterruptedException, IOException {
         int port = PortUtil.getAvailablePort();
-        AppFactory.setConfigHolder(ConfigHolder.defaultBuilder()
+        NettyServer server = new NettyServer(ConfigHolder.defaultBuilder()
                 .snapshotEnabled(false)
                 .hostname(host)
                 .port(port)
                 .build());
-        NettyServer server = new NettyServer();
 
         new Thread(() -> {
             try {

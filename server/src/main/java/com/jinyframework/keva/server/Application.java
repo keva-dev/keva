@@ -3,7 +3,6 @@ package com.jinyframework.keva.server;
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.config.ConfigManager;
 import com.jinyframework.keva.server.core.NettyServer;
-import com.jinyframework.keva.server.factory.AppFactory;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -15,10 +14,8 @@ public final class Application {
     public static void main(String[] args) {
         try {
             final ConfigHolder configHolder = ConfigManager.loadConfig(args);
-            AppFactory.setConfigHolder(configHolder);
             log.info(configHolder.toString());
-
-            val server = new NettyServer();
+            val server = new NettyServer(configHolder);
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {

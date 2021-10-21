@@ -4,7 +4,6 @@ import com.jinyframework.keva.server.command.CommandRegistrar;
 import com.jinyframework.keva.server.command.CommandService;
 import com.jinyframework.keva.server.command.CommandServiceImpl;
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.factory.AppFactory;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.replication.master.ReplicationServiceImpl;
 import com.jinyframework.keva.server.replication.slave.SlaveService;
@@ -32,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 public class NettyServer implements IServer {
-    private final ConfigHolder config = AppFactory.getConfigHolder();
+    private final ConfigHolder config;
 
     // Executors
     private EventLoopGroup bossGroup;
@@ -52,7 +51,8 @@ public class NettyServer implements IServer {
     private ServerBootstrap server;
     private NoHeapStore noHeapStore;
 
-    public NettyServer() {
+    public NettyServer(ConfigHolder config) {
+        this.config = config;
     }
 
     private void initServices(boolean isFreshStart) {
