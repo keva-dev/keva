@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractServerTest {
     static SocketClient client;
-    static IServer server;
+    static Server server;
 
     @Test
     void ping() {

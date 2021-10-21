@@ -79,6 +79,7 @@ public class SlaveServiceImpl implements SlaveService {
                 .decode(respContent[3]), StandardCharsets.UTF_8);
         String[] listOfCommands = strListOfCommands.split("\n");
         for (String command : listOfCommands) {
+            // TODO: update command here, now command is not string anymore
             // commandService.handleCommand(command);
         }
     }

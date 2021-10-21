@@ -23,7 +23,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public Reply<?> handleCommand(String name, Command command) {
-        Reply output;
+        Reply<?> output;
         try {
             CommandName commandName;
             try {
@@ -33,11 +33,13 @@ public class CommandServiceImpl implements CommandService {
             }
             val handler = commandHandlerMap.get(commandName);
             List<String> objects = command.getObjects();
-            synchronized (this) {
-                output = handler.handle(objects);
+            output = handler.handle(objects);
+
+            // synchronized (this) { // TODO: need to remove sync for single mode
+                //output = handler.handle(objects);
                 // forward committed change to replicas
-                replicationService.filterAndBuffer(commandName, String.join(" ", objects));
-            }
+                //replicationService.filterAndBuffer(commandName, String.join(" ", objects));
+            //}
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
             output = new ErrorReply("ERR unknown error: " + e.getMessage());

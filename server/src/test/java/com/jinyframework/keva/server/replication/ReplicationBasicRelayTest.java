@@ -1,7 +1,7 @@
 package com.jinyframework.keva.server.replication;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.core.IServer;
+import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
@@ -23,15 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 class ReplicationBasicRelayTest {
-    IServer master;
+    Server master;
     int masterPort;
 
     @SneakyThrows
-    IServer startMaster(String host, int port) {
+    Server startMaster(String host, int port) {
         final String snapLoc = Path.of("mastertest" + port).toString();
         Files.createDirectories(Path.of(snapLoc));
 
-        final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
+        final Server server = new NettyServer(ConfigHolder.defaultBuilder()
                 .snapshotEnabled(true)
                 .snapshotLocation(snapLoc)
                 .hostname(host)
@@ -57,11 +57,11 @@ class ReplicationBasicRelayTest {
     }
 
     @SneakyThrows
-    IServer startSlave(String host, int port, String master) {
+    Server startSlave(String host, int port, String master) {
         final String snapLoc = Path.of("slavetest" + port).toString();
         Files.createDirectories(Path.of(snapLoc));
 
-        final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
+        final Server server = new NettyServer(ConfigHolder.defaultBuilder()
                 .snapshotEnabled(true)
                 .snapshotLocation(snapLoc)
                 .replicaOf(master)
@@ -99,8 +99,8 @@ class ReplicationBasicRelayTest {
     void masterForwardSlave() throws Exception {
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
-        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
-        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        final Server slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final Server slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(6);
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
@@ -136,8 +136,8 @@ class ReplicationBasicRelayTest {
 
         assertEquals("1", masterClient.exchange("set old oldmasterdata"));
 
-        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
-        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        final Server slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final Server slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(6);
 
         final SocketClient slave1Client = new SocketClient("localhost", slave1Port);
@@ -162,9 +162,9 @@ class ReplicationBasicRelayTest {
     void slaveInfoUpdated() throws Exception {
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
-        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final Server slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(1); // ensure slave 1 is registered first
-        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        final Server slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(6);
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);
@@ -191,8 +191,8 @@ class ReplicationBasicRelayTest {
     void partialSync() throws Exception {
         final int slave1Port = PortUtil.getAvailablePort();
         final int slave2Port = PortUtil.getAvailablePort();
-        final IServer slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
-        final IServer slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
+        final Server slave1 = startSlave("localhost", slave1Port, "localhost:" + masterPort);
+        final Server slave2 = startSlave("localhost", slave2Port, "localhost:" + masterPort);
         TimeUnit.SECONDS.sleep(6);
 
         final SocketClient masterClient = new SocketClient("localhost", masterPort);

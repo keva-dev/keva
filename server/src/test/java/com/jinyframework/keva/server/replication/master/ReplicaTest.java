@@ -1,7 +1,7 @@
 package com.jinyframework.keva.server.replication.master;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
-import com.jinyframework.keva.server.core.IServer;
+import com.jinyframework.keva.server.core.Server;
 import com.jinyframework.keva.server.core.NettyServer;
 import com.jinyframework.keva.server.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public final class ReplicaTest {
     static String host = "localhost";
     static int port = PortUtil.getAvailablePort();
-    private static IServer server;
+    private static Server server;
     private static Replica rep;
 
     private ReplicaTest() {
@@ -80,7 +80,7 @@ public final class ReplicaTest {
     @Timeout(10)
     void whenMasterNotAlive_assertBufferCleared() throws Exception {
         final int port = PortUtil.getAvailablePort();
-        final IServer server = new NettyServer(ConfigHolder.defaultBuilder()
+        final Server server = new NettyServer(ConfigHolder.defaultBuilder()
                                                            .snapshotEnabled(false)
                                                            .hostname(host)
                                                            .port(port)

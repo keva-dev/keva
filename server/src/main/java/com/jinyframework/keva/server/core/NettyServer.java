@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
-public class NettyServer implements IServer {
+public class NettyServer implements Server {
     private final ConfigHolder config;
 
     // Executors

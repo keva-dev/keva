@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class SnapshotServiceTest {
     static String host = "localhost";
 
-    IServer startServer(int port) throws Exception {
+    Server startServer(int port) throws Exception {
         val config = ConfigHolder.defaultBuilder()
                                  .hostname(host)
                                  .port(port)
@@ -40,7 +40,7 @@ public class SnapshotServiceTest {
         return server;
     }
 
-    void stop(IServer server) {
+    void stop(Server server) {
         server.shutdown();
     }
 
@@ -50,7 +50,7 @@ public class SnapshotServiceTest {
     }
 
     void sync(int port) {
-        IServer server = null;
+        Server server = null;
         try {
             server = startServer(port);
         } catch (Exception e) {
@@ -84,7 +84,7 @@ public class SnapshotServiceTest {
         sync(getAvailablePort());
 
         val port = getAvailablePort();
-        IServer server = null;
+        Server server = null;
         try {
             server = startServer(port);
         } catch (Exception e) {
