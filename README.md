@@ -2,8 +2,8 @@
   <img width="150" src="https://i.imgur.com/z0c9bV7.png">
 </p>
 
-Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache. Keva
-provides value types such as strings, object, integer, long, double, float.
+Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache,
+can be a drop-in replacement for Redis.
 
 Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model
 with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in
@@ -39,28 +39,16 @@ cd keva
 ./gradlew dependencies
 ```
 
-Run server:
+Run:
 
 ```command
 ./gradlew --no-daemon --quiet --console plain :server:run
 ```
 
-Run CLI client:
-
-```command
-./gradlew --no-daemon --quiet --console plain :cli-client:run
-```
-
-Build server:
+Build:
 
 ```command
 ./gradlew :server:shadowJar
-```
-
-Build CLI client:
-
-```command
-./gradlew :cli-client:shadowJar
 ```
 
 ## License

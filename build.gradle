@@ -30,20 +30,6 @@ subprojects {
         compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
     }
 
-    publishing {
-        repositories {
-            maven {
-                def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-                def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots'
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-                credentials {
-                    username = project.findProperty("sonatypeUsername") ?: System.getenv("sonatypeUsernamer")
-                    password = project.findProperty("sonatypePassword") ?: System.getenv("sonatypePassword")
-                }
-            }
-        }
-    }
-
     jacocoTestReport {
         getExecutionData().setFrom(fileTree(buildDir).include("/jacoco/*.exec"))
         reports {

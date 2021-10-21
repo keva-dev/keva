@@ -2,7 +2,7 @@
 
 Keva project is built by a team of enthusiastic and passionate engineers formed by Grokking Coding Lab.
 
-[Join our team!](https://github.com/tuhuynh/keva)
+[Join our team!](https://github.com/keva-dev/keva)
 
 ## Core Team Members
 

@@ -11,54 +11,10 @@ dependencies {
     implementation 'net.openhft:chronicle-map:3.21.85'
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'keva-store'
-            from components.java
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-            pom {
-                name = 'Jiny Keva'
-                description = 'Performant & low-latency in-memory data structure store, used as a database or cache'
-                url = 'https://jinyframework.com/'
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'https://github.com/huynhminhtufu/jiny/blob/master/LICENSE'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'tuhuynh27'
-                        name = 'Tu Huynh'
-                        email = 'huynhminhtufu@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/huynhminhtufu/jiny.git'
-                    developerConnection = 'scm:git:ssh://github.com:huynhminhtu/jiny.git'
-                    url = 'https://github.com/huynhminhtufu/jiny/'
-                }
-            }
-        }
-    }
-}
-
 javadoc {
     if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }
-}
-
-signing {
-    sign publishing.publications.mavenJava
 }
 
 test {
