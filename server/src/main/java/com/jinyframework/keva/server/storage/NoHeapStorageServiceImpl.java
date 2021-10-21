@@ -6,12 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class NoHeapStorageServiceImpl implements StorageService {
-    private static NoHeapStore store;
+    private final NoHeapStore store;
 
-    @Override
-    public void setStore(NoHeapStore store) {
-        NoHeapStorageServiceImpl.store = store;
+    public NoHeapStorageServiceImpl(NoHeapStore store) {
+        this.store = store;
     }
+
 
     @Override
     public Path getSnapshotPath() {

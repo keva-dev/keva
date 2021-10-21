@@ -36,6 +36,7 @@ public final class CommandRegistrar {
                 entry(CommandName.DEL, new Del(storageService)),
                 entry(CommandName.EXPIRE, new Expire(storageService)),
                 entry(CommandName.FSYNC, new FSync(storageService, replicationService)),
+                entry(CommandName.PSYNC, new PSync(replicationService)),
 
                 entry(CommandName.UNSUPPORTED, new Unsupported())
         );

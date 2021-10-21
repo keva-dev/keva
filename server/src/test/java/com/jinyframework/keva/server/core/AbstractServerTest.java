@@ -1,6 +1,5 @@
-package com.jinyframework.keva.server;
+package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.core.IServer;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -178,8 +177,8 @@ public abstract class AbstractServerTest {
         }
     }
 
-    // @Test
-    // @Timeout(5)
+     @Test
+     @Timeout(5)
     void getSetLongKeyString() {
         try {
             final int aKB = 1026;

@@ -34,6 +34,10 @@ public class ConfigHolder {
     @CliProp(name = "ro", type = CliPropType.VAL)
     private String replicaOf;
 
+    @ConfigProp(name = "command_log_size", defaultVal = "1000")
+    @CliProp(name = "cls", type = CliPropType.VAL)
+    private Integer writeLogSize;
+
     @SneakyThrows
     public static ConfigHolder fromProperties(@NonNull Properties props) {
         val configHolder = builder().build();
@@ -80,24 +84,26 @@ public class ConfigHolder {
 
     public static ConfigHolderBuilder defaultBuilder() {
         return builder()
-                .snapshotLocation("./")
-                .hostname("localhost")
-                .port(6767)
-                .heapSize(64)
-                .snapshotEnabled(true)
-                .replicaOf("NO:ONE")
+                       .snapshotLocation("./")
+                       .hostname("localhost")
+                       .port(6767)
+                       .heapSize(64)
+                       .snapshotEnabled(true)
+                       .replicaOf("NO:ONE")
+                       .writeLogSize(1000)
                 ;
     }
 
     public static ConfigHolder makeDefaultConfig() {
         return builder()
-                .snapshotLocation("./")
-                .hostname("localhost")
-                .port(6767)
-                .heapSize(64)
-                .snapshotEnabled(true)
-                .replicaOf("NO:ONE")
-                .build();
+                       .snapshotLocation("./")
+                       .hostname("localhost")
+                       .port(6767)
+                       .heapSize(64)
+                       .snapshotEnabled(true)
+                       .replicaOf("NO:ONE")
+                       .writeLogSize(1000)
+                       .build();
     }
 
     @SneakyThrows
@@ -116,12 +122,13 @@ public class ConfigHolder {
 
     @Override
     public String toString() {
-        return "Configurations:" + "\n" +
-                "snapshotEnabled: " + this.snapshotEnabled + "\n" +
-                "hostname: " + this.hostname + "\n" +
-                "port: " + this.port + "\n" +
-                "snapshotLocation: " + this.snapshotLocation + "\n" +
-                "heapSize: " + this.heapSize + "\n" +
-                "replicaOf: " + this.replicaOf;
+        return "Configurations:" + '\n' +
+                "snapshotEnabled: " + snapshotEnabled + '\n' +
+                "hostname: " + hostname + '\n' +
+                "port: " + port + '\n' +
+                "snapshotLocation: " + snapshotLocation + '\n' +
+                "heapSize: " + heapSize + '\n' +
+                "replicaOf: " + replicaOf + '\n' +
+                "writeLogSize: " + writeLogSize;
     }
 }
