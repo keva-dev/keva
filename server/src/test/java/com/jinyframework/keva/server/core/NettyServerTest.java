@@ -1,6 +1,7 @@
 package com.jinyframework.keva.server.core;
 
 import com.jinyframework.keva.server.config.ConfigHolder;
+import com.jinyframework.keva.server.factory.AppFactory;
 import com.jinyframework.keva.server.util.PortUtil;
 import com.jinyframework.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +19,12 @@ public class NettyServerTest extends AbstractServerTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = new NettyServer(ConfigHolder.defaultBuilder()
-                                             .snapshotEnabled(false)
-                                             .hostname(host)
-                                             .port(port)
-                                             .build());
+        AppFactory.setConfigHolder(ConfigHolder.defaultBuilder()
+                .snapshotEnabled(false)
+                .hostname(host)
+                .port(port)
+                .build());
+        server = new NettyServer();
 
         new Thread(() -> {
             try {

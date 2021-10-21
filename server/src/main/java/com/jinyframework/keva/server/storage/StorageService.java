@@ -1,7 +1,5 @@
 package com.jinyframework.keva.server.storage;
 
-import com.jinyframework.keva.store.NoHeapStore;
-
 import java.nio.file.Path;
 
 public interface StorageService {

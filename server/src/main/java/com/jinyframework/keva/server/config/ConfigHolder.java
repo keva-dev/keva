@@ -9,6 +9,7 @@ import java.util.Properties;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class ConfigHolder {
     @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
     @CliProp(name = "ss", type = CliPropType.FLAG)
@@ -118,17 +119,5 @@ public class ConfigHolder {
             return this;
         }
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Configurations:" + '\n' +
-                "snapshotEnabled: " + snapshotEnabled + '\n' +
-                "hostname: " + hostname + '\n' +
-                "port: " + port + '\n' +
-                "snapshotLocation: " + snapshotLocation + '\n' +
-                "heapSize: " + heapSize + '\n' +
-                "replicaOf: " + replicaOf + '\n' +
-                "writeLogSize: " + writeLogSize;
     }
 }

@@ -28,17 +28,18 @@ public class CommandServiceImpl implements CommandService {
             try {
                 commandName = CommandName.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {
-                commandName = CommandName.UNSUPPORTED;
+                return new ErrorReply("ERR unknown command `" + name.toUpperCase() + "`");
             }
             val handler = commandHandlerMap.get(commandName);
-            synchronized (this) {
-                output = handler.handle(command.getObjects());
+            output = handler.handle(command.getObjects());
+            // synchronized (this) {
+                // output = handler.handle(command.getObjects());
                 // forward committed change to replicas
                 // replicationService.filterAndBuffer(command, line);
-            }
+            // }
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
-            output = new ErrorReply("Error while handling command: " + e.getMessage());
+            output = new ErrorReply("ERR unknown error: " + e.getMessage());
         }
         return output;
     }

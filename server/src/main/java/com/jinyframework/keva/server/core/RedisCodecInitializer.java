@@ -24,7 +24,6 @@ public class RedisCodecInitializer extends ChannelInitializer<SocketChannel> {
         p.addLast(new RedisCommandDecoder());
         p.addLast(new RedisReplyEncoder());
 
-        // and then business logic.
         if (handler != null) {
             p.addLast(handler);
         }

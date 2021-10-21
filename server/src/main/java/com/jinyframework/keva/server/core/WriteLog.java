@@ -14,7 +14,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class WriteLog {
     private final ReentrantLock lock = new ReentrantLock();
 
-
     private final AtomicInteger currentOffset = new AtomicInteger(0); // increase every write
 
     private final AtomicInteger startingOffset = new AtomicInteger(0); // denotes offset at index 0

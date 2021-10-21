@@ -83,34 +83,35 @@ public class RedisReplyDecoder extends ReplayingDecoder<Void> {
     public Reply readReply(ByteBuf is) throws IOException {
         int code = is.readByte();
         switch (code) {
-            case StatusReply.MARKER -> {
+            case StatusReply.MARKER: {
                 String status = is.readBytes(is.bytesBefore((byte) '\r')).toString(StandardCharsets.UTF_8);
                 is.skipBytes(2);
                 return new StatusReply(status);
             }
-            case ErrorReply.MARKER -> {
+            case ErrorReply.MARKER: {
                 String error = is.readBytes(is.bytesBefore((byte) '\r')).toString(StandardCharsets.UTF_8);
                 is.skipBytes(2);
                 return new ErrorReply(error);
             }
-            case IntegerReply.MARKER -> {
+            case IntegerReply.MARKER: {
                 return new IntegerReply(readLong(is));
             }
-            case BulkReply.MARKER -> {
+            case BulkReply.MARKER: {
                 return new BulkReply(readBytes(is));
             }
-            case MultiBulkReply.MARKER -> {
+            case MultiBulkReply.MARKER: {
                 if (reply == null) {
                     return decodeMultiBulkReply(is);
                 } else {
                     return new RedisReplyDecoder(false).decodeMultiBulkReply(is);
                 }
             }
-            default -> {
+            default: {
                 throw new IOException("Unexpected character in stream: " + code);
             }
         }
     }
+
 
     @Override
     public void checkpoint() {
