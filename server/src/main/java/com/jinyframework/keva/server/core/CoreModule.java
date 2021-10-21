@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.command.setup.CommandService;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.replication.slave.SlaveService;
 import com.jinyframework.keva.server.storage.StorageService;

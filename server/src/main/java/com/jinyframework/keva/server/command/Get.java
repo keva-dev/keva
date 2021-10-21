@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.command.setup.CommandHandler;
 import com.jinyframework.keva.server.protocol.redis.BulkReply;
 import com.jinyframework.keva.server.storage.StorageService;
 
@@ -14,7 +15,7 @@ public class Get implements CommandHandler {
 
     @Override
     public BulkReply handle(List<String> args) {
-        String got = storageService.getString(args.get(0));
+        String got = storageService.getString(args.get(1));
         return got != null ? new BulkReply(got) : BulkReply.NIL_REPLY;
     }
 }

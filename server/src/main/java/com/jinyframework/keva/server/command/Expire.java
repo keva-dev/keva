@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.command.setup.CommandHandler;
 import com.jinyframework.keva.server.protocol.redis.IntegerReply;
 import com.jinyframework.keva.server.storage.StorageService;
 
@@ -21,9 +22,9 @@ public class Expire implements CommandHandler {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    storageService.remove(args.get(0));
+                    storageService.remove(args.get(1));
                 }
-            }, Long.parseLong(args.get(1)));
+            }, Long.parseLong(args.get(2)));
             return new IntegerReply(1);
         } catch (Exception ignore) {
             return new IntegerReply(0);

@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.command.setup.CommandHandler;
 import com.jinyframework.keva.server.protocol.redis.StatusReply;
 
 import java.util.List;

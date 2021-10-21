@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.replication.slave;
 
-import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.command.setup.CommandService;
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.core.WriteLog;
 import lombok.extern.slf4j.Slf4j;

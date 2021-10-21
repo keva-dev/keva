@@ -1,5 +1,6 @@
 package com.jinyframework.keva.server.command;
 
+import com.jinyframework.keva.server.command.setup.CommandHandler;
 import com.jinyframework.keva.server.core.ConnectionService;
 import com.jinyframework.keva.server.protocol.redis.BulkReply;
 import com.jinyframework.keva.server.replication.master.Replica;

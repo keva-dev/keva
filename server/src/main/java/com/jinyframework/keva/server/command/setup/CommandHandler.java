@@ -1,4 +1,4 @@
-package com.jinyframework.keva.server.command;
+package com.jinyframework.keva.server.command.setup;
 
 import com.jinyframework.keva.server.protocol.redis.Reply;
 

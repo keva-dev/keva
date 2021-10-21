@@ -1,4 +1,4 @@
-package com.jinyframework.keva.server.command;
+package com.jinyframework.keva.server.command.setup;
 
 import com.jinyframework.keva.server.protocol.redis.Command;
 import com.jinyframework.keva.server.protocol.redis.ErrorReply;
@@ -7,6 +7,7 @@ import com.jinyframework.keva.server.replication.master.ReplicationService;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -31,12 +32,12 @@ public class CommandServiceImpl implements CommandService {
                 return new ErrorReply("ERR unknown command `" + name.toUpperCase() + "`");
             }
             val handler = commandHandlerMap.get(commandName);
-            output = handler.handle(command.getObjects());
-            // synchronized (this) {
-                // output = handler.handle(command.getObjects());
+            List<String> objects = command.getObjects();
+            synchronized (this) {
+                output = handler.handle(objects);
                 // forward committed change to replicas
-                // replicationService.filterAndBuffer(command, line);
-            // }
+                replicationService.filterAndBuffer(commandName, String.join(" ", objects));
+            }
         } catch (Exception e) {
             log.error("Error while handling command: ", e);
             output = new ErrorReply("ERR unknown error: " + e.getMessage());

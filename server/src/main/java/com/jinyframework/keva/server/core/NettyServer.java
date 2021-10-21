@@ -1,8 +1,8 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.command.CommandRegistrar;
-import com.jinyframework.keva.server.command.CommandService;
-import com.jinyframework.keva.server.command.CommandServiceImpl;
+import com.jinyframework.keva.server.command.setup.CommandRegistrar;
+import com.jinyframework.keva.server.command.setup.CommandService;
+import com.jinyframework.keva.server.command.setup.CommandServiceImpl;
 import com.jinyframework.keva.server.config.ConfigHolder;
 import com.jinyframework.keva.server.replication.master.ReplicationService;
 import com.jinyframework.keva.server.replication.master.ReplicationServiceImpl;

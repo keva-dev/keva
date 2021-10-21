@@ -115,8 +115,8 @@ public class Command {
 
     public List<String> getObjects() {
         List<String> args = new ArrayList<>(objects.length);
-        for (int i = 1; i < objects.length; i++) {
-            args.add(new String((byte[]) objects[i], StandardCharsets.UTF_8));
+        for (Object object : objects) {
+            args.add(new String((byte[]) object, StandardCharsets.UTF_8));
         }
         return args;
     }

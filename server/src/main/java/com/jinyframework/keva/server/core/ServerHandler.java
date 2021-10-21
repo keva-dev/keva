@@ -1,6 +1,6 @@
 package com.jinyframework.keva.server.core;
 
-import com.jinyframework.keva.server.command.CommandService;
+import com.jinyframework.keva.server.command.setup.CommandService;
 import com.jinyframework.keva.server.protocol.redis.Command;
 import com.jinyframework.keva.server.protocol.redis.Reply;
 import io.netty.channel.ChannelHandler;
