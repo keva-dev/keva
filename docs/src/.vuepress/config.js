@@ -57,8 +57,7 @@ module.exports = {
           children: [
             '',
             'install',
-            'usage',
-            'go-client',
+            'commands',
             'replication',
           ]
         }
