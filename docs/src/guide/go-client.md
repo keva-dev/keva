@@ -5,7 +5,7 @@
 Using go get:
 
 ```shell
-go get github.com/tuhuynh27/keva/go-client
+go get github.com/keva-dev/keva/go-client
 ```
 
 ## Quickstart
@@ -17,9 +17,9 @@ Each time a command being called, client gets a connection from pool and use it.
 import (
     "context"
     "fmt"
-    _ "github.com/tuhuynh27/keva/go-client"
-    kevago "github.com/tuhuynh27/keva/go-client"
-    "github.com/tuhuynh27/keva/go-client/pool"
+    _ "github.com/keva-dev/keva/go-client"
+    kevago "github.com/keva-dev/keva/go-client"
+    "github.com/keva-dev/keva/go-client/pool"
     "net"
     "time"
 )

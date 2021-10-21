@@ -9,10 +9,10 @@ Keva Server provides access to mutable data structures via a set of commands, wh
 with TCP sockets and a simple protocol. So different processes/clients can query and modify the same data structures in
 a shared way.
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/tuhuynh27/keva/Build/master?label=build&style=flat-square)
-![Lines of code](https://img.shields.io/tokei/lines/github/tuhuynh27/keva?style=flat-square)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/tuhuynh27/keva?style=flat-square)
-![GitHub](https://img.shields.io/github/license/tuhuynh27/keva?style=flat-square)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/keva-dev/keva/Build/master?label=build&style=flat-square)
+![Lines of code](https://img.shields.io/tokei/lines/github/keva-dev/keva?style=flat-square)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/keva-dev/keva?style=flat-square)
+![GitHub](https://img.shields.io/github/license/keva-dev/keva?style=flat-square)
 
 ## Quick Start
 
@@ -28,13 +28,13 @@ Want to file a bug, contribute some code, or improve documentation? Excellent!
 
 First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.html).
 
-Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/tuhuynh27/keva/issues) and help
+Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/keva-dev/keva/issues) and help
 us out!
 
 To install and work on Keva locally:
 
 ```command
-git clone git@github.com:tuhuynh27/keva.git
+git clone git@github.com:keva-dev/keva.git
 cd keva
 ./gradlew dependencies
 ```
@@ -65,4 +65,4 @@ Build CLI client:
 
 ## License
 
-[Apache License 2.0](https://github.com/tuhuynh27/keva/blob/master/LICENSE)
+[Apache License 2.0](https://github.com/keva-dev/keva/blob/master/LICENSE)
