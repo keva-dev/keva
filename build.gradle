@@ -9,8 +9,8 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
-    group 'com.jinyframework'
-    version '0.3.3'
+    group 'dev.keva'
+    version '1.0.0'
 
     repositories {
         mavenCentral()
@@ -27,7 +27,7 @@ subprojects {
         testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
 
         // SLF4J as a facade
-        compile group: 'org.slf4j', name:'slf4j-api', version: '1.7.2'
+        implementation 'org.slf4j:slf4j-api:1.7.2'
     }
 
     jacocoTestReport {

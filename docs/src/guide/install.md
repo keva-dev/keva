@@ -8,7 +8,7 @@
 ## Download
 
 ```command
-curl -o /usr/local/bin/keva-server https://go.keva.dev/keva-server
+curl -L -o /usr/local/bin/keva-server https://download.keva.dev
 chmod +x /usr/local/bin/keva-server
 ```
 

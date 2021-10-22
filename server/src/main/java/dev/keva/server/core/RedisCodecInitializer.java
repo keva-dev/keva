@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public class RedisCodecInitializer extends ChannelInitializer<SocketChannel> {
     private ChannelHandler handler;
@@ -18,9 +19,10 @@ public class RedisCodecInitializer extends ChannelInitializer<SocketChannel> {
     }
 
     @Override
-    protected void initChannel(SocketChannel ch) throws Exception {
+    protected void initChannel(SocketChannel ch) {
         final ChannelPipeline p = ch.pipeline();
 
+        p.addLast(new IdleStateHandler(0, 0, 5 * 60));
         p.addLast(new RedisCommandDecoder());
         p.addLast(new RedisReplyEncoder());
 

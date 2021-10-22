@@ -8,7 +8,7 @@ java {
 }
 
 dependencies {
-    implementation 'net.openhft:chronicle-map:3.21.85'
+    implementation 'net.openhft:chronicle-map:3.21.86'
 }
 
 javadoc {

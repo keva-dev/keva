@@ -3,9 +3,11 @@ package dev.keva.server.core;
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.protocol.redis.Command;
 import dev.keva.server.protocol.redis.Reply;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,5 +66,17 @@ public class ServerHandler extends SimpleChannelInboundHandler<Command> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("Handler exception caught: ", cause);
         ctx.close();
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            Channel channel = ctx.channel();
+            log.info("IdleStateEvent triggered, close channel " + channel);
+            channelUnregistered(ctx);
+            ctx.close();
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
     }
 }

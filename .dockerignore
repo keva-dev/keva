@@ -1,4 +1,7 @@
 .idea/
+.github/
+docs/
+binaries/
 build/
 .gradle/
 .DS_Store

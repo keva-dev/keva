@@ -5,22 +5,20 @@ import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.command.setup.CommandServiceImpl;
 import dev.keva.server.config.ConfigHolder;
 import dev.keva.server.replication.master.ReplicationService;
-import dev.keva.server.replication.master.ReplicationServiceImpl;
 import dev.keva.server.replication.slave.SlaveService;
-import dev.keva.server.replication.slave.SlaveServiceImpl;
 import dev.keva.server.storage.NoHeapStorageServiceImpl;
 import dev.keva.server.storage.StorageService;
 import dev.keva.store.NoHeapConfig;
 import dev.keva.store.NoHeapFactory;
 import dev.keva.store.NoHeapStore;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -31,6 +29,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 public class NettyServer implements Server {
+    private static final int BUFFER_SIZE = 1024 * 1024;
+
     private final ConfigHolder config;
 
     // Executors
@@ -46,9 +46,8 @@ public class NettyServer implements Server {
     private CommandService commandService;
     @Getter // use for testing should change to dedicated command or extract from INFO
     private ReplicationService replicationService;
-    private WriteLog writeLog;
+    // private WriteLog writeLog;
     private Channel channel;
-    private ServerBootstrap server;
     private NoHeapStore noHeapStore;
 
     public NettyServer(ConfigHolder config) {
@@ -56,24 +55,31 @@ public class NettyServer implements Server {
     }
 
     private void initServices(boolean isFreshStart) {
-        if (isFreshStart) {
-            writeLog = new WriteLog(config.getWriteLogSize());
-        }
+        // TODO: re-enable rep mode
+        // if (isFreshStart) {
+            // writeLog = new WriteLog(config.getWriteLogSize());
+        // }
         initStorageService(isFreshStart);
-        replicationService = new ReplicationServiceImpl(healthCheckerPool, repWorkerPool, storageService, writeLog);
+        // replicationService = new ReplicationServiceImpl(healthCheckerPool, repWorkerPool, storageService, writeLog);
 
         connectionService = new ConnectionServiceImpl();
         final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
         commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
-        slaveService = new SlaveServiceImpl(healthCheckerPool, writeLog, commandService);
+        // slaveService = new SlaveServiceImpl(healthCheckerPool, writeLog, commandService);
     }
 
     public ServerBootstrap bootstrapServer() {
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .handler(new LoggingHandler(LogLevel.TRACE))
-                .childHandler(new RedisCodecInitializer(new ServerHandler(connectionService, commandService)));
+                .childHandler(new RedisCodecInitializer(new ServerHandler(connectionService, commandService)))
+                .option(ChannelOption.SO_BACKLOG, 100)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
+                .childOption(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                .childOption(ChannelOption.TCP_NODELAY, true);
         return b;
     }
 
@@ -110,8 +116,11 @@ public class NettyServer implements Server {
         healthCheckerPool.shutdown();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
-        channel.close();
-        log.info("Database server at {} stopped", config.getPort());
+
+        if (channel != null) {
+            channel.close();
+        }
+        log.info("Keva server at {} stopped", config.getPort());
     }
 
     @Override
@@ -120,12 +129,15 @@ public class NettyServer implements Server {
             initExecutors();
             initServices(isFreshStart);
             startSlaveService();
-            server = bootstrapServer();
+            ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
-            log.info("Database server started at {}", config.getPort());
+            sync.syncUninterruptibly();
+            log.info("Keva server started at {}", config.getPort());
 
-            channel = sync.channel();
-            channel.closeFuture().sync();
+            if (channel != null) {
+                channel = sync.channel();
+                channel.closeFuture().sync();
+            }
         } catch (InterruptedException e) {
             log.error("Failed to start server: ", e);
             Thread.currentThread().interrupt();

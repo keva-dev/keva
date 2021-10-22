@@ -1,5 +1,4 @@
 rootProject.name = 'keva'
 
-include 'cli-client'
 include 'server'
 include 'store'
