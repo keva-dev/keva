@@ -3,7 +3,7 @@ package dev.keva.server.command.setup;
 import dev.keva.server.command.*;
 import dev.keva.server.core.ConnectionService;
 import dev.keva.server.replication.master.ReplicationService;
-import dev.keva.server.storage.StorageService;
+import dev.keva.store.StorageService;
 
 import java.util.Map;
 

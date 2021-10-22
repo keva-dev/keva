@@ -32,7 +32,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Command> {
     protected void channelRead0(ChannelHandlerContext ctx, Command msg) throws Exception {
         byte[] bytes = msg.getName();
         String name = new String(bytes, StandardCharsets.UTF_8);
-        Reply reply = commandService.handleCommand(name, msg);
+        Reply<?> reply = commandService.handleCommand(name, msg);
         ctx.write(reply);
     }
 

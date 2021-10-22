@@ -3,7 +3,7 @@ package dev.keva.server.core;
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.replication.master.ReplicationService;
 import dev.keva.server.replication.slave.SlaveService;
-import dev.keva.server.storage.StorageService;
+import dev.keva.store.StorageService;
 import lombok.Builder;
 import lombok.Getter;
 

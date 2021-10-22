@@ -6,11 +6,13 @@ import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import lombok.val;
 
 @Slf4j
-public class NoHeapChronicleMapImpl implements NoHeapStore {
+public class NoHeapChronicleMapImpl implements StorageService {
     private ChronicleMap<String, String> chronicleMap;
     private String snapshotDir;
 
@@ -18,9 +20,9 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
         try {
             ChronicleMapBuilder<String, String> mapBuilder = ChronicleMapBuilder.of(String.class, String.class)
                     .name("keva-chronicle-map")
-                    .averageKey("SampleSampleSampleSampleSampleSampleSampleSampleSampleSampleKey")
-                    .averageValue("SampleSampleSampleSampleSampleSampleSampleSampleSampleSampleValue")
-                    .entries(10_000);
+                    .averageKey("SampleSampleSampleKey")
+                    .averageValue("SampleSampleSampleSampleSampleSampleValue")
+                    .entries(1_000);
 
             val shouldPersist = config.getSnapshotEnabled();
             if (shouldPersist) {
@@ -37,19 +39,18 @@ public class NoHeapChronicleMapImpl implements NoHeapStore {
     }
 
     @Override
-    public String getName() {
-        return null;
+    public void shutdownGracefully() {
+        chronicleMap.close();
     }
 
     @Override
-    public String getFolder() {
-        return snapshotDir;
+    public Path getSnapshotPath() {
+        return Paths.get(snapshotDir);
     }
 
     @Override
-    public boolean putString(String key, String val) {
+    public void putString(String key, String val) {
         chronicleMap.put(key, val);
-        return true;
     }
 
     @Override

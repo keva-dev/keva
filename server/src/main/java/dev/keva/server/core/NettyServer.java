@@ -6,11 +6,9 @@ import dev.keva.server.command.setup.CommandServiceImpl;
 import dev.keva.server.config.ConfigHolder;
 import dev.keva.server.replication.master.ReplicationService;
 import dev.keva.server.replication.slave.SlaveService;
-import dev.keva.server.storage.NoHeapStorageServiceImpl;
-import dev.keva.server.storage.StorageService;
 import dev.keva.store.NoHeapConfig;
 import dev.keva.store.NoHeapFactory;
-import dev.keva.store.NoHeapStore;
+import dev.keva.store.StorageService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -48,7 +46,7 @@ public class NettyServer implements Server {
     private ReplicationService replicationService;
     // private WriteLog writeLog;
     private Channel channel;
-    private NoHeapStore noHeapStore;
+    private StorageService noHeapStore;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
@@ -100,7 +98,7 @@ public class NettyServer implements Server {
         if (isFreshStart) {
             noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
         }
-        storageService = new NoHeapStorageServiceImpl(noHeapStore);
+        storageService = noHeapStore;
     }
 
     private void initExecutors() {
@@ -116,10 +114,10 @@ public class NettyServer implements Server {
         healthCheckerPool.shutdown();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        storageService.shutdownGracefully();
 
-        if (channel != null) {
-            channel.close();
-        }
+        channel.close();
+
         log.info("Keva server at {} stopped", config.getPort());
     }
 
@@ -131,13 +129,10 @@ public class NettyServer implements Server {
             startSlaveService();
             ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
-            sync.syncUninterruptibly();
             log.info("Keva server started at {}", config.getPort());
 
-            if (channel != null) {
-                channel = sync.channel();
-                channel.closeFuture().sync();
-            }
+            channel = sync.channel();
+            channel.closeFuture().sync();
         } catch (InterruptedException e) {
             log.error("Failed to start server: ", e);
             Thread.currentThread().interrupt();

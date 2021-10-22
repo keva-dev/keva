@@ -2,7 +2,7 @@ package dev.keva.server.replication.master;
 
 import dev.keva.server.command.setup.CommandName;
 import dev.keva.server.core.WriteLog;
-import dev.keva.server.storage.StorageService;
+import dev.keva.store.StorageService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

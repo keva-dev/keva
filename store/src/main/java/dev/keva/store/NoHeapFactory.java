@@ -9,7 +9,7 @@ public final class NoHeapFactory {
     private NoHeapFactory() {
     }
 
-    public static NoHeapStore makeNoHeapDBStore(NoHeapConfig config) {
+    public static StorageService makeNoHeapDBStore(NoHeapConfig config) {
         return new NoHeapChronicleMapImpl(config);
     }
 }
