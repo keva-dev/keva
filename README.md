@@ -42,13 +42,13 @@ cd keva
 Run:
 
 ```command
-./gradlew --no-daemon --quiet --console plain :server:run
+./gradlew :server:run
 ```
 
 Build:
 
 ```command
-./gradlew :server:shadowJar
+./gradlew :build:server
 ```
 
 ## License

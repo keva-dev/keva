@@ -1,4 +1,4 @@
-FROM openjdk:12 AS builder
+FROM openjdk:11 AS builder
 
 RUN mkdir -p /root/src/keva
 WORKDIR /root/src/keva
@@ -9,9 +9,9 @@ COPY ./server/build.gradle ./server/keva.properties ./server/
 RUN ./gradlew dependencies
 
 COPY . .
-RUN ./gradlew clean :server:build -x test
+RUN ./gradlew :server:build -x test
 
-FROM openjdk:12-jdk-alpine
+FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine
 
 RUN mkdir -p /root/binary/keva
 WORKDIR /root/binary/keva
@@ -20,7 +20,7 @@ COPY --from=builder /root/src/keva/server/build/libs/server-1.0-SNAPSHOT-all.jar
 
 EXPOSE 6767
 
-ENTRYPOINT ["java","-jar","keva.jar","--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"]
+ENTRYPOINT ["java","-jar","keva.jar"]
 
 # docker build -t keva-server .
 # docker run -d --name keva-server --network=host -p 6767:6767 keva-server:latest
