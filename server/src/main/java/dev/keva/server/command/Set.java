@@ -1,5 +1,6 @@
 package dev.keva.server.command;
 
+import com.google.inject.Inject;
 import dev.keva.server.command.setup.CommandHandler;
 import dev.keva.server.protocol.redis.StatusReply;
 import dev.keva.store.StorageService;
@@ -9,6 +10,7 @@ import java.util.List;
 public class Set implements CommandHandler {
     private final StorageService store;
 
+    @Inject
     public Set(StorageService store) {
         this.store = store;
     }

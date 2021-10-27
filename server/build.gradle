@@ -21,6 +21,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.reflections:reflections:0.10.1'
+    implementation 'com.google.inject:guice:5.0.1'
 
     testImplementation group: 'com.googlecode.multithreadedtc', name: 'multithreadedtc', version: '1.01'
 

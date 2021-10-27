@@ -1,11 +1,11 @@
 package dev.keva.server.core;
 
-import dev.keva.server.command.setup.CommandRegistrar;
+import com.google.common.base.Stopwatch;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.command.setup.CommandServiceImpl;
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.store.NoHeapConfig;
-import dev.keva.store.NoHeapFactory;
 import dev.keva.store.StorageService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -16,7 +16,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NettyServer implements Server {
@@ -28,21 +29,18 @@ public class NettyServer implements Server {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    // Services
-    private StorageService storageService;
     private CommandService commandService;
     private Channel channel;
-    private StorageService noHeapStore;
+    private StorageService storageService;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
     }
 
-    private void initServices(boolean isFreshStart) {
-        initStorageService(isFreshStart);
-
-        final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService);
-        commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap());
+    private void initServices() {
+        Injector injector = Guice.createInjector(new CoreModule(config));
+        commandService = new CommandServiceImpl(injector);
+        storageService = injector.getInstance(StorageService.class);
     }
 
     public ServerBootstrap bootstrapServer() {
@@ -58,18 +56,6 @@ public class NettyServer implements Server {
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true);
         return b;
-    }
-
-    public void initStorageService(boolean isFreshStart) {
-        val noHeapConfig = NoHeapConfig.builder()
-                .heapSize(config.getHeapSize())
-                .snapshotEnabled(config.getSnapshotEnabled())
-                .snapshotLocation(config.getSnapshotLocation())
-                .build();
-        if (isFreshStart) {
-            noHeapStore = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
-        }
-        storageService = noHeapStore;
     }
 
     private void initExecutors() {
@@ -89,13 +75,15 @@ public class NettyServer implements Server {
     }
 
     @Override
-    public void run(boolean isFreshStart) {
+    public void run() {
         try {
+            Stopwatch stopwatch = Stopwatch.createStarted();
             initExecutors();
-            initServices(isFreshStart);
+            initServices();
             ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
-            log.info("Keva server started at {}", config.getPort());
+            log.info("Keva server started at {} in {} ms", config.getPort(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
 
             channel = sync.channel();
             channel.closeFuture().sync();
@@ -107,10 +95,5 @@ public class NettyServer implements Server {
         } finally {
             shutdown();
         }
-    }
-
-    @Override
-    public void run() {
-        run(true);
     }
 }

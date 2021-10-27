@@ -1,5 +1,6 @@
 package dev.keva.server.command;
 
+import com.google.inject.Inject;
 import dev.keva.server.command.setup.CommandHandler;
 import dev.keva.server.protocol.redis.IntegerReply;
 import dev.keva.store.StorageService;
@@ -12,6 +13,7 @@ public class Expire implements CommandHandler {
     private final Timer timer = new Timer();
     private final StorageService store;
 
+    @Inject
     public Expire(StorageService store) {
         this.store = store;
     }
