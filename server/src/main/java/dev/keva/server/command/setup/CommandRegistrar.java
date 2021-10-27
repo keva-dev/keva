@@ -1,8 +1,6 @@
 package dev.keva.server.command.setup;
 
 import dev.keva.server.command.*;
-import dev.keva.server.core.ConnectionService;
-import dev.keva.server.replication.master.ReplicationService;
 import dev.keva.store.StorageService;
 
 import java.util.Map;
@@ -13,15 +11,9 @@ import static java.util.Map.ofEntries;
 public final class CommandRegistrar {
     private final Map<CommandName, CommandHandler> registrar;
     private final StorageService storageService;
-    private final ReplicationService replicationService;
-    private final ConnectionService connectionService;
 
-    public CommandRegistrar(StorageService storageService,
-                            ReplicationService replicationService,
-                            ConnectionService connectionService) {
+    public CommandRegistrar(StorageService storageService) {
         this.storageService = storageService;
-        this.replicationService = replicationService;
-        this.connectionService = connectionService;
         registrar = registerCommands();
     }
 
@@ -34,11 +26,9 @@ public final class CommandRegistrar {
                 entry(CommandName.GET, new Get(storageService)),
                 entry(CommandName.SET, new Set(storageService)),
                 entry(CommandName.PING, new Ping()),
-                entry(CommandName.INFO, new Info(replicationService, connectionService)),
+                entry(CommandName.INFO, new Info()),
                 entry(CommandName.DEL, new Del(storageService)),
-                entry(CommandName.EXPIRE, new Expire(storageService)),
-                entry(CommandName.FSYNC, new FSync(storageService, replicationService)),
-                entry(CommandName.PSYNC, new PSync(replicationService))
+                entry(CommandName.EXPIRE, new Expire(storageService))
         );
     }
 }

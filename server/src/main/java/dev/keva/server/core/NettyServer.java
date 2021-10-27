@@ -4,8 +4,6 @@ import dev.keva.server.command.setup.CommandRegistrar;
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.command.setup.CommandServiceImpl;
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.server.replication.master.ReplicationService;
-import dev.keva.server.replication.slave.SlaveService;
 import dev.keva.store.NoHeapConfig;
 import dev.keva.store.NoHeapFactory;
 import dev.keva.store.StorageService;
@@ -17,13 +15,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 @Slf4j
 public class NettyServer implements Server {
@@ -34,17 +27,10 @@ public class NettyServer implements Server {
     // Executors
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private ExecutorService repWorkerPool;
-    private ScheduledExecutorService healthCheckerPool;
 
     // Services
-    private ConnectionService connectionService;
     private StorageService storageService;
-    private SlaveService slaveService;
     private CommandService commandService;
-    @Getter // use for testing should change to dedicated command or extract from INFO
-    private ReplicationService replicationService;
-    // private WriteLog writeLog;
     private Channel channel;
     private StorageService noHeapStore;
 
@@ -53,24 +39,17 @@ public class NettyServer implements Server {
     }
 
     private void initServices(boolean isFreshStart) {
-        // TODO: re-enable rep mode
-        // if (isFreshStart) {
-            // writeLog = new WriteLog(config.getWriteLogSize());
-        // }
         initStorageService(isFreshStart);
-        // replicationService = new ReplicationServiceImpl(healthCheckerPool, repWorkerPool, storageService, writeLog);
 
-        connectionService = new ConnectionServiceImpl();
-        final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService, replicationService, connectionService);
-        commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap(), replicationService);
-        // slaveService = new SlaveServiceImpl(healthCheckerPool, writeLog, commandService);
+        final CommandRegistrar commandRegistrar = new CommandRegistrar(storageService);
+        commandService = new CommandServiceImpl(commandRegistrar.getHandlerMap());
     }
 
     public ServerBootstrap bootstrapServer() {
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new RedisCodecInitializer(new ServerHandler(connectionService, commandService)))
+                .childHandler(new RedisCodecInitializer(new ServerHandler(commandService)))
                 .option(ChannelOption.SO_BACKLOG, 100)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
@@ -79,14 +58,6 @@ public class NettyServer implements Server {
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true);
         return b;
-    }
-
-    public void startSlaveService() throws Exception {
-        if (config.getReplicaOf() != null && !config.getReplicaOf()
-                .isBlank() && !"NO:ONE".equalsIgnoreCase(config.getReplicaOf())) {
-            // start slave service and sync snapshot file in blocking manner
-            slaveService.start(config);
-        }
     }
 
     public void initStorageService(boolean isFreshStart) {
@@ -104,14 +75,10 @@ public class NettyServer implements Server {
     private void initExecutors() {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
-        repWorkerPool = Executors.newCachedThreadPool();
-        healthCheckerPool = Executors.newScheduledThreadPool(1);
     }
 
     @Override
     public void shutdown() {
-        repWorkerPool.shutdown();
-        healthCheckerPool.shutdown();
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
         storageService.shutdownGracefully();
@@ -126,7 +93,6 @@ public class NettyServer implements Server {
         try {
             initExecutors();
             initServices(isFreshStart);
-            startSlaveService();
             ServerBootstrap server = bootstrapServer();
             final ChannelFuture sync = server.bind(config.getPort()).sync();
             log.info("Keva server started at {}", config.getPort());

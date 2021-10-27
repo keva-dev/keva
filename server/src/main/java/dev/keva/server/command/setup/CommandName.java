@@ -7,7 +7,4 @@ public enum CommandName {
     INFO,
     DEL,
     EXPIRE,
-    FSYNC,
-    PSYNC,
-    UNSUPPORTED
 }
