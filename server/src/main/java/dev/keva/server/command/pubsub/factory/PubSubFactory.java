@@ -1,4 +1,4 @@
-package dev.keva.server.command.pubsub;
+package dev.keva.server.command.pubsub.factory;
 
 import io.netty.channel.Channel;
 import lombok.Getter;

@@ -2,6 +2,7 @@ package dev.keva.server.command.pubsub;
 
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.pubsub.factory.PubSubFactory;
 import dev.keva.server.protocol.resp.reply.BulkReply;
 import dev.keva.server.protocol.resp.reply.IntegerReply;
 import dev.keva.server.protocol.resp.reply.MultiBulkReply;
