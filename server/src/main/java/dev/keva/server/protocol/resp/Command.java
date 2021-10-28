@@ -1,6 +1,7 @@
 package dev.keva.server.protocol.resp;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -153,10 +154,12 @@ public class Command {
         return argument;
     }
 
-    public void toArguments(Object[] arguments, Class<?>[] types) {
+    public void toArguments(Object[] arguments, Class<?>[] types, ChannelHandlerContext ctx) {
         int position = 0;
         for (Class<?> type : types) {
-            if (type == byte[].class) {
+            if (type == ChannelHandlerContext.class) {
+                arguments[position] = ctx;
+            } else if (type == byte[].class) {
                 if (position >= arguments.length) {
                     throw new IllegalArgumentException("wrong number of arguments for '" + new String(getName()).toLowerCase() + "' command");
                 }
@@ -164,10 +167,12 @@ public class Command {
                     arguments[position] = objects[1 + position];
                 }
             } else {
-                int left = objects.length - position - 1;
+                // Process Vararg
+                boolean isFirstVararg = position == 0;
+                int left = isFirstVararg ? (objects.length - position - 1) : (objects.length - 1);
                 byte[][] lastArgument = new byte[left][];
                 for (int i = 0; i < left; i++) {
-                    lastArgument[i] = (byte[]) objects[i + position + 1];
+                    lastArgument[i] =  isFirstVararg ? (byte[]) (objects[i + position + 1]) : (byte[]) (objects[i + position]);
                 }
                 arguments[position] = lastArgument;
             }
