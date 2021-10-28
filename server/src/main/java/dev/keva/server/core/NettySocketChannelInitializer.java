@@ -8,14 +8,14 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 
-public class RedisCodecInitializer extends ChannelInitializer<SocketChannel> {
+public class NettySocketChannelInitializer extends ChannelInitializer<SocketChannel> {
     private ChannelHandler handler;
 
-    public RedisCodecInitializer(ChannelHandler handler) {
+    public NettySocketChannelInitializer(ChannelHandler handler) {
         this.handler = handler;
     }
 
-    public RedisCodecInitializer() {
+    public NettySocketChannelInitializer() {
     }
 
     @Override

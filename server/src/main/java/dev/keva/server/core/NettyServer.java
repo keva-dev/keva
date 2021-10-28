@@ -48,7 +48,7 @@ public class NettyServer implements Server {
         final ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new RedisCodecInitializer(new ServerHandler(commandService)))
+                .childHandler(new NettySocketChannelInitializer(new NettyChannelHandler(commandService)))
                 .option(ChannelOption.SO_BACKLOG, 100)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE)

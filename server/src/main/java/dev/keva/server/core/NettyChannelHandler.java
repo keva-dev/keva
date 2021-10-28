@@ -14,10 +14,10 @@ import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @ChannelHandler.Sharable
-public class ServerHandler extends SimpleChannelInboundHandler<Command> {
+public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private final CommandService commandService;
 
-    public ServerHandler(CommandService commandService) {
+    public NettyChannelHandler(CommandService commandService) {
         this.commandService = commandService;
     }
 

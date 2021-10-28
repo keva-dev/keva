@@ -60,7 +60,7 @@ public class Command {
         this.inline = inline;
     }
 
-    public static void writeDirect(ByteBuf os, Object name, Object object1, Object object2, Object object3, Object[] objects) throws IOException {
+    public static void writeDirect(ByteBuf os, Object name, Object object1, Object object2, Object object3, Object[] objects) {
         int others = (object1 == null ? 0 : 1) + (object2 == null ? 0 : 1) +
                 (object3 == null ? 0 : 1) + (name == null ? 0 : 1);
         int length = objects == null ? 0 : objects.length;
@@ -77,7 +77,7 @@ public class Command {
         }
     }
 
-    private static void writeObject(ByteBuf os, Object object) throws IOException {
+    private static void writeObject(ByteBuf os, Object object) {
         byte[] argument;
         if (object == null) {
             argument = EMPTY_BYTES;
