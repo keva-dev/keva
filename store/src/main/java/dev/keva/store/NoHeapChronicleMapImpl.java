@@ -13,15 +13,15 @@ import lombok.val;
 
 @Slf4j
 public class NoHeapChronicleMapImpl implements StorageService {
-    private ChronicleMap<String, String> chronicleMap;
+    private ChronicleMap<byte[], byte[]> chronicleMap;
     private String snapshotDir;
 
     public NoHeapChronicleMapImpl(NoHeapConfig config) {
         try {
-            ChronicleMapBuilder<String, String> mapBuilder = ChronicleMapBuilder.of(String.class, String.class)
+            ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")
-                    .averageKey("SampleSampleSampleKey")
-                    .averageValue("SampleSampleSampleSampleSampleSampleValue")
+                    .averageKey("SampleSampleSampleKey".getBytes())
+                    .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
                     .entries(1_000);
 
             val shouldPersist = config.getSnapshotEnabled();
@@ -49,17 +49,17 @@ public class NoHeapChronicleMapImpl implements StorageService {
     }
 
     @Override
-    public void putString(String key, String val) {
+    public void put(byte[] key, byte[] val) {
         chronicleMap.put(key, val);
     }
 
     @Override
-    public String getString(String key) {
+    public byte[] get(byte[] key) {
         return chronicleMap.get(key);
     }
 
     @Override
-    public boolean remove(String key) {
+    public boolean remove(byte[] key) {
         return chronicleMap.remove(key) != null;
     }
 }

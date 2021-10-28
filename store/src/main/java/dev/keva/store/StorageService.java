@@ -8,9 +8,9 @@ public interface StorageService {
 
     Path getSnapshotPath();
 
-    void putString(String key, String val);
+    void put(byte[] key, byte[] val);
 
-    String getString(String key);
+    byte[] get(byte[] key);
 
-    boolean remove(String key);
+    boolean remove(byte[] key);
 }
