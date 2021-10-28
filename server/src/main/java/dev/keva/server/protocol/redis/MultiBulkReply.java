@@ -7,18 +7,18 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class MultiBulkReply implements Reply<Reply[]> {
+public class MultiBulkReply implements Reply<Reply<?>[]> {
     public static final char MARKER = '*';
     public static final MultiBulkReply EMPTY = new MultiBulkReply(new Reply[0]);
 
-    private Reply[] replies;
+    private Reply<?>[] replies;
     private int size = -2;
     private int index = 0;
 
     public MultiBulkReply() {
     }
 
-    public MultiBulkReply(Reply[] replies) {
+    public MultiBulkReply(Reply<?>[] replies) {
         this.replies = replies;
         size = replies.length;
     }
@@ -48,7 +48,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
     }
 
     @Override
-    public Reply[] data() {
+    public Reply<?>[] data() {
         return replies;
     }
 
@@ -59,7 +59,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
             os.writeBytes(Encoding.NEG_ONE_WITH_CRLF);
         } else {
             os.writeBytes(Encoding.numToBytes(replies.length, true));
-            for (Reply reply : replies) {
+            for (Reply<?> reply : replies) {
                 reply.write(os);
             }
         }
@@ -68,7 +68,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
     public List<String> asStringList(Charset charset) {
         if (replies == null) return null;
         List<String> strings = new ArrayList<>(replies.length);
-        for (Reply reply : replies) {
+        for (Reply<?> reply : replies) {
             if (reply instanceof BulkReply) {
                 strings.add(((BulkReply) reply).asString(charset));
             } else {
@@ -81,7 +81,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
     public Set<String> asStringSet(Charset charset) {
         if (replies == null) return null;
         Set<String> strings = new HashSet<>(replies.length);
-        for (Reply reply : replies) {
+        for (Reply<?> reply : replies) {
             if (reply instanceof BulkReply) {
                 strings.add(((BulkReply) reply).asString(charset));
             } else {
@@ -99,8 +99,8 @@ public class MultiBulkReply implements Reply<Reply[]> {
             throw new IllegalArgumentException("Odd number of replies");
         }
         for (int i = 0; i < length; i += 2) {
-            Reply key = replies[i];
-            Reply value = replies[i + 1];
+            Reply<?> key = replies[i];
+            Reply<?> value = replies[i + 1];
             if (key instanceof BulkReply) {
                 if (value instanceof BulkReply) {
                     map.put(((BulkReply) key).asString(charset), ((BulkReply) value).asString(charset));

@@ -73,14 +73,14 @@ public class RedisReplyDecoder extends ReplayingDecoder<Void> {
         return buffer;
     }
 
-    public Reply receive(final ByteBuf is) throws IOException {
+    public Reply<?> receive(final ByteBuf is) throws IOException {
         if (reply != null) {
             return decodeMultiBulkReply(is);
         }
         return readReply(is);
     }
 
-    public Reply readReply(ByteBuf is) throws IOException {
+    public Reply<?> readReply(ByteBuf is) throws IOException {
         int code = is.readByte();
         switch (code) {
             case StatusReply.MARKER: {
