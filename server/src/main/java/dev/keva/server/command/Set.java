@@ -1,19 +1,16 @@
 package dev.keva.server.command;
 
+import dev.keva.server.command.annotation.Command;
+import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.core.AppFactory;
-import dev.keva.server.protocol.resp.reply.BulkReply;
 import dev.keva.server.protocol.resp.reply.StatusReply;
 import dev.keva.store.StorageService;
-import lombok.val;
 
-public class CommandFactory {
+@Command("set")
+public class Set {
     private static final StorageService storageService = AppFactory.getStorageService();
 
-    public static BulkReply get(byte[] key) {
-        val got = storageService.get(key);
-        return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
-    }
-
+    @Execute
     public static StatusReply set(byte[] key, byte[] val) {
         storageService.put(key, val);
         return new StatusReply("OK");

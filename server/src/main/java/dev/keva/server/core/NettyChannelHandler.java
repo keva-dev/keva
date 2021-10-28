@@ -1,9 +1,9 @@
 package dev.keva.server.core;
 
-import dev.keva.server.command.CommandFactory;
-import dev.keva.server.command.CommandWrapper;
-import dev.keva.server.protocol.resp.hashbytes.BytesKey;
+import dev.keva.server.command.wrapper.CommandWrapper;
+import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.protocol.resp.Command;
+import dev.keva.server.protocol.resp.hashbytes.BytesKey;
 import dev.keva.server.protocol.resp.reply.ErrorReply;
 import dev.keva.server.protocol.resp.reply.Reply;
 import io.netty.channel.ChannelHandler.Sharable;
@@ -12,7 +12,9 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.reflections.Reflections;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -22,19 +24,25 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private final ConcurrentMap<BytesKey, CommandWrapper> methods = new ConcurrentHashMap<>();
 
     public NettyChannelHandler() {
-        Class<CommandFactory> aClass = CommandFactory.class;
-        for (val method : aClass.getMethods()) {
-            final Class<?>[] types = method.getParameterTypes();
-            methods.put(new BytesKey(method.getName().getBytes()), command -> {
-                try {
-                    Object[] objects = new Object[types.length];
-                    command.toArguments(objects, types);
-                    return (Reply<?>) method.invoke(null, objects);
-                } catch (Exception e) {
-                    log.error("", e);
-                    return null;
+        Reflections reflections = new Reflections("dev.keva.server.command");
+        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(dev.keva.server.command.annotation.Command.class);
+        for (Class<?> aClass : annotated) {
+            for (val method : aClass.getMethods()) {
+                if (method.isAnnotationPresent(Execute.class)) {
+                    val types = method.getParameterTypes();
+                    val commandName = aClass.getAnnotation(dev.keva.server.command.annotation.Command.class).value();
+                    methods.put(new BytesKey(commandName.getBytes()), command -> {
+                        try {
+                            Object[] objects = new Object[types.length];
+                            command.toArguments(objects, types);
+                            return (Reply<?>) method.invoke(null, objects);
+                        } catch (Exception e) {
+                            log.error("", e);
+                            return null;
+                        }
+                    });
                 }
-            });
+            }
         }
     }
 
