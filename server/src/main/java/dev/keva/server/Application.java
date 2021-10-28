@@ -3,6 +3,7 @@ package dev.keva.server;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import dev.keva.server.config.ConfigManager;
+import dev.keva.server.core.AppFactory;
 import dev.keva.server.core.NettyServer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -21,8 +22,9 @@ public final class Application {
 
     public static void main(String[] args) {
         try {
-            val configHolder = ConfigManager.loadConfig(args);
-            val server = new NettyServer(configHolder);
+            AppFactory.setConfig(ConfigManager.loadConfig(args));
+            AppFactory.eagerInitKevaDatabase();
+            val server = new NettyServer();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {

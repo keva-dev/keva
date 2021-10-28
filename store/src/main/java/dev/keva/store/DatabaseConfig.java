@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class NoHeapConfig {
+public class DatabaseConfig {
     Boolean snapshotEnabled;
     Integer heapSize;
     String snapshotLocation;

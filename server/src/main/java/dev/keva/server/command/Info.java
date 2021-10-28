@@ -1,15 +1,19 @@
 package dev.keva.server.command;
 
-import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+
 import dev.keva.server.protocol.resp.reply.BulkReply;
 import lombok.val;
 
 import java.lang.management.ManagementFactory;
-import java.util.List;
 
-public class Info implements CommandHandler {
-    @Override
-    public BulkReply handle(List<String> args) {
+@CommandImpl("info")
+@ParamLength(0)
+public class Info {
+    @Execute
+    public BulkReply execute() {
         val threads = ManagementFactory.getThreadMXBean().getThreadCount();
         String infoStr = "# Server\r\n" +
                 "keva_version: 1.0.0\r\n"

@@ -1,24 +1,19 @@
 package dev.keva.server.command;
 
-import com.google.inject.Inject;
-import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+import dev.keva.server.command.base.BaseCommandImpl;
 import dev.keva.server.protocol.resp.reply.BulkReply;
-import dev.keva.store.StorageService;
+import dev.keva.server.protocol.resp.reply.Reply;
 import lombok.val;
 
-import java.util.List;
-
-public class Get implements CommandHandler {
-    private final StorageService store;
-
-    @Inject
-    public Get(StorageService store) {
-        this.store = store;
-    }
-
-    @Override
-    public BulkReply handle(List<String> args) {
-        val got = store.getString(args.get(1));
-        return got != null ? new BulkReply(got) : BulkReply.NIL_REPLY;
+@CommandImpl("get")
+@ParamLength(1)
+public class Get extends BaseCommandImpl {
+    @Execute
+    public Reply<?> execute(byte[] key) {
+        val got = database.get(key);
+        return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
     }
 }

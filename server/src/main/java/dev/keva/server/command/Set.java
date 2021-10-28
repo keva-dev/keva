@@ -1,23 +1,17 @@
 package dev.keva.server.command;
 
-import com.google.inject.Inject;
-import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+import dev.keva.server.command.base.BaseCommandImpl;
 import dev.keva.server.protocol.resp.reply.StatusReply;
-import dev.keva.store.StorageService;
 
-import java.util.List;
-
-public class Set implements CommandHandler {
-    private final StorageService store;
-
-    @Inject
-    public Set(StorageService store) {
-        this.store = store;
-    }
-
-    @Override
-    public StatusReply handle(List<String> args) {
-        store.putString(args.get(1), args.get(2));
-        return StatusReply.OK;
+@CommandImpl("set")
+@ParamLength(2)
+public class Set extends BaseCommandImpl {
+    @Execute
+    public StatusReply execute(byte[] key, byte[] val) {
+        database.put(key, val);
+        return new StatusReply("OK");
     }
 }

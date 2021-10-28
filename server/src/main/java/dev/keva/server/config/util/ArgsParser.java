@@ -3,9 +3,6 @@ package dev.keva.server.config.util;
 import lombok.val;
 
 public final class ArgsParser {
-    private ArgsParser() {
-    }
-
     public static ArgsHolder parse(String[] args) {
         val holder = new ArgsHolder();
         for (int i = 0; i < args.length; i++) {

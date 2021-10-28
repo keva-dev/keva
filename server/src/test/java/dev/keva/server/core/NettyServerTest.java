@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import redis.clients.jedis.Jedis;
 
+import lombok.val;
+
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -18,11 +20,13 @@ public class NettyServerTest extends AbstractServerTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        server = new NettyServer(ConfigHolder.defaultBuilder()
+        val config = ConfigHolder.defaultBuilder()
                 .snapshotEnabled(false)
                 .hostname(host)
                 .port(port)
-                .build());
+                .build();
+        AppFactory.setConfig(config);
+        server = new NettyServer();
 
         new Thread(() -> {
             try {

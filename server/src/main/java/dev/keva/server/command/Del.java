@@ -1,24 +1,23 @@
 package dev.keva.server.command;
 
-import com.google.inject.Inject;
-import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
+import dev.keva.server.command.base.BaseCommandImpl;
 import dev.keva.server.protocol.resp.reply.IntegerReply;
-import dev.keva.store.StorageService;
 
-import java.util.List;
-
-public class Del implements CommandHandler {
-    private final StorageService store;
-
-    @Inject
-    public Del(StorageService store) {
-        this.store = store;
-    }
-
-    @Override
-    public IntegerReply handle(List<String> args) {
-        return store.remove(args.get(1))
-                ? new IntegerReply(1)
-                : new IntegerReply(0);
+@CommandImpl("del")
+@ParamLength(type = AT_LEAST, value = 1)
+public class Del extends BaseCommandImpl {
+    @Execute
+    public IntegerReply execute(byte[]... keys) {
+        var deleted = 0;
+        for (byte[] key : keys) {
+            if (database.remove(key)) {
+                deleted++;
+            }
+        }
+        return new IntegerReply(deleted);
     }
 }

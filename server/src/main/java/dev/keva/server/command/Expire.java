@@ -1,35 +1,32 @@
 package dev.keva.server.command;
 
-import com.google.inject.Inject;
-import dev.keva.server.command.setup.CommandHandler;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+import dev.keva.server.command.base.BaseCommandImpl;
 import dev.keva.server.protocol.resp.reply.IntegerReply;
-import dev.keva.store.StorageService;
 
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Expire implements CommandHandler {
+@CommandImpl("expire")
+@ParamLength(2)
+public class Expire extends BaseCommandImpl {
     private final Timer timer = new Timer();
-    private final StorageService store;
 
-    @Inject
-    public Expire(StorageService store) {
-        this.store = store;
-    }
-
-    @Override
-    public IntegerReply handle(List<String> args) {
+    @Execute
+    public IntegerReply execute(byte[] key, byte[] time) {
         try {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    store.remove(args.get(1));
+                    database.remove(key);
                 }
-            }, Long.parseLong(args.get(2)));
+            }, Long.parseLong(new String(time)) * 1000);
             return new IntegerReply(1);
         } catch (Exception ignore) {
             return new IntegerReply(0);
         }
     }
+
 }
