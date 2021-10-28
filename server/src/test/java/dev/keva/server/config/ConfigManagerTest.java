@@ -23,8 +23,8 @@ class ConfigManagerTest {
         args = new String[]{
                 "-p", "123123"
         };
-        ConfigHolder configOverriden = ConfigManager.loadConfig(args);
-        assertEquals(123123, configOverriden.getPort());
+        ConfigHolder configOverridden = ConfigManager.loadConfig(args);
+        assertEquals(123123, configOverridden.getPort());
     }
 
     @Test
@@ -49,8 +49,8 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath
         };
-        final ConfigHolder configOverriden = ConfigManager.loadConfig(args);
-        assertEquals(123123, configOverriden.getPort());
+        val configOverridden = ConfigManager.loadConfig(args);
+        assertEquals(123123, configOverridden.getPort());
     }
 
     @Test
@@ -75,7 +75,7 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath, "-p", "123"
         };
-        final ConfigHolder configOverriden = ConfigManager.loadConfig(args);
-        assertEquals(123, configOverriden.getPort());
+        final ConfigHolder configOverridden = ConfigManager.loadConfig(args);
+        assertEquals(123, configOverridden.getPort());
     }
 }

@@ -82,7 +82,7 @@ class ConfigHolderTest {
         val fromArgs = ConfigHolder.fromArgs(argsHolder);
 
         val baseConfig = ConfigHolder.builder().build();
-        final ConfigHolder merge = baseConfig.merge(fromArgs);
+        val merge = baseConfig.merge(fromArgs);
         assertEquals("host", merge.getHostname());
         assertEquals(123123, merge.getPort());
     }

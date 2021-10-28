@@ -1,6 +1,5 @@
 package dev.keva.server.config;
 
-import dev.keva.server.config.util.ArgsHolder;
 import dev.keva.server.config.util.ArgsParser;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,7 @@ class ArgsParserTest {
         String[] args = {
                 "-p", "123123", "-a", "-b"
         };
-        ArgsHolder parse = ArgsParser.parse(args);
+        var parse = ArgsParser.parse(args);
         assertEquals("true", parse.getFlag("a"));
         assertEquals("true", parse.getFlag("b"));
         assertEquals("123123", parse.getArgVal("p"));
