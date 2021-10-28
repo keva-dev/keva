@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static dev.keva.server.protocol.resp.Encoding.numToBytes;
@@ -52,6 +53,15 @@ public class Command {
     }
 
     private Command(Object name, Object object1, Object object2, Object object3, Object[] objects, boolean inline) {
+        if (inline) {
+            byte[] objs = getBytes(objects[0]);
+            String[] strings = new String(objs, StandardCharsets.UTF_8).trim().split("\\s+");
+            objects = new Object[strings.length];
+            for (int i = 0; i < strings.length; i++) {
+                objects[i] = getBytes(strings[i]);
+            }
+        }
+
         this.name = name;
         this.object1 = object1;
         this.object2 = object2;
@@ -108,17 +118,19 @@ public class Command {
         os.writeBytes(CRLF);
     }
 
+    public int getLength() {
+        int length = 0;
+        if (name != null) length++;
+        if (object1 != null) length++;
+        if (object2 != null) length++;
+        if (object3 != null) length++;
+        if (objects != null) length += objects.length;
+        return length;
+    }
+
     public byte[] getName() {
         if (name != null) return getBytes(name);
         return getBytes(objects[0]);
-    }
-
-    public List<String> getObjects() {
-        List<String> args = new ArrayList<>(objects.length);
-        for (Object object : objects) {
-            args.add(new String((byte[]) object, StandardCharsets.UTF_8));
-        }
-        return args;
     }
 
     public boolean isInline() {
@@ -146,7 +158,7 @@ public class Command {
         for (Class<?> type : types) {
             if (type == byte[].class) {
                 if (position >= arguments.length) {
-                    throw new IllegalArgumentException("wrong number of arguments for '" + new String(getName()).toUpperCase() + "' command");
+                    throw new IllegalArgumentException("wrong number of arguments for '" + new String(getName()).toLowerCase() + "' command");
                 }
                 if (objects.length - 1 > position) {
                     arguments[position] = objects[1 + position];

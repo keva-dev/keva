@@ -16,6 +16,11 @@ public class StatusReply implements Reply<String> {
         this.statusBytes = status.getBytes(StandardCharsets.UTF_8);
     }
 
+    public StatusReply(byte[] status) {
+        this.status = null;
+        this.statusBytes = status;
+    }
+
     @Override
     public String data() {
         return status;

@@ -23,9 +23,6 @@ public class NettyServer implements Server {
 
     private Channel channel;
 
-    public NettyServer() {
-    }
-
     public ServerBootstrap bootstrapServer() {
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();

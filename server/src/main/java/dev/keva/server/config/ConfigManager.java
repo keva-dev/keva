@@ -13,9 +13,6 @@ import java.util.Properties;
 public final class ConfigManager {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
-    private ConfigManager() {
-    }
-
     public static ConfigHolder loadConfig(String[] args) throws IOException {
         ConfigHolder returnConf = ConfigHolder.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
