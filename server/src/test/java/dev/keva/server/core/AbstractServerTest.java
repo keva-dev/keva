@@ -75,7 +75,7 @@ public abstract class AbstractServerTest {
         try {
             val setAbc = jedis.set("abc", "123");
             val getAbc = jedis.get("abc");
-            val expireAbc = jedis.expire("abc", 1000);
+            val expireAbc = jedis.expire("abc", 1);
 
             assertEquals("OK", setAbc);
             assertEquals("123", getAbc);
