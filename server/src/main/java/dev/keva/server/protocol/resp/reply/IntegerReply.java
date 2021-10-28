@@ -1,10 +1,10 @@
-package dev.keva.server.protocol.redis;
+package dev.keva.server.protocol.resp.reply;
 
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
 
-import static dev.keva.server.protocol.redis.Encoding.numToBytes;
+import static dev.keva.server.protocol.resp.Encoding.numToBytes;
 
 public class IntegerReply implements Reply<Long> {
     public static final char MARKER = ':';

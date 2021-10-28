@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.redis;
+package dev.keva.server.protocol.resp;
 
 import io.netty.buffer.ByteBuf;
 
@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.keva.server.protocol.redis.Encoding.numToBytes;
+import static dev.keva.server.protocol.resp.Encoding.numToBytes;
 
 public class Command {
 

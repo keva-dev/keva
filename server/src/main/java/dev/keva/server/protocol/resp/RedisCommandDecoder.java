@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.redis;
+package dev.keva.server.protocol.resp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static dev.keva.server.protocol.redis.RedisReplyDecoder.readLong;
+import static dev.keva.server.protocol.resp.RedisReplyDecoder.readLong;
 
 public class RedisCommandDecoder extends ReplayingDecoder<Void> {
 

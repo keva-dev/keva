@@ -1,33 +1,26 @@
 package dev.keva.server.core;
 
-import dev.keva.server.protocol.redis.RedisCommandDecoder;
-import dev.keva.server.protocol.redis.RedisReplyEncoder;
+import dev.keva.server.protocol.resp.RedisCommandDecoder;
+import dev.keva.server.protocol.resp.RedisReplyEncoder;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.NonNull;
 
 public class NettySocketChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private ChannelHandler handler;
+    private final ChannelHandler handler;
 
-    public NettySocketChannelInitializer(ChannelHandler handler) {
+    public NettySocketChannelInitializer(@NonNull ChannelHandler handler) {
         this.handler = handler;
-    }
-
-    public NettySocketChannelInitializer() {
     }
 
     @Override
     protected void initChannel(SocketChannel ch) {
-        final ChannelPipeline p = ch.pipeline();
-
-        p.addLast(new IdleStateHandler(0, 0, 5 * 60));
-        p.addLast(new RedisCommandDecoder());
-        p.addLast(new RedisReplyEncoder());
-
-        if (handler != null) {
-            p.addLast(handler);
-        }
+        ch.pipeline()
+                .addLast(new IdleStateHandler(0, 0, 5 * 60))
+                .addLast(new RedisCommandDecoder())
+                .addLast(new RedisReplyEncoder())
+                .addLast(handler);
     }
 }

@@ -2,7 +2,7 @@ package dev.keva.server.command;
 
 import com.google.inject.Inject;
 import dev.keva.server.command.setup.CommandHandler;
-import dev.keva.server.protocol.redis.BulkReply;
+import dev.keva.server.protocol.resp.reply.BulkReply;
 import dev.keva.store.StorageService;
 
 import java.util.List;

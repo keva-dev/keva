@@ -10,6 +10,7 @@ import dev.keva.store.NoHeapFactory;
 import dev.keva.store.StorageService;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -19,7 +20,7 @@ import lombok.val;
 public class CoreModule extends AbstractModule {
     private final ConfigHolder config;
 
-    public CoreModule(ConfigHolder config) {
+    public CoreModule(@NonNull ConfigHolder config) {
         this.config = config;
     }
 

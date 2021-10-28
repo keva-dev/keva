@@ -33,7 +33,7 @@ public final class Application {
                 } catch (Exception e) {
                     log.error("Problem occurred when stopping server: ", e);
                 } finally {
-                    log.info("Bye");
+                    log.info("Bye!");
                 }
             }));
 

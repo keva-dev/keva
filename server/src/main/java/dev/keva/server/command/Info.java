@@ -1,7 +1,7 @@
 package dev.keva.server.command;
 
 import dev.keva.server.command.setup.CommandHandler;
-import dev.keva.server.protocol.redis.BulkReply;
+import dev.keva.server.protocol.resp.reply.BulkReply;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;

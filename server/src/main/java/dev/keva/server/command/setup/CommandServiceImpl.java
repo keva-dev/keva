@@ -5,9 +5,9 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
-import dev.keva.server.protocol.redis.Command;
-import dev.keva.server.protocol.redis.ErrorReply;
-import dev.keva.server.protocol.redis.Reply;
+import dev.keva.server.protocol.resp.Command;
+import dev.keva.server.protocol.resp.reply.ErrorReply;
+import dev.keva.server.protocol.resp.reply.Reply;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;

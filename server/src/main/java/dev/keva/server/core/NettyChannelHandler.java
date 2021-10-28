@@ -1,13 +1,14 @@
 package dev.keva.server.core;
 
 import dev.keva.server.command.setup.CommandService;
-import dev.keva.server.protocol.redis.Command;
-import dev.keva.server.protocol.redis.Reply;
+import dev.keva.server.protocol.resp.Command;
+import dev.keva.server.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
@@ -17,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private final CommandService commandService;
 
-    public NettyChannelHandler(CommandService commandService) {
+    public NettyChannelHandler(@NonNull CommandService commandService) {
         this.commandService = commandService;
     }
 

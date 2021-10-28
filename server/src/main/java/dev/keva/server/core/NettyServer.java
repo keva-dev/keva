@@ -15,17 +15,15 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class NettyServer implements Server {
-    private static final int BUFFER_SIZE = 1024 * 1024;
-
     private final ConfigHolder config;
 
-    // Executors
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
@@ -34,7 +32,7 @@ public class NettyServer implements Server {
 
     private Channel channel;
 
-    public NettyServer(ConfigHolder config) {
+    public NettyServer(@NonNull ConfigHolder config) {
         this.config = config;
     }
 
@@ -45,8 +43,9 @@ public class NettyServer implements Server {
     }
 
     public ServerBootstrap bootstrapServer() {
+        final int BUFFER_SIZE = 1024 * 1024;
         final ServerBootstrap b = new ServerBootstrap();
-        b.group(bossGroup, workerGroup)
+        return b.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new NettySocketChannelInitializer(new NettyChannelHandler(commandService)))
                 .option(ChannelOption.SO_BACKLOG, 100)
@@ -56,7 +55,6 @@ public class NettyServer implements Server {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true);
-        return b;
     }
 
     private void initExecutors() {
