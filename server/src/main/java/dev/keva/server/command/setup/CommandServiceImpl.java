@@ -9,10 +9,10 @@ import dev.keva.server.protocol.resp.Command;
 import dev.keva.server.protocol.resp.reply.ErrorReply;
 import dev.keva.server.protocol.resp.reply.Reply;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 public class CommandServiceImpl implements CommandService {
@@ -27,13 +27,13 @@ public class CommandServiceImpl implements CommandService {
     public Reply<?> handleCommand(String name, Command command) {
         Reply<?> output;
         try {
-            final CommandHandler handler = getCommandHandler(name);
-            List<String> objects = command.getObjects();
+            val handler = getCommandHandler(name);
+            var objects = command.getObjects();
 
             if (command.isInline()) {
-                byte[] bytes = command.getName();
-                String msgStr = new String(bytes, StandardCharsets.UTF_8);
-                String[] msgArr = msgStr.trim().split("\\s+");
+                val bytes = command.getName();
+                var msgStr = new String(bytes, StandardCharsets.UTF_8);
+                var msgArr = msgStr.trim().split("\\s+");
                 objects = Arrays.asList(msgArr);
             }
 

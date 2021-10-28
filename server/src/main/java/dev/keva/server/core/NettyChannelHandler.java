@@ -2,14 +2,13 @@ package dev.keva.server.core;
 
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.protocol.resp.Command;
-import dev.keva.server.protocol.resp.reply.Reply;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,14 +23,14 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command msg) {
-        byte[] bytes = msg.getName();
-        String name = new String(bytes, StandardCharsets.UTF_8);
+        val bytes = msg.getName();
+        var name = new String(bytes, StandardCharsets.UTF_8);
         if (msg.isInline()) {
-            String msgStr = new String(bytes, StandardCharsets.UTF_8);
-            String[] msgArr = msgStr.trim().split("\\s+");
+            val msgStr = new String(bytes, StandardCharsets.UTF_8);
+            val msgArr = msgStr.trim().split("\\s+");
             name = msgArr[0];
         }
-        Reply<?> reply = commandService.handleCommand(name, msg);
+        val reply = commandService.handleCommand(name, msg);
         ctx.write(reply);
     }
 
@@ -49,8 +48,7 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
-            Channel channel = ctx.channel();
-            log.info("IdleStateEvent triggered, close channel " + channel);
+            log.info("IdleStateEvent triggered, close channel " + ctx.channel());
             channelUnregistered(ctx);
             ctx.close();
         } else {

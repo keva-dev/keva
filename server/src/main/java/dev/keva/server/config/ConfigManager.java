@@ -26,7 +26,9 @@ public final class ConfigManager {
             returnConf = loadConfigFromFile(configFilePath);
         }
 
-        return returnConf.merge(overrider);
+        ConfigHolder result = returnConf.merge(overrider);
+        log.info(result.toString());
+        return result;
     }
 
     public static ConfigHolder loadConfigFromFile(String filePath) throws IOException {

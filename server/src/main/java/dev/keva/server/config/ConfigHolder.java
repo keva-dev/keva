@@ -13,10 +13,6 @@ import java.util.Properties;
 @Setter
 @EqualsAndHashCode
 public class ConfigHolder {
-    @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
-    @CliProp(name = "ss", type = CliPropType.FLAG)
-    private Boolean snapshotEnabled;
-
     @ConfigProp(name = "hostname", defaultVal = "localhost")
     @CliProp(name = "h", type = CliPropType.VAL)
     private String hostname;
@@ -24,6 +20,10 @@ public class ConfigHolder {
     @ConfigProp(name = "port", defaultVal = "6767")
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
+
+    @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
+    @CliProp(name = "ss", type = CliPropType.FLAG)
+    private Boolean snapshotEnabled;
 
     @ConfigProp(name = "snapshot_location", defaultVal = "./")
     @CliProp(name = "sl", type = CliPropType.VAL)
@@ -112,9 +112,10 @@ public class ConfigHolder {
 
     @Override
     public String toString() {
-        return  "snapshotEnabled=" + snapshotEnabled +
-                ", hostname='" + hostname + '\'' +
+        return "Configurations: " +
+                "hostname=" + hostname +
                 ", port=" + port +
+                ", snapshotEnabled=" + snapshotEnabled +
                 ", snapshotLocation='" + snapshotLocation + '\'' +
                 ", heapSize=" + heapSize;
     }
