@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class SnapshotServiceTest {
+public class SnapshotTest {
     static String host = "localhost";
 
     Server startServer(int port) throws Exception {

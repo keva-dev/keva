@@ -1,8 +1,8 @@
 package dev.keva.server.command.base;
 
 import dev.keva.server.core.AppFactory;
-import dev.keva.store.StorageService;
+import dev.keva.store.KevaDatabase;
 
 public abstract class BaseCommandImpl {
-    protected static final StorageService storageService = AppFactory.getStorageService();
+    protected static final KevaDatabase database = AppFactory.getKevaDatabase();
 }

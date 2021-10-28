@@ -20,7 +20,7 @@ public class Expire extends BaseCommandImpl {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    storageService.remove(key);
+                    database.remove(key);
                 }
             }, Long.parseLong(new String(time)) * 1000);
             return new IntegerReply(1);

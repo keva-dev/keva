@@ -23,7 +23,7 @@ public final class Application {
     public static void main(String[] args) {
         try {
             AppFactory.setConfig(ConfigManager.loadConfig(args));
-            AppFactory.eagerInitStorageService();
+            AppFactory.eagerInitKevaDatabase();
             val server = new NettyServer();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -14,7 +14,7 @@ public class Del extends BaseCommandImpl {
     public IntegerReply execute(byte[]... keys) {
         var deleted = 0;
         for (byte[] key : keys) {
-            if (storageService.remove(key)) {
+            if (database.remove(key)) {
                 deleted++;
             }
         }

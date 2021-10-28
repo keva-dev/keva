@@ -1,5 +1,7 @@
-package dev.keva.store;
+package dev.keva.store.impl;
 
+import dev.keva.store.KevaDatabase;
+import dev.keva.store.DatabaseConfig;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
@@ -12,11 +14,11 @@ import java.nio.file.Paths;
 import lombok.val;
 
 @Slf4j
-public class NoHeapChronicleMapImpl implements StorageService {
+public class ChronicleMapImpl implements KevaDatabase {
     private ChronicleMap<byte[], byte[]> chronicleMap;
     private String snapshotDir;
 
-    public NoHeapChronicleMapImpl(NoHeapConfig config) {
+    public ChronicleMapImpl(DatabaseConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")

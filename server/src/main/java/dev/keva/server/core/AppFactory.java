@@ -1,9 +1,9 @@
 package dev.keva.server.core;
 
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.store.NoHeapConfig;
-import dev.keva.store.NoHeapFactory;
-import dev.keva.store.StorageService;
+import dev.keva.store.DatabaseConfig;
+import dev.keva.store.DatabaseFactory;
+import dev.keva.store.KevaDatabase;
 import lombok.Setter;
 import lombok.val;
 
@@ -11,7 +11,7 @@ public final class AppFactory {
     @Setter
     private static ConfigHolder config;
     @Setter
-    private static StorageService storageService;
+    private static KevaDatabase kevaDatabase;
 
     public static synchronized ConfigHolder getConfig() {
         if (config == null) {
@@ -20,19 +20,19 @@ public final class AppFactory {
         return config;
     }
 
-    public static synchronized void eagerInitStorageService() {
-        getStorageService();
+    public static synchronized void eagerInitKevaDatabase() {
+        getKevaDatabase();
     }
 
-    public static synchronized StorageService getStorageService() {
-        if (storageService == null) {
-            val noHeapConfig = NoHeapConfig.builder()
+    public static synchronized KevaDatabase getKevaDatabase() {
+        if (kevaDatabase == null) {
+            val dbConfig = DatabaseConfig.builder()
                     .heapSize(config.getHeapSize())
                     .snapshotEnabled(config.getSnapshotEnabled())
                     .snapshotLocation(config.getSnapshotLocation())
                     .build();
-            storageService = NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
+            kevaDatabase = DatabaseFactory.createChronicleMap(dbConfig);
         }
-        return storageService;
+        return kevaDatabase;
     }
 }

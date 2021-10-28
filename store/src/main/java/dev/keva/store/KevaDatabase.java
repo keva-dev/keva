@@ -2,7 +2,7 @@ package dev.keva.store;
 
 import java.nio.file.Path;
 
-public interface StorageService {
+public interface KevaDatabase {
 
     void shutdownGracefully();
 

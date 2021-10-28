@@ -13,7 +13,7 @@ import lombok.val;
 public class Get extends BaseCommandImpl {
     @Execute
     public Reply<?> execute(byte[] key) {
-        val got = storageService.get(key);
+        val got = database.get(key);
         return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
     }
 }
