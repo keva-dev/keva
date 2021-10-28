@@ -33,6 +33,7 @@ public class CoreModule extends AbstractModule {
         bind(CommandHandler.class).annotatedWith(Names.named("EXPIRE")).to(Expire.class);
         bind(CommandHandler.class).annotatedWith(Names.named("PING")).to(Ping.class);
         bind(CommandHandler.class).annotatedWith(Names.named("INFO")).to(Info.class);
+        bind(CommandHandler.class).annotatedWith(Names.named("QUIT")).to(Quit.class);
     }
 
     private StorageService provideStorageService() {
