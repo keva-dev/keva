@@ -8,6 +8,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 public class RedisReplyEncoder extends MessageToByteEncoder<Reply<?>> {
     @Override
     public void encode(ChannelHandlerContext ctx, Reply msg, ByteBuf out) throws Exception {
-        msg.write(out);
+        if (msg != null) {
+            msg.write(out);
+        }
     }
 }

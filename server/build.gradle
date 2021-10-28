@@ -39,8 +39,6 @@ application {
 }
 
 test {
-    // Ignore replication tests
-    exclude 'dev/keva/server/replication/**'
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
