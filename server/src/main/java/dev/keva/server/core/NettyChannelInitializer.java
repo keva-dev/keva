@@ -8,10 +8,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
 import lombok.NonNull;
 
-public class NettySocketChannelInitializer extends ChannelInitializer<SocketChannel> {
+public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
     private final ChannelHandler handler;
 
-    public NettySocketChannelInitializer(@NonNull ChannelHandler handler) {
+    public NettyChannelInitializer(@NonNull ChannelHandler handler) {
         this.handler = handler;
     }
 

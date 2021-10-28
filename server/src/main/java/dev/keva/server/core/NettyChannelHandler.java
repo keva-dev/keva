@@ -2,7 +2,7 @@ package dev.keva.server.core;
 
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.protocol.resp.Command;
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -13,7 +13,7 @@ import lombok.val;
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
-@ChannelHandler.Sharable
+@Sharable
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private final CommandService commandService;
 

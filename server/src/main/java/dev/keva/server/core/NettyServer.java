@@ -42,17 +42,15 @@ public class NettyServer implements Server {
     }
 
     public ServerBootstrap bootstrapServer() {
-        val BUFFER_SIZE = 1024 * 1024;
-        val b = new ServerBootstrap();
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
-        return b.group(bossGroup, workerGroup)
+        return new ServerBootstrap().group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new NettySocketChannelInitializer(new NettyChannelHandler(commandService)))
+                .childHandler(new NettyChannelInitializer(new NettyChannelHandler(commandService)))
                 .option(ChannelOption.SO_BACKLOG, 100)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.SO_RCVBUF, BUFFER_SIZE)
-                .childOption(ChannelOption.SO_SNDBUF, BUFFER_SIZE)
+                .childOption(ChannelOption.SO_RCVBUF, 1024 * 1024)
+                .childOption(ChannelOption.SO_SNDBUF, 1024 * 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.TCP_NODELAY, true);
@@ -63,23 +61,23 @@ public class NettyServer implements Server {
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
         storageService.shutdownGracefully();
-
         channel.close();
-
         log.info("Keva server at {} stopped", config.getPort());
     }
 
     @Override
     public void run() {
         try {
-            var stopwatch = Stopwatch.createStarted();
+            val stopwatch = Stopwatch.createStarted();
             initServices();
-            var server = bootstrapServer();
+            val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
-            log.info("Keva server initialized at {}:{} in {} ms", config.getHostname(), config.getPort(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            log.info("Keva server initialized at {}:{}, PID: {}, in {} ms",
+                    config.getHostname(), config.getPort(),
+                    ProcessHandle.current().pid(),
+                    stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
             stopwatch.stop();
-
             channel = sync.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
