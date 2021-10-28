@@ -30,8 +30,9 @@ public class NettyServer implements Server {
     private EventLoopGroup workerGroup;
 
     private CommandService commandService;
-    private Channel channel;
     private StorageService storageService;
+
+    private Channel channel;
 
     public NettyServer(ConfigHolder config) {
         this.config = config;
@@ -59,8 +60,8 @@ public class NettyServer implements Server {
     }
 
     private void initExecutors() {
-        bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup();
     }
 
     @Override

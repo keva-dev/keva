@@ -13,8 +13,8 @@ public class RedisReplyDecoder extends ReplayingDecoder<Void> {
     public static final char CR = '\r';
     public static final char LF = '\n';
     private static final char ZERO = '0';
-    private MultiBulkReply reply;
     private final boolean checkpointEnabled;
+    private MultiBulkReply reply;
 
     public RedisReplyDecoder() {
         this(true);

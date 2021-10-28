@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileWriter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 class ConfigManagerTest {

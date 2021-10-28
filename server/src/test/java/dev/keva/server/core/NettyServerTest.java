@@ -1,7 +1,7 @@
 package dev.keva.server.core;
 
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.server.util.PortUtil;
+import dev.keva.server.config.util.PortUtil;
 import dev.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
@@ -19,10 +19,10 @@ public class NettyServerTest extends AbstractServerTest {
     @BeforeAll
     static void startServer() throws Exception {
         server = new NettyServer(ConfigHolder.defaultBuilder()
-                                             .snapshotEnabled(false)
-                                             .hostname(host)
-                                             .port(port)
-                                             .build());
+                .snapshotEnabled(false)
+                .hostname(host)
+                .port(port)
+                .build());
 
         new Thread(() -> {
             try {

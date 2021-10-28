@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Timeout;
 
 import java.util.concurrent.TimeUnit;
 
-import static dev.keva.server.util.PortUtil.getAvailablePort;
+import static dev.keva.server.config.util.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -19,12 +19,12 @@ public class SnapshotServiceTest {
 
     Server startServer(int port) throws Exception {
         val config = ConfigHolder.defaultBuilder()
-                                 .hostname(host)
-                                 .port(port)
-                                 .snapshotEnabled(true)
-                                 .snapshotLocation("./")
-                                 .heapSize(8)
-                                 .build();
+                .hostname(host)
+                .port(port)
+                .snapshotEnabled(true)
+                .snapshotLocation("./")
+                .heapSize(8)
+                .build();
         val server = new NettyServer(config);
         new Thread(() -> {
             try {

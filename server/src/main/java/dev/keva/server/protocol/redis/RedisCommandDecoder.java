@@ -57,7 +57,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             checkpoint();
             decode(ctx, in, out);
         } else {
-            in.readerIndex(in.readerIndex() - 1);;
+            in.readerIndex(in.readerIndex() - 1);
             byte[][] b = new byte[1][];
             ByteBuf buf = in.readBytes(in.bytesBefore((byte) '\n'));
             b[0] = new byte[buf.readableBytes()];

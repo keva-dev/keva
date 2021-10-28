@@ -25,7 +25,6 @@ public class CoreModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        log.debug("Configuring dependencies");
         bind(StorageService.class).toInstance(provideStorageService());
         bind(CommandHandler.class).annotatedWith(Names.named("GET")).to(Get.class);
         bind(CommandHandler.class).annotatedWith(Names.named("SET")).to(Set.class);
@@ -33,7 +32,6 @@ public class CoreModule extends AbstractModule {
         bind(CommandHandler.class).annotatedWith(Names.named("EXPIRE")).to(Expire.class);
         bind(CommandHandler.class).annotatedWith(Names.named("PING")).to(Ping.class);
         bind(CommandHandler.class).annotatedWith(Names.named("INFO")).to(Info.class);
-        log.debug("Finished configuring dependencies");
     }
 
     private StorageService provideStorageService() {
@@ -44,5 +42,4 @@ public class CoreModule extends AbstractModule {
                 .build();
         return NoHeapFactory.makeNoHeapDBStore(noHeapConfig);
     }
-
 }

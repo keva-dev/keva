@@ -1,6 +1,5 @@
 package dev.keva.server.core;
 
-import com.google.inject.Inject;
 import dev.keva.server.command.setup.CommandService;
 import dev.keva.server.protocol.redis.Command;
 import dev.keva.server.protocol.redis.Reply;

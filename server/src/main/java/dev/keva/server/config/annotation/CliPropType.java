@@ -1,4 +1,4 @@
-package dev.keva.server.config;
+package dev.keva.server.config.annotation;
 
 public enum CliPropType {
     FLAG,

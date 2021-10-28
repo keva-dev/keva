@@ -1,4 +1,4 @@
-package dev.keva.server.config;
+package dev.keva.server.config.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,8 +1,10 @@
-package dev.keva.server.util;
+package dev.keva.server.config;
 
+import dev.keva.server.config.util.ArgsHolder;
+import dev.keva.server.config.util.ArgsParser;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArgsParserTest {
 

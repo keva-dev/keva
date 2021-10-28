@@ -1,6 +1,6 @@
 package dev.keva.server.config;
 
-import dev.keva.server.util.ArgsHolder;
+import dev.keva.server.config.util.ArgsHolder;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 

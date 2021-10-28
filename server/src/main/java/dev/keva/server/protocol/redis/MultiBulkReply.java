@@ -7,8 +7,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static dev.keva.server.protocol.redis.Encoding.numToBytes;
-
 public class MultiBulkReply implements Reply<Reply[]> {
     public static final char MARKER = '*';
     public static final MultiBulkReply EMPTY = new MultiBulkReply(new Reply[0]);
@@ -69,7 +67,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
 
     public List<String> asStringList(Charset charset) {
         if (replies == null) return null;
-        List<String> strings = new ArrayList<String>(replies.length);
+        List<String> strings = new ArrayList<>(replies.length);
         for (Reply reply : replies) {
             if (reply instanceof BulkReply) {
                 strings.add(((BulkReply) reply).asString(charset));
@@ -82,7 +80,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
 
     public Set<String> asStringSet(Charset charset) {
         if (replies == null) return null;
-        Set<String> strings = new HashSet<String>(replies.length);
+        Set<String> strings = new HashSet<>(replies.length);
         for (Reply reply : replies) {
             if (reply instanceof BulkReply) {
                 strings.add(((BulkReply) reply).asString(charset));
@@ -96,7 +94,7 @@ public class MultiBulkReply implements Reply<Reply[]> {
     public Map<String, String> asStringMap(Charset charset) {
         if (replies == null) return null;
         int length = replies.length;
-        Map<String, String> map = new HashMap<String, String>(length);
+        Map<String, String> map = new HashMap<>(length);
         if (length % 2 != 0) {
             throw new IllegalArgumentException("Odd number of replies");
         }

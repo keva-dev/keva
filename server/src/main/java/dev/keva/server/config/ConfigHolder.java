@@ -1,6 +1,9 @@
 package dev.keva.server.config;
 
-import dev.keva.server.util.ArgsHolder;
+import dev.keva.server.config.annotation.CliProp;
+import dev.keva.server.config.annotation.CliPropType;
+import dev.keva.server.config.annotation.ConfigProp;
+import dev.keva.server.config.util.ArgsHolder;
 import lombok.*;
 
 import java.util.Properties;
@@ -9,7 +12,6 @@ import java.util.Properties;
 @Getter
 @Setter
 @EqualsAndHashCode
-@ToString
 public class ConfigHolder {
     @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
     @CliProp(name = "ss", type = CliPropType.FLAG)
@@ -30,14 +32,6 @@ public class ConfigHolder {
     @ConfigProp(name = "heap_size", defaultVal = "64")
     @CliProp(name = "hs", type = CliPropType.VAL)
     private Integer heapSize;
-
-    @ConfigProp(name = "replica_of", defaultVal = "NO:ONE")
-    @CliProp(name = "ro", type = CliPropType.VAL)
-    private String replicaOf;
-
-    @ConfigProp(name = "command_log_size", defaultVal = "1000")
-    @CliProp(name = "cls", type = CliPropType.VAL)
-    private Integer writeLogSize;
 
     @SneakyThrows
     public static ConfigHolder fromProperties(@NonNull Properties props) {
@@ -85,26 +79,21 @@ public class ConfigHolder {
 
     public static ConfigHolderBuilder defaultBuilder() {
         return builder()
-                       .snapshotLocation("./")
-                       .hostname("localhost")
-                       .port(6767)
-                       .heapSize(64)
-                       .snapshotEnabled(true)
-                       .replicaOf("NO:ONE")
-                       .writeLogSize(1000)
-                ;
+                .snapshotLocation("./")
+                .hostname("localhost")
+                .port(6767)
+                .heapSize(64)
+                .snapshotEnabled(true);
     }
 
     public static ConfigHolder makeDefaultConfig() {
         return builder()
-                       .snapshotLocation("./")
-                       .hostname("localhost")
-                       .port(6767)
-                       .heapSize(64)
-                       .snapshotEnabled(true)
-                       .replicaOf("NO:ONE")
-                       .writeLogSize(1000)
-                       .build();
+                .snapshotLocation("./")
+                .hostname("localhost")
+                .port(6767)
+                .heapSize(64)
+                .snapshotEnabled(true)
+                .build();
     }
 
     @SneakyThrows
@@ -119,5 +108,14 @@ public class ConfigHolder {
             return this;
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return  "snapshotEnabled=" + snapshotEnabled +
+                ", hostname='" + hostname + '\'' +
+                ", port=" + port +
+                ", snapshotLocation='" + snapshotLocation + '\'' +
+                ", heapSize=" + heapSize;
     }
 }
