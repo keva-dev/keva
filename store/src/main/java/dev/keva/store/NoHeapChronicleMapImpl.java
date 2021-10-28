@@ -49,13 +49,13 @@ public class NoHeapChronicleMapImpl implements StorageService {
     }
 
     @Override
-    public void put(byte[] key, byte[] val) {
-        chronicleMap.put(key, val);
+    public byte[] get(byte[] key) {
+        return chronicleMap.get(key);
     }
 
     @Override
-    public byte[] get(byte[] key) {
-        return chronicleMap.get(key);
+    public void put(byte[] key, byte[] val) {
+        chronicleMap.put(key, val);
     }
 
     @Override

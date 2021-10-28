@@ -25,7 +25,8 @@ public class SnapshotServiceTest {
                 .snapshotLocation("./")
                 .heapSize(8)
                 .build();
-        val server = new NettyServer(config);
+        AppFactory.setConfig(config);
+        val server = new NettyServer();
         new Thread(() -> {
             try {
                 server.run();

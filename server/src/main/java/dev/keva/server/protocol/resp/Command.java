@@ -146,7 +146,7 @@ public class Command {
         for (Class<?> type : types) {
             if (type == byte[].class) {
                 if (position >= arguments.length) {
-                    throw new IllegalArgumentException("wrong number of arguments for '" + new String(getName()) + "' command");
+                    throw new IllegalArgumentException("wrong number of arguments for '" + new String(getName()).toUpperCase() + "' command");
                 }
                 if (objects.length - 1 > position) {
                     arguments[position] = objects[1 + position];
