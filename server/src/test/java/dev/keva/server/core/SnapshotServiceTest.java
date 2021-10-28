@@ -1,11 +1,11 @@
 package dev.keva.server.core;
 
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.server.util.SocketClient;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import redis.clients.jedis.Jedis;
 
 import java.util.concurrent.TimeUnit;
 
@@ -56,21 +56,18 @@ public class SnapshotServiceTest {
         } catch (Exception e) {
             fail(e);
         }
-        val client = new SocketClient(host, port);
+        val jedis = new Jedis(host, port);
         try {
-            client.connect();
-
-            String success = client.exchange("set a b");
-            assertEquals("1", success);
-            success = client.exchange("set b c");
-            assertEquals("1", success);
-            success = client.exchange("set c d");
-            assertEquals("1", success);
-
+            String success = jedis.set("a", "b");
+            assertEquals("OK", success);
+            success = jedis.set("b", "c");
+            assertEquals("OK", success);
+            success = jedis.set("c", "d");
+            assertEquals("OK", success);
         } catch (Exception e) {
             fail(e);
         }
-        client.disconnect();
+        jedis.disconnect();
         try {
             stop(server);
         } catch (Exception e) {
@@ -91,21 +88,19 @@ public class SnapshotServiceTest {
             fail(e);
         }
 
-        val client = new SocketClient(host, port);
+        val jedis = new Jedis(host, port);
         try {
-            client.connect();
-
-            String success = client.exchange("get a");
+            String success = jedis.get("a");
             assertEquals("b", success);
-            success = client.exchange("get b");
+            success = jedis.get("b");
             assertEquals("c", success);
-            success = client.exchange("get c");
+            success = jedis.get("c");
             assertEquals("d", success);
         } catch (Exception e) {
             fail(e);
         }
 
-        client.disconnect();
+        jedis.disconnect();
         try {
             stop(server);
         } catch (Exception e) {

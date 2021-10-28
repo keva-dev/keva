@@ -24,6 +24,7 @@ dependencies {
     implementation 'com.google.inject:guice:5.0.1'
 
     testImplementation group: 'com.googlecode.multithreadedtc', name: 'multithreadedtc', version: '1.01'
+    testImplementation 'redis.clients:jedis:3.7.0'
 
     // MTC lib depends on junit 4
     testImplementation group: 'junit', name: 'junit', version: '4.12'

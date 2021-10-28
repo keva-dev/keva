@@ -1,7 +1,8 @@
 package dev.keva.server;
 
-import dev.keva.server.util.SocketClient;
+import lombok.val;
 import org.junit.jupiter.api.Test;
+import redis.clients.jedis.Jedis;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,9 +16,9 @@ class ApplicationTest {
     void testMain() throws Exception {
         new Thread(() -> Application.main(ARGS)).start();
         TimeUnit.SECONDS.sleep(5);
-        final SocketClient client = new SocketClient("localhost", 6767);
-        client.connect();
-        final String pong = client.exchange("PING");
+
+        Jedis jedis = new Jedis("localhost", 6767);
+        val pong = jedis.ping();
         assertEquals("PONG", pong);
     }
 }
