@@ -26,6 +26,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<Command> {
     protected void channelRead0(ChannelHandlerContext ctx, Command msg) {
         byte[] bytes = msg.getName();
         String name = new String(bytes, StandardCharsets.UTF_8);
+        if (msg.isInline()) {
+            String msgStr = new String(bytes, StandardCharsets.UTF_8);
+            String[] msgArr = msgStr.trim().split("\\s+");
+            name = msgArr[0];
+        }
         Reply<?> reply = commandService.handleCommand(name, msg);
         ctx.write(reply);
     }

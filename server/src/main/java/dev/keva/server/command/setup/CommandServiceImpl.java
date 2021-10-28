@@ -10,6 +10,8 @@ import dev.keva.server.protocol.redis.ErrorReply;
 import dev.keva.server.protocol.redis.Reply;
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +29,14 @@ public class CommandServiceImpl implements CommandService {
         try {
             final CommandHandler handler = getCommandHandler(name);
             List<String> objects = command.getObjects();
+
+            if (command.isInline()) {
+                byte[] bytes = command.getName();
+                String msgStr = new String(bytes, StandardCharsets.UTF_8);
+                String[] msgArr = msgStr.trim().split("\\s+");
+                objects = Arrays.asList(msgArr);
+            }
+
             output = handler.handle(objects);
         } catch (ConfigurationException | ProvisionException e) {
             return new ErrorReply("ERR unknown command `" + name.toUpperCase() + "`");

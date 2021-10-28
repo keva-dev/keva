@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static dev.keva.server.protocol.redis.RedisReplyDecoder.readLong;
@@ -56,10 +57,16 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             checkpoint();
             decode(ctx, in, out);
         } else {
-            in.readerIndex(in.readerIndex() - 1);
+            in.readerIndex(in.readerIndex() - 1);;
             byte[][] b = new byte[1][];
-            b[0] = in.readBytes(in.bytesBefore((byte) '\r')).array();
-            in.skipBytes(2);
+            ByteBuf buf = in.readBytes(in.bytesBefore((byte) '\n'));
+            b[0] = new byte[buf.readableBytes()];
+            buf.getBytes(0, b[0]);
+            // Support both CRLF and LF
+            if (b[0][b[0].length - 1] == 13) {
+                b[0] = Arrays.copyOf(b[0], b[0].length - 1);
+            }
+            in.skipBytes(1);
             out.add(new Command(b, true));
         }
     }
