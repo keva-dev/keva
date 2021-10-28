@@ -1,7 +1,7 @@
 package dev.keva.server.command;
 
 import dev.keva.server.command.setup.CommandHandler;
-import dev.keva.server.protocol.redis.StatusReply;
+import dev.keva.server.protocol.resp.reply.StatusReply;
 
 import java.util.List;
 

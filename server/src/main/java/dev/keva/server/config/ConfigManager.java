@@ -1,6 +1,6 @@
 package dev.keva.server.config;
 
-import dev.keva.server.util.ArgsParser;
+import dev.keva.server.config.util.ArgsParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -19,7 +19,6 @@ public final class ConfigManager {
     public static ConfigHolder loadConfig(String[] args) throws IOException {
         ConfigHolder returnConf = ConfigHolder.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
-        log.info(config.toString());
         val overrider = ConfigHolder.fromArgs(config);
 
         val configFilePath = config.getArgVal("f");
@@ -27,7 +26,9 @@ public final class ConfigManager {
             returnConf = loadConfigFromFile(configFilePath);
         }
 
-        return returnConf.merge(overrider);
+        ConfigHolder result = returnConf.merge(overrider);
+        log.info(result.toString());
+        return result;
     }
 
     public static ConfigHolder loadConfigFromFile(String filePath) throws IOException {

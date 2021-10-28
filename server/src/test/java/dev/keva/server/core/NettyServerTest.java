@@ -1,12 +1,12 @@
 package dev.keva.server.core;
 
 import dev.keva.server.config.ConfigHolder;
-import dev.keva.server.util.PortUtil;
-import dev.keva.server.util.SocketClient;
+import dev.keva.server.config.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import redis.clients.jedis.Jedis;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,10 +19,10 @@ public class NettyServerTest extends AbstractServerTest {
     @BeforeAll
     static void startServer() throws Exception {
         server = new NettyServer(ConfigHolder.defaultBuilder()
-                                             .snapshotEnabled(false)
-                                             .hostname(host)
-                                             .port(port)
-                                             .build());
+                .snapshotEnabled(false)
+                .hostname(host)
+                .port(port)
+                .build());
 
         new Thread(() -> {
             try {
@@ -36,13 +36,12 @@ public class NettyServerTest extends AbstractServerTest {
         // Wait for server to start
         TimeUnit.SECONDS.sleep(6);
 
-        client = new SocketClient(host, port);
-        client.connect();
+        jedis = new Jedis(host, port);
     }
 
     @AfterAll
     static void stop() {
-        client.disconnect();
+        jedis.disconnect();
         server.shutdown();
     }
 }

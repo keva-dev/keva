@@ -1,6 +1,6 @@
 package dev.keva.server.config;
 
-import dev.keva.server.util.ArgsHolder;
+import dev.keva.server.config.util.ArgsHolder;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -82,7 +82,7 @@ class ConfigHolderTest {
         val fromArgs = ConfigHolder.fromArgs(argsHolder);
 
         val baseConfig = ConfigHolder.builder().build();
-        final ConfigHolder merge = baseConfig.merge(fromArgs);
+        val merge = baseConfig.merge(fromArgs);
         assertEquals("host", merge.getHostname());
         assertEquals(123123, merge.getPort());
     }
