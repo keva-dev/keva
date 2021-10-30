@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @DisplayName("Netty Server")
-public class NettyServerTest extends AbstractServerTest {
+public class KevaDBTest extends AbstractServerTest {
     static String host = "localhost";
     static int port = PortUtil.getAvailablePort();
 
@@ -26,7 +26,7 @@ public class NettyServerTest extends AbstractServerTest {
                 .port(port)
                 .build();
         AppFactory.setConfig(config);
-        server = new NettyServer();
+        server = new KevaDB();
 
         new Thread(() -> {
             try {

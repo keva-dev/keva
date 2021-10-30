@@ -15,7 +15,7 @@ import lombok.val;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class NettyServer implements Server {
+public class KevaDB implements Server {
     private static final String KEVA_BANNER = "\n" +
             "  _  __  ___  __   __    _   \n" +
             " | |/ / | __| \\ \\ / /   /_\\  \n" +
