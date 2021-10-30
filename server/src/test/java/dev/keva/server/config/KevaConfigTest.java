@@ -8,10 +8,10 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ConfigHolderTest {
+class KevaConfigTest {
     @Test
     void defaultConfig() {
-        val def = ConfigHolder.makeDefaultConfig();
+        val def = KevaConfig.ofDefaults();
         assertTrue(def.getSnapshotEnabled());
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
@@ -21,8 +21,8 @@ class ConfigHolderTest {
 
     @Test
     void fromPropsDefault() {
-        val def = ConfigHolder.makeDefaultConfig();
-        val defFromProps = ConfigHolder.fromProperties(new Properties());
+        val def = KevaConfig.ofDefaults();
+        val defFromProps = KevaConfig.fromProperties(new Properties());
         assertEquals(def, defFromProps);
     }
 
@@ -35,7 +35,7 @@ class ConfigHolderTest {
         props.setProperty("snapshot_location", "./snap/");
         props.setProperty("heap_size", "123");
 
-        val configHolder = ConfigHolder.fromProperties(props);
+        val configHolder = KevaConfig.fromProperties(props);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertFalse(configHolder.getSnapshotEnabled());
@@ -46,7 +46,7 @@ class ConfigHolderTest {
     @Test
     void fromEmptyArgs() {
         val emptyArgs = new ArgsHolder();
-        val emptyConfig = ConfigHolder.fromArgs(emptyArgs);
+        val emptyConfig = KevaConfig.fromArgs(emptyArgs);
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getHeapSize());
@@ -65,7 +65,7 @@ class ConfigHolderTest {
         argsHolder.addFlag("hb");
         argsHolder.addFlag("ss");
 
-        val configHolder = ConfigHolder.fromArgs(argsHolder);
+        val configHolder = KevaConfig.fromArgs(argsHolder);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertTrue(configHolder.getSnapshotEnabled());
@@ -79,9 +79,9 @@ class ConfigHolderTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addFlag("hb");
-        val fromArgs = ConfigHolder.fromArgs(argsHolder);
+        val fromArgs = KevaConfig.fromArgs(argsHolder);
 
-        val baseConfig = ConfigHolder.builder().build();
+        val baseConfig = KevaConfig.builder().build();
         val merge = baseConfig.merge(fromArgs);
         assertEquals("host", merge.getHostname());
         assertEquals(123123, merge.getPort());

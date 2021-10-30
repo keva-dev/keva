@@ -1,11 +1,10 @@
 package dev.keva.server.core;
 
-import dev.keva.server.config.ConfigHolder;
+import dev.keva.server.config.KevaConfig;
 import dev.keva.server.config.util.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import redis.clients.jedis.Jedis;
 
 import lombok.val;
@@ -13,14 +12,13 @@ import lombok.val;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@DisplayName("Netty Server")
 public class KevaDBTest extends AbstractServerTest {
     static String host = "localhost";
     static int port = PortUtil.getAvailablePort();
 
     @BeforeAll
     static void startServer() throws Exception {
-        val config = ConfigHolder.defaultBuilder()
+        val config = KevaConfig.custom()
                 .snapshotEnabled(false)
                 .hostname(host)
                 .port(port)

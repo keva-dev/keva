@@ -12,7 +12,7 @@ import java.util.Properties;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class ConfigHolder {
+public class KevaConfig {
     @ConfigProp(name = "hostname", defaultVal = "localhost")
     @CliProp(name = "h", type = CliPropType.VAL)
     private String hostname;
@@ -34,9 +34,9 @@ public class ConfigHolder {
     private Integer heapSize;
 
     @SneakyThrows
-    public static ConfigHolder fromProperties(@NonNull Properties props) {
+    public static KevaConfig fromProperties(@NonNull Properties props) {
         val configHolder = builder().build();
-        val fields = ConfigHolder.class.getDeclaredFields();
+        val fields = KevaConfig.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(ConfigProp.class)) {
                 val annotation = field.getAnnotation(ConfigProp.class);
@@ -49,10 +49,10 @@ public class ConfigHolder {
     }
 
     @SneakyThrows
-    public static ConfigHolder fromArgs(@NonNull ArgsHolder args) {
+    public static KevaConfig fromArgs(@NonNull ArgsHolder args) {
         val configHolder = builder().build();
 
-        val fields = ConfigHolder.class.getDeclaredFields();
+        val fields = KevaConfig.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(CliProp.class)) {
                 val cliAnnotate = field.getAnnotation(CliProp.class);
@@ -77,7 +77,11 @@ public class ConfigHolder {
         return clazz.getConstructor(String.class).newInstance(s);
     }
 
-    public static ConfigHolderBuilder defaultBuilder() {
+    /**
+     * Helper method to build custom config based of the defaults
+     * @return Builder with some sensible defaults already set
+     */
+    public static KevaConfigBuilder custom() {
         return builder()
                 .snapshotLocation("./")
                 .hostname("localhost")
@@ -86,7 +90,10 @@ public class ConfigHolder {
                 .snapshotEnabled(true);
     }
 
-    public static ConfigHolder makeDefaultConfig() {
+    /**
+     * @return KevaConfig with sensible defaults
+     */
+    public static KevaConfig ofDefaults() {
         return builder()
                 .snapshotLocation("./")
                 .hostname("localhost")
@@ -97,7 +104,7 @@ public class ConfigHolder {
     }
 
     @SneakyThrows
-    public ConfigHolder merge(ConfigHolder overrideHolder) {
+    public KevaConfig merge(KevaConfig overrideHolder) {
         if (overrideHolder != null && !equals(overrideHolder)) {
             for (val field : overrideHolder.getClass().getDeclaredFields()) {
                 val overrideVal = field.get(overrideHolder);

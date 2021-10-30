@@ -1,7 +1,7 @@
 package dev.keva.server.core;
 
 import com.google.common.base.Stopwatch;
-import dev.keva.server.config.ConfigHolder;
+import dev.keva.server.config.KevaConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -22,7 +22,7 @@ public class KevaDB implements Server {
             " | ' <  | _|   \\ V /   / _ \\ \n" +
             " |_|\\_\\ |___|   \\_/   /_/ \\_\\";
 
-    private final ConfigHolder config = AppFactory.getConfig();
+    private final KevaConfig config = AppFactory.getConfig();
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;

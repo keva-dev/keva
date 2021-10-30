@@ -17,13 +17,13 @@ class ConfigManagerTest {
         String[] args = {
                 ""
         };
-        ConfigHolder configDef = ConfigManager.loadConfig(args);
-        val def = ConfigHolder.makeDefaultConfig();
+        KevaConfig configDef = ConfigManager.loadConfig(args);
+        val def = KevaConfig.ofDefaults();
         assertEquals(def, configDef);
         args = new String[]{
                 "-p", "123123"
         };
-        ConfigHolder configOverridden = ConfigManager.loadConfig(args);
+        KevaConfig configOverridden = ConfigManager.loadConfig(args);
         assertEquals(123123, configOverridden.getPort());
     }
 
@@ -75,7 +75,7 @@ class ConfigManagerTest {
         final String[] args = {
                 "-f", testPropPath, "-p", "123"
         };
-        final ConfigHolder configOverridden = ConfigManager.loadConfig(args);
+        final KevaConfig configOverridden = ConfigManager.loadConfig(args);
         assertEquals(123, configOverridden.getPort());
     }
 }
