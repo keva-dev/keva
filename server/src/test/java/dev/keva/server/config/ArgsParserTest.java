@@ -18,10 +18,10 @@ class ArgsParserTest {
         assertEquals("123123", parse.getArgVal("p"));
 
         args = new String[]{
-                "-a", "-b", "c"
+                "-a", "-b", "false"
         };
         parse = ArgsParser.parse(args);
         assertEquals("true", parse.getFlag("a"));
-        assertEquals("c", parse.getArgVal("b"));
+        assertEquals("false", parse.getArgVal("b"));
     }
 }

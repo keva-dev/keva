@@ -18,6 +18,9 @@ public class ArgsHolder {
 
     @SuppressWarnings("ReturnOfNull")
     public String getFlag(String name) {
+        if (values.containsKey(name)) {
+            return values.get(name);
+        }
         if (flags.contains(name)) {
             return "true";
         }

@@ -11,7 +11,7 @@ a shared way.
 
 - High performance and low latency in-memory key-value database
 - Compatible with Redis protocol
-- Multithreaded engine helps to maximize the use of system's resources
+- Multithreading engine helps to maximize the use of system's resources
 - Persistence in-memory data to disk
 
 ## Major dependencies
