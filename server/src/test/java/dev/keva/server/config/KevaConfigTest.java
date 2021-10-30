@@ -8,21 +8,21 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ConfigHolderTest {
+class KevaConfigTest {
     @Test
     void defaultConfig() {
-        val def = ConfigHolder.makeDefaultConfig();
-        assertTrue(def.getSnapshotEnabled());
+        val def = KevaConfig.ofDefaults();
+        assertTrue(def.getPersistence());
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
-        assertEquals("./", def.getSnapshotLocation());
+        assertEquals("./", def.getWorkDirectory());
         assertEquals(64, def.getHeapSize());
     }
 
     @Test
     void fromPropsDefault() {
-        val def = ConfigHolder.makeDefaultConfig();
-        val defFromProps = ConfigHolder.fromProperties(new Properties());
+        val def = KevaConfig.ofDefaults();
+        val defFromProps = KevaConfig.fromProperties(new Properties());
         assertEquals(def, defFromProps);
     }
 
@@ -31,27 +31,27 @@ class ConfigHolderTest {
         val props = new Properties();
         props.setProperty("hostname", "host");
         props.setProperty("port", "123123");
-        props.setProperty("snapshot_enabled", "false");
-        props.setProperty("snapshot_location", "./snap/");
+        props.setProperty("persistence", "false");
+        props.setProperty("work_directory", "./snap/");
         props.setProperty("heap_size", "123");
 
-        val configHolder = ConfigHolder.fromProperties(props);
+        val configHolder = KevaConfig.fromProperties(props);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertFalse(configHolder.getSnapshotEnabled());
-        assertEquals("./snap/", configHolder.getSnapshotLocation());
+        assertFalse(configHolder.getPersistence());
+        assertEquals("./snap/", configHolder.getWorkDirectory());
         assertEquals(123, configHolder.getHeapSize());
     }
 
     @Test
     void fromEmptyArgs() {
         val emptyArgs = new ArgsHolder();
-        val emptyConfig = ConfigHolder.fromArgs(emptyArgs);
+        val emptyConfig = KevaConfig.fromArgs(emptyArgs);
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getHeapSize());
-        assertNull(emptyConfig.getSnapshotLocation());
-        assertNull(emptyConfig.getSnapshotEnabled());
+        assertNull(emptyConfig.getWorkDirectory());
+        assertNull(emptyConfig.getPersistence());
     }
 
     @Test
@@ -60,16 +60,16 @@ class ConfigHolderTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addArgVal("ht", "123");
-        argsHolder.addArgVal("sl", "./snap/");
+        argsHolder.addArgVal("dir", "./snap/");
         argsHolder.addArgVal("hs", "123");
         argsHolder.addFlag("hb");
-        argsHolder.addFlag("ss");
+        argsHolder.addFlag("ps");
 
-        val configHolder = ConfigHolder.fromArgs(argsHolder);
+        val configHolder = KevaConfig.fromArgs(argsHolder);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertTrue(configHolder.getSnapshotEnabled());
-        assertEquals("./snap/", configHolder.getSnapshotLocation());
+        assertTrue(configHolder.getPersistence());
+        assertEquals("./snap/", configHolder.getWorkDirectory());
         assertEquals(123, configHolder.getHeapSize());
     }
 
@@ -79,9 +79,9 @@ class ConfigHolderTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addFlag("hb");
-        val fromArgs = ConfigHolder.fromArgs(argsHolder);
+        val fromArgs = KevaConfig.fromArgs(argsHolder);
 
-        val baseConfig = ConfigHolder.builder().build();
+        val baseConfig = KevaConfig.builder().build();
         val merge = baseConfig.merge(fromArgs);
         assertEquals("host", merge.getHostname());
         assertEquals(123123, merge.getPort());

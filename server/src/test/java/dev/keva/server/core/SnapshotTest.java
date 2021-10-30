@@ -1,6 +1,6 @@
 package dev.keva.server.core;
 
-import dev.keva.server.config.ConfigHolder;
+import dev.keva.server.config.KevaConfig;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
@@ -18,15 +18,15 @@ public class SnapshotTest {
     static String host = "localhost";
 
     Server startServer(int port) throws Exception {
-        val config = ConfigHolder.defaultBuilder()
+        val config = KevaConfig.custom()
                 .hostname(host)
                 .port(port)
-                .snapshotEnabled(true)
-                .snapshotLocation("./")
+                .persistence(true)
+                .workDirectory("./")
                 .heapSize(8)
                 .build();
         AppFactory.setConfig(config);
-        val server = new NettyServer();
+        val server = new KevaDB();
         new Thread(() -> {
             try {
                 server.run();

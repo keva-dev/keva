@@ -1,6 +1,6 @@
 package dev.keva.server.core;
 
-import dev.keva.server.config.ConfigHolder;
+import dev.keva.server.config.KevaConfig;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.DatabaseFactory;
 import dev.keva.store.KevaDatabase;
@@ -9,13 +9,13 @@ import lombok.val;
 
 public final class AppFactory {
     @Setter
-    private static ConfigHolder config;
+    private static KevaConfig config;
     @Setter
     private static KevaDatabase kevaDatabase;
 
-    public static synchronized ConfigHolder getConfig() {
+    public static synchronized KevaConfig getConfig() {
         if (config == null) {
-            config = ConfigHolder.makeDefaultConfig();
+            config = KevaConfig.ofDefaults();
         }
         return config;
     }
@@ -28,8 +28,8 @@ public final class AppFactory {
         if (kevaDatabase == null) {
             val dbConfig = DatabaseConfig.builder()
                     .heapSize(config.getHeapSize())
-                    .snapshotEnabled(config.getSnapshotEnabled())
-                    .snapshotLocation(config.getSnapshotLocation())
+                    .snapshotEnabled(config.getPersistence())
+                    .snapshotLocation(config.getWorkDirectory())
                     .build();
             kevaDatabase = DatabaseFactory.createChronicleMap(dbConfig);
         }

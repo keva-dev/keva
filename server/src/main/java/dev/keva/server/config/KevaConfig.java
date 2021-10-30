@@ -12,7 +12,8 @@ import java.util.Properties;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class ConfigHolder {
+@ToString
+public class KevaConfig {
     @ConfigProp(name = "hostname", defaultVal = "localhost")
     @CliProp(name = "h", type = CliPropType.VAL)
     private String hostname;
@@ -21,22 +22,22 @@ public class ConfigHolder {
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
-    @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
-    @CliProp(name = "ss", type = CliPropType.FLAG)
-    private Boolean snapshotEnabled;
+    @ConfigProp(name = "persistence", defaultVal = "true")
+    @CliProp(name = "ps", type = CliPropType.FLAG)
+    private Boolean persistence;
 
-    @ConfigProp(name = "snapshot_location", defaultVal = "./")
-    @CliProp(name = "sl", type = CliPropType.VAL)
-    private String snapshotLocation;
+    @ConfigProp(name = "work_directory", defaultVal = "./")
+    @CliProp(name = "dir", type = CliPropType.VAL)
+    private String workDirectory;
 
     @ConfigProp(name = "heap_size", defaultVal = "64")
     @CliProp(name = "hs", type = CliPropType.VAL)
     private Integer heapSize;
 
     @SneakyThrows
-    public static ConfigHolder fromProperties(@NonNull Properties props) {
+    public static KevaConfig fromProperties(@NonNull Properties props) {
         val configHolder = builder().build();
-        val fields = ConfigHolder.class.getDeclaredFields();
+        val fields = KevaConfig.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(ConfigProp.class)) {
                 val annotation = field.getAnnotation(ConfigProp.class);
@@ -49,10 +50,10 @@ public class ConfigHolder {
     }
 
     @SneakyThrows
-    public static ConfigHolder fromArgs(@NonNull ArgsHolder args) {
+    public static KevaConfig fromArgs(@NonNull ArgsHolder args) {
         val configHolder = builder().build();
 
-        val fields = ConfigHolder.class.getDeclaredFields();
+        val fields = KevaConfig.class.getDeclaredFields();
         for (val field : fields) {
             if (field.isAnnotationPresent(CliProp.class)) {
                 val cliAnnotate = field.getAnnotation(CliProp.class);
@@ -77,27 +78,34 @@ public class ConfigHolder {
         return clazz.getConstructor(String.class).newInstance(s);
     }
 
-    public static ConfigHolderBuilder defaultBuilder() {
+    /**
+     * Helper method to build custom config based of the defaults
+     * @return Builder with some sensible defaults already set
+     */
+    public static KevaConfigBuilder custom() {
         return builder()
-                .snapshotLocation("./")
+                .workDirectory("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .snapshotEnabled(true);
+                .persistence(true);
     }
 
-    public static ConfigHolder makeDefaultConfig() {
+    /**
+     * @return KevaConfig with sensible defaults
+     */
+    public static KevaConfig ofDefaults() {
         return builder()
-                .snapshotLocation("./")
+                .workDirectory("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .snapshotEnabled(true)
+                .persistence(true)
                 .build();
     }
 
     @SneakyThrows
-    public ConfigHolder merge(ConfigHolder overrideHolder) {
+    public KevaConfig merge(KevaConfig overrideHolder) {
         if (overrideHolder != null && !equals(overrideHolder)) {
             for (val field : overrideHolder.getClass().getDeclaredFields()) {
                 val overrideVal = field.get(overrideHolder);
@@ -108,15 +116,5 @@ public class ConfigHolder {
             return this;
         }
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Configurations: " +
-                "hostname=" + hostname +
-                ", port=" + port +
-                ", snapshotEnabled=" + snapshotEnabled +
-                ", snapshotLocation='" + snapshotLocation + '\'' +
-                ", heapSize=" + heapSize;
     }
 }

@@ -1,7 +1,7 @@
 package dev.keva.server.core;
 
 import com.google.common.base.Stopwatch;
-import dev.keva.server.config.ConfigHolder;
+import dev.keva.server.config.KevaConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -15,8 +15,14 @@ import lombok.val;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class NettyServer implements Server {
-    private final ConfigHolder config = AppFactory.getConfig();
+public class KevaDB implements Server {
+    private static final String KEVA_BANNER = "\n" +
+            "  _  __  ___  __   __    _   \n" +
+            " | |/ / | __| \\ \\ / /   /_\\  \n" +
+            " | ' <  | _|   \\ V /   / _ \\ \n" +
+            " |_|\\_\\ |___|   \\_/   /_/ \\_\\";
+
+    private final KevaConfig config = AppFactory.getConfig();
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -50,9 +56,11 @@ public class NettyServer implements Server {
     public void run() {
         try {
             val stopwatch = Stopwatch.createStarted();
+            AppFactory.eagerInitKevaDatabase();
             val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
-            log.info("Keva server initialized at {}:{}, PID: {}, in {} ms",
+            log.info("{} server started at {}:{}, PID: {}, in {} ms",
+                    KEVA_BANNER,
                     config.getHostname(), config.getPort(),
                     ProcessHandle.current().pid(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));

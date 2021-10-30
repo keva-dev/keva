@@ -13,22 +13,22 @@ import java.util.Properties;
 public final class ConfigManager {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
-    public static ConfigHolder loadConfig(String[] args) throws IOException {
-        ConfigHolder returnConf = ConfigHolder.fromProperties(new Properties());
+    public static KevaConfig loadConfig(String[] args) throws IOException {
+        KevaConfig returnConf = KevaConfig.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
-        val overrider = ConfigHolder.fromArgs(config);
+        val overrider = KevaConfig.fromArgs(config);
 
         val configFilePath = config.getArgVal("f");
         if (configFilePath != null) {
             returnConf = loadConfigFromFile(configFilePath);
         }
 
-        ConfigHolder result = returnConf.merge(overrider);
+        KevaConfig result = returnConf.merge(overrider);
         log.info(result.toString());
         return result;
     }
 
-    public static ConfigHolder loadConfigFromFile(String filePath) throws IOException {
+    public static KevaConfig loadConfigFromFile(String filePath) throws IOException {
         if (filePath.isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
@@ -37,6 +37,6 @@ public final class ConfigManager {
             props.load(file);
         }
 
-        return ConfigHolder.fromProperties(props);
+        return KevaConfig.fromProperties(props);
     }
 }
