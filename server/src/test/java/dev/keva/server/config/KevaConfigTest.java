@@ -12,10 +12,10 @@ class KevaConfigTest {
     @Test
     void defaultConfig() {
         val def = KevaConfig.ofDefaults();
-        assertTrue(def.getSnapshotEnabled());
+        assertTrue(def.getPersistence());
         assertEquals("localhost", def.getHostname());
         assertEquals(6767, def.getPort());
-        assertEquals("./", def.getSnapshotLocation());
+        assertEquals("./", def.getWorkDirectory());
         assertEquals(64, def.getHeapSize());
     }
 
@@ -31,15 +31,15 @@ class KevaConfigTest {
         val props = new Properties();
         props.setProperty("hostname", "host");
         props.setProperty("port", "123123");
-        props.setProperty("snapshot_enabled", "false");
-        props.setProperty("snapshot_location", "./snap/");
+        props.setProperty("persistence", "false");
+        props.setProperty("work_directory", "./snap/");
         props.setProperty("heap_size", "123");
 
         val configHolder = KevaConfig.fromProperties(props);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertFalse(configHolder.getSnapshotEnabled());
-        assertEquals("./snap/", configHolder.getSnapshotLocation());
+        assertFalse(configHolder.getPersistence());
+        assertEquals("./snap/", configHolder.getWorkDirectory());
         assertEquals(123, configHolder.getHeapSize());
     }
 
@@ -50,8 +50,8 @@ class KevaConfigTest {
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getHeapSize());
-        assertNull(emptyConfig.getSnapshotLocation());
-        assertNull(emptyConfig.getSnapshotEnabled());
+        assertNull(emptyConfig.getWorkDirectory());
+        assertNull(emptyConfig.getPersistence());
     }
 
     @Test
@@ -60,16 +60,16 @@ class KevaConfigTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addArgVal("ht", "123");
-        argsHolder.addArgVal("sl", "./snap/");
+        argsHolder.addArgVal("dir", "./snap/");
         argsHolder.addArgVal("hs", "123");
         argsHolder.addFlag("hb");
-        argsHolder.addFlag("ss");
+        argsHolder.addFlag("ps");
 
         val configHolder = KevaConfig.fromArgs(argsHolder);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
-        assertTrue(configHolder.getSnapshotEnabled());
-        assertEquals("./snap/", configHolder.getSnapshotLocation());
+        assertTrue(configHolder.getPersistence());
+        assertEquals("./snap/", configHolder.getWorkDirectory());
         assertEquals(123, configHolder.getHeapSize());
     }
 

@@ -19,7 +19,7 @@ public class KevaDBTest extends AbstractServerTest {
     @BeforeAll
     static void startServer() throws Exception {
         val config = KevaConfig.custom()
-                .snapshotEnabled(false)
+                .persistence(false)
                 .hostname(host)
                 .port(port)
                 .build();

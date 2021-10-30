@@ -59,7 +59,7 @@ public class KevaDB implements Server {
             AppFactory.eagerInitKevaDatabase();
             val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
-            log.info("{} server initialized at {}:{}, PID: {}, in {} ms",
+            log.info("{} server started at {}:{}, PID: {}, in {} ms",
                     KEVA_BANNER,
                     config.getHostname(), config.getPort(),
                     ProcessHandle.current().pid(),

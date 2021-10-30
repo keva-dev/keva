@@ -28,8 +28,8 @@ public final class AppFactory {
         if (kevaDatabase == null) {
             val dbConfig = DatabaseConfig.builder()
                     .heapSize(config.getHeapSize())
-                    .snapshotEnabled(config.getSnapshotEnabled())
-                    .snapshotLocation(config.getSnapshotLocation())
+                    .snapshotEnabled(config.getPersistence())
+                    .snapshotLocation(config.getWorkDirectory())
                     .build();
             kevaDatabase = DatabaseFactory.createChronicleMap(dbConfig);
         }

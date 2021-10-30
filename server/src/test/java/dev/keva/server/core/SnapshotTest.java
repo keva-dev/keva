@@ -21,8 +21,8 @@ public class SnapshotTest {
         val config = KevaConfig.custom()
                 .hostname(host)
                 .port(port)
-                .snapshotEnabled(true)
-                .snapshotLocation("./")
+                .persistence(true)
+                .workDirectory("./")
                 .heapSize(8)
                 .build();
         AppFactory.setConfig(config);

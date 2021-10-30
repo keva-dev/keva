@@ -12,6 +12,7 @@ import java.util.Properties;
 @Getter
 @Setter
 @EqualsAndHashCode
+@ToString
 public class KevaConfig {
     @ConfigProp(name = "hostname", defaultVal = "localhost")
     @CliProp(name = "h", type = CliPropType.VAL)
@@ -21,13 +22,13 @@ public class KevaConfig {
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
-    @ConfigProp(name = "snapshot_enabled", defaultVal = "true")
-    @CliProp(name = "ss", type = CliPropType.FLAG)
-    private Boolean snapshotEnabled;
+    @ConfigProp(name = "persistence", defaultVal = "true")
+    @CliProp(name = "ps", type = CliPropType.FLAG)
+    private Boolean persistence;
 
-    @ConfigProp(name = "snapshot_location", defaultVal = "./")
-    @CliProp(name = "sl", type = CliPropType.VAL)
-    private String snapshotLocation;
+    @ConfigProp(name = "work_directory", defaultVal = "./")
+    @CliProp(name = "dir", type = CliPropType.VAL)
+    private String workDirectory;
 
     @ConfigProp(name = "heap_size", defaultVal = "64")
     @CliProp(name = "hs", type = CliPropType.VAL)
@@ -83,11 +84,11 @@ public class KevaConfig {
      */
     public static KevaConfigBuilder custom() {
         return builder()
-                .snapshotLocation("./")
+                .workDirectory("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .snapshotEnabled(true);
+                .persistence(true);
     }
 
     /**
@@ -95,11 +96,11 @@ public class KevaConfig {
      */
     public static KevaConfig ofDefaults() {
         return builder()
-                .snapshotLocation("./")
+                .workDirectory("./")
                 .hostname("localhost")
                 .port(6767)
                 .heapSize(64)
-                .snapshotEnabled(true)
+                .persistence(true)
                 .build();
     }
 
@@ -115,15 +116,5 @@ public class KevaConfig {
             return this;
         }
         return this;
-    }
-
-    @Override
-    public String toString() {
-        return "Configurations: " +
-                "hostname=" + hostname +
-                ", port=" + port +
-                ", snapshotEnabled=" + snapshotEnabled +
-                ", snapshotLocation='" + snapshotLocation + '\'' +
-                ", heapSize=" + heapSize;
     }
 }
