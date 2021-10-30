@@ -9,9 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.slf4j.LoggerFactory;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 @Slf4j
 public final class Application {
     static {
@@ -23,31 +20,7 @@ public final class Application {
     public static void main(String[] args) {
         try {
             AppFactory.setConfig(ConfigManager.loadConfig(args));
-            AppFactory.eagerInitKevaDatabase();
-            val server = new NettyServer();
-
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                try {
-                    server.shutdown();
-                } catch (Exception e) {
-                    log.error("Problem occurred when stopping server: ", e);
-                } finally {
-                    log.info("Bye!");
-                }
-            }));
-
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    System.out.println("\n" +
-                            "      ___           \n" +
-                            "|__/ |__  \\  /  /\\  \n" +
-                            "|  \\ |___  \\/  /~~\\ \n" +
-                            "                    \n");
-                }
-            }, 1000);
-
-            server.run();
+            new NettyServer().run();
         } catch (Exception e) {
             log.error("There was a problem running server: ", e);
         }
