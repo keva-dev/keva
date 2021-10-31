@@ -1,7 +1,7 @@
 # Replication
 
 :::warning WIP
-This feature is in experimental
+This feature is in development
 :::
 
 ## How to run in replication mode

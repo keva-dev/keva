@@ -15,10 +15,10 @@ chmod +x /usr/local/bin/keva-server
 ## Run commands
 
 Options:
-- ```-h```: hostname (default: localhost)
-- ```-p```: port (default: 6767)
-- ```-sl```: snapshot location (default: ./)
-- ```-ro```: replicate of (default: none)
+- ```-h {host}```: hostname (default: localhost)
+- ```-p {port}```: port (default: 6767)
+- ```-dir {directory}```: working directory (default: ./)
+- ```-ps {true/false}```: persistence (default: 'true' if flag not set or provide value when set). 
 
 ```command
 $ keva-server -p 6767
