@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation project(':store')
+    implementation project(':protocol')
 
     implementation 'ch.qos.logback:logback-classic:1.2.6'
     implementation 'ch.qos.logback:logback-core:1.2.6'
@@ -21,6 +22,9 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.reflections:reflections:0.10.1'
+
+    // Experimental
+    implementation files('libs/kevaioc-0.1.0-SNAPSHOT.jar')
 
     testImplementation 'redis.clients:jedis:3.7.0'
 

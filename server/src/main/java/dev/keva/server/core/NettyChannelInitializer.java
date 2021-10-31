@@ -1,17 +1,19 @@
 package dev.keva.server.core;
 
-import dev.keva.server.protocol.resp.RedisCommandDecoder;
-import dev.keva.server.protocol.resp.RedisReplyEncoder;
-import io.netty.channel.ChannelHandler;
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.RedisCommandDecoder;
+import dev.keva.protocol.resp.RedisReplyEncoder;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
-import lombok.NonNull;
 
+@Component
 public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private final ChannelHandler handler;
+    private final NettyChannelHandler handler;
 
-    public NettyChannelInitializer(@NonNull ChannelHandler handler) {
+    @Autowired
+    public NettyChannelInitializer(NettyChannelHandler handler) {
         this.handler = handler;
     }
 

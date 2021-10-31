@@ -2,3 +2,4 @@ rootProject.name = 'keva'
 
 include 'server'
 include 'store'
+include 'protocol'

@@ -25,8 +25,7 @@ public class SnapshotTest {
                 .workDirectory("./")
                 .heapSize(8)
                 .build();
-        AppFactory.setConfig(config);
-        val server = new KevaDB();
+        val server = KevaServer.of(config);
         new Thread(() -> {
             try {
                 server.run();
