@@ -24,7 +24,7 @@ dependencies {
     implementation 'org.reflections:reflections:0.10.1'
 
     // Experimental
-    implementation files('libs/kevaioc-0.1.0-SNAPSHOT.jar')
+    implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
 
     testImplementation 'redis.clients:jedis:3.7.0'
 
@@ -45,8 +45,8 @@ application {
 test {
     useJUnitPlatform()
     testLogging {
-        events "passed", "skipped", "failed"
-        outputs.upToDateWhen { false }
+        outputs.upToDateWhen { true }
         showStandardStreams = true
     }
+    maxParallelForks = Runtime.runtime.availableProcessors()
 }

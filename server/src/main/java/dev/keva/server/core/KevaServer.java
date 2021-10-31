@@ -38,7 +38,7 @@ public class KevaServer implements Server {
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
 
-    private static final Stopwatch stopwatch = Stopwatch.createUnstarted();
+    private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
     @Autowired
     public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
@@ -48,19 +48,16 @@ public class KevaServer implements Server {
     }
 
     public static KevaServer ofDefaults() {
-        stopwatch.start();
         KevaIoC context = KevaIoC.initBeans(KevaServer.class);
         return context.getBean(KevaServer.class);
     }
 
     public static KevaServer of(KevaConfig config) {
-        stopwatch.start();
         KevaIoC context = KevaIoC.initBeans(KevaServer.class, config);
         return context.getBean(KevaServer.class);
     }
 
     public static KevaServer ofCustomBeans(Object... beans) {
-        stopwatch.start();
         KevaIoC context = KevaIoC.initBeans(KevaServer.class, beans);
         return context.getBean(KevaServer.class);
     }
@@ -92,6 +89,7 @@ public class KevaServer implements Server {
     @Override
     public void run() {
         try {
+            stopwatch.start();
             val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",
@@ -100,8 +98,7 @@ public class KevaServer implements Server {
                     ProcessHandle.current().pid(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
-            stopwatch.stop();
-            stopwatch.reset();
+
             channel = sync.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
@@ -110,6 +107,7 @@ public class KevaServer implements Server {
         } catch (Exception e) {
             log.error("Failed to start server: ", e);
         } finally {
+            stopwatch.stop();
             shutdown();
         }
     }

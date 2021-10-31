@@ -1,7 +1,7 @@
 package dev.keva.server.core;
 
 import dev.keva.server.config.KevaConfig;
-import dev.keva.server.config.util.PortUtil;
+import dev.keva.server.utils.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,7 +35,7 @@ public class KevaServerTest extends AbstractServerTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(6);
+        TimeUnit.SECONDS.sleep(2);
 
         jedis = new Jedis(host, port);
     }

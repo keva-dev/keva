@@ -9,7 +9,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.concurrent.TimeUnit;
 
-import static dev.keva.server.config.util.PortUtil.getAvailablePort;
+import static dev.keva.server.utils.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -36,7 +36,7 @@ public class SnapshotTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(8);
+        TimeUnit.SECONDS.sleep(2);
         return server;
     }
 
