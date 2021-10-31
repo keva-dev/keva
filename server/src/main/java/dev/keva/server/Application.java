@@ -14,6 +14,8 @@ public final class Application {
         val ctx = (LoggerContext) LoggerFactory.getILoggerFactory();
         ctx.getLogger("io.netty").setLevel(Level.OFF);
         ctx.getLogger("net.openhft").setLevel(Level.OFF);
+        ctx.getLogger("org.reflections").setLevel(Level.OFF);
+        System.err.close();
     }
 
     public static void main(String[] args) {
