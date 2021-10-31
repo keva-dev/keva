@@ -10,8 +10,12 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 @Component
 public class NettyChannelInitializer extends ChannelInitializer<SocketChannel> {
+    private final NettyChannelHandler handler;
+
     @Autowired
-    private NettyChannelHandler handler;
+    public NettyChannelInitializer(NettyChannelHandler handler) {
+        this.handler = handler;
+    }
 
     @Override
     protected void initChannel(SocketChannel ch) {

@@ -27,12 +27,11 @@ import java.util.concurrent.ConcurrentMap;
 @Sharable
 @Component
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
-    @Autowired
-    private KevaIoC context;
 
     private final ConcurrentMap<BytesKey, CommandWrapper> methods = new ConcurrentHashMap<>();
 
-    public NettyChannelHandler() {
+    @Autowired
+    public NettyChannelHandler(KevaIoC context) {
         Reflections reflections = new Reflections("dev.keva.server.command");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
         for (Class<?> aClass : annotated) {

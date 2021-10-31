@@ -23,8 +23,7 @@ public class KevaServerTest extends AbstractServerTest {
                 .hostname(host)
                 .port(port)
                 .build();
-        AppFactory.setConfig(config);
-        server = new KevaServer();
+        server = KevaServer.of(config);
 
         new Thread(() -> {
             try {

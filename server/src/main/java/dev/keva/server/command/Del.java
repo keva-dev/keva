@@ -15,7 +15,7 @@ import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 @ParamLength(type = AT_LEAST, value = 1)
 public class Del {
     @Autowired
-    protected static KevaDatabase database;
+    private KevaDatabase database;
 
     @Execute
     public IntegerReply execute(byte[]... keys) {

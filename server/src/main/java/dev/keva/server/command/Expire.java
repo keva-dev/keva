@@ -16,7 +16,7 @@ import java.util.TimerTask;
 @ParamLength(2)
 public class Expire {
     @Autowired
-    protected static KevaDatabase database;
+    private KevaDatabase database;
 
     private final Timer timer = new Timer();
 

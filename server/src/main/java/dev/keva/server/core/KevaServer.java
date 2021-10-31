@@ -1,8 +1,10 @@
 package dev.keva.server.core;
 
 import com.google.common.base.Stopwatch;
+import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.ioc.annotation.ComponentScan;
 import dev.keva.server.config.KevaConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@ComponentScan("dev.keva.server")
 public class KevaServer implements Server {
     private static final String KEVA_BANNER = "\n" +
             "  _  __  ___  __   __    _   \n" +
@@ -30,11 +33,24 @@ public class KevaServer implements Server {
 
     private Channel channel;
 
-    @Autowired
-    private KevaConfig config;
+    private final KevaConfig config;
+    private final NettyChannelInitializer nettyChannelInitializer;
 
     @Autowired
-    private NettyChannelInitializer nettyChannelInitializer;
+    public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer) {
+        this.config = config;
+        this.nettyChannelInitializer = nettyChannelInitializer;
+    }
+
+    public static KevaServer of(KevaConfig config) {
+        KevaIoC context = KevaIoC.initBeans(KevaServer.class, config);
+        return context.getBean(KevaServer.class);
+    }
+
+    public static KevaServer ofDefaults() {
+        KevaIoC context = KevaIoC.initBeans(KevaServer.class);
+        return context.getBean(KevaServer.class);
+    }
 
     public ServerBootstrap bootstrapServer() {
         bossGroup = new NioEventLoopGroup(1);

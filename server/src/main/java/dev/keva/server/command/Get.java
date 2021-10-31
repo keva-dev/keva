@@ -15,7 +15,7 @@ import lombok.val;
 @ParamLength(1)
 public class Get {
     @Autowired
-    protected static KevaDatabase database;
+    private KevaDatabase database;
 
     @Execute
     public Reply<?> execute(byte[] key) {

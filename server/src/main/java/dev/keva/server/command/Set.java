@@ -13,7 +13,7 @@ import dev.keva.store.KevaDatabase;
 @ParamLength(2)
 public class Set {
     @Autowired
-    protected static KevaDatabase database;
+    private KevaDatabase database;
 
     @Execute
     public StatusReply execute(byte[] key, byte[] val) {
