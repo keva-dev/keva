@@ -1,5 +1,6 @@
 package dev.keva.server.command;
 
+import dev.keva.ioc.annotation.Component;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
@@ -9,6 +10,7 @@ import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 
+@Component
 @CommandImpl("ping")
 @ParamLength(type = AT_MOST, value = 1)
 public class Ping {

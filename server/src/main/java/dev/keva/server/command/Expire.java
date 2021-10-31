@@ -1,17 +1,23 @@
 package dev.keva.server.command;
 
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.base.BaseCommandImpl;
-import dev.keva.protocol.resp.reply.IntegerReply;
+import dev.keva.store.KevaDatabase;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
+@Component
 @CommandImpl("expire")
 @ParamLength(2)
-public class Expire extends BaseCommandImpl {
+public class Expire {
+    @Autowired
+    protected static KevaDatabase database;
+
     private final Timer timer = new Timer();
 
     @Execute

@@ -1,15 +1,22 @@
 package dev.keva.server.command;
 
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
-import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
-import dev.keva.server.command.base.BaseCommandImpl;
-import dev.keva.protocol.resp.reply.IntegerReply;
+import dev.keva.store.KevaDatabase;
 
+import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
+
+@Component
 @CommandImpl("del")
 @ParamLength(type = AT_LEAST, value = 1)
-public class Del extends BaseCommandImpl {
+public class Del {
+    @Autowired
+    protected static KevaDatabase database;
+
     @Execute
     public IntegerReply execute(byte[]... keys) {
         var deleted = 0;

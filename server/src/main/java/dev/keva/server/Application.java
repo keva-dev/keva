@@ -2,8 +2,9 @@ package dev.keva.server;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import dev.keva.ioc.KevaIoC;
 import dev.keva.server.config.ConfigManager;
-import dev.keva.server.core.AppFactory;
+import dev.keva.server.config.KevaConfig;
 import dev.keva.server.core.KevaServer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -19,8 +20,9 @@ public final class Application {
 
     public static void main(String[] args) {
         try {
-            AppFactory.setConfig(ConfigManager.loadConfig(args));
-            new KevaServer().run();
+            KevaIoC context = KevaIoC.initBeans(Application.class);
+            context.getBean(KevaConfig.class).merge(ConfigManager.loadConfig(args));
+            context.getBean(KevaServer.class).run();
         } catch (Exception e) {
             log.error("There was a problem running server: ", e);
         }

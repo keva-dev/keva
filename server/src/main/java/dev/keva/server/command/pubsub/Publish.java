@@ -1,29 +1,32 @@
 package dev.keva.server.command.pubsub;
 
-import dev.keva.server.command.annotation.CommandImpl;
-import dev.keva.server.command.annotation.Execute;
-import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.pubsub.factory.PubSubFactory;
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
+import dev.keva.server.command.annotation.CommandImpl;
+import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.ParamLength;
+import dev.keva.server.command.pubsub.manager.PubSubManager;
 import io.netty.channel.Channel;
 import lombok.val;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 
+@Component
 @CommandImpl("publish")
 @ParamLength(2)
 public class Publish {
-    private final ConcurrentMap<String, Set<Channel>> topics = PubSubFactory.getTopics();
+    @Autowired
+    private PubSubManager manager;
 
     @Execute
     public IntegerReply execute(byte[] topicBytes, byte[] message) {
         var count = 0;
         val topic = new String(topicBytes).toLowerCase();
-        Set<Channel> set = topics.get(topic);
+        Set<Channel> set = manager.getTopics().get(topic);
         if (set != null) {
             for (Channel channel : set) {
                 if (channel.isActive()) {

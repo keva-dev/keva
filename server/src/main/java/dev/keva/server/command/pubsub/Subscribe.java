@@ -1,9 +1,11 @@
 package dev.keva.server.command.pubsub;
 
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.pubsub.factory.PubSubFactory;
+import dev.keva.server.command.pubsub.manager.PubSubManager;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
@@ -17,13 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 
+@Component
 @CommandImpl("subscribe")
 @ParamLength(type = AT_LEAST, value = 1)
 public class Subscribe {
+    @Autowired
+    private PubSubManager manager;
+
     @Execute
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {
-        val topics = PubSubFactory.getTopics();
-        val tracks = PubSubFactory.getTracks();
+        val topics = manager.getTopics();
+        val tracks = manager.getTracks();
 
         var track = tracks.get(ctx.channel());
         if (track == null) {

@@ -1,8 +1,10 @@
 package dev.keva.server.command.pubsub;
 
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
-import dev.keva.server.command.pubsub.factory.PubSubFactory;
+import dev.keva.server.command.pubsub.manager.PubSubManager;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
@@ -14,10 +16,14 @@ import lombok.val;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 @CommandImpl("unsubscribe")
 public class Unsubscribe {
+    @Autowired
+    private PubSubManager manager;
+
     public void remove(ChannelHandlerContext ctx, Set<String> track, String topic) {
-        val topics = PubSubFactory.getTopics();
+        val topics = manager.getTopics();
         Set<Channel> list = topics.get(topic);
         if (list != null) {
             list.remove(ctx.channel());
@@ -32,7 +38,7 @@ public class Unsubscribe {
 
     @Execute
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {
-        val tracks = PubSubFactory.getTracks();
+        val tracks = manager.getTracks();
 
         var track = tracks.get(ctx.channel());
         if (track == null) {

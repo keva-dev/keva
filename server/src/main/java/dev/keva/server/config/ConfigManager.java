@@ -14,7 +14,7 @@ public final class ConfigManager {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
     public static KevaConfig loadConfig(String[] args) throws IOException {
-        KevaConfig returnConf = KevaConfig.fromProperties(new Properties());
+        var returnConf = KevaConfig.fromProperties(new Properties());
         val config = ArgsParser.parse(args);
         val overrider = KevaConfig.fromArgs(config);
 

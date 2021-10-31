@@ -1,6 +1,8 @@
 package dev.keva.server.core;
 
 import com.google.common.base.Stopwatch;
+import dev.keva.ioc.annotation.Autowired;
+import dev.keva.ioc.annotation.Component;
 import dev.keva.server.config.KevaConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -15,6 +17,7 @@ import lombok.val;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@Component
 public class KevaServer implements Server {
     private static final String KEVA_BANNER = "\n" +
             "  _  __  ___  __   __    _   \n" +
@@ -22,19 +25,23 @@ public class KevaServer implements Server {
             " | ' <  | _|   \\ V /   / _ \\ \n" +
             " |_|\\_\\ |___|   \\_/   /_/ \\_\\";
 
-    private final KevaConfig config = AppFactory.getConfig();
-
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
     private Channel channel;
+
+    @Autowired
+    private KevaConfig config;
+
+    @Autowired
+    private NettyChannelInitializer nettyChannelInitializer;
 
     public ServerBootstrap bootstrapServer() {
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
         return new ServerBootstrap().group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .childHandler(new NettyChannelInitializer(new NettyChannelHandler()))
+                .childHandler(nettyChannelInitializer)
                 .option(ChannelOption.SO_BACKLOG, 100)
                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childOption(ChannelOption.SO_RCVBUF, 1024 * 1024)
@@ -56,7 +63,6 @@ public class KevaServer implements Server {
     public void run() {
         try {
             val stopwatch = Stopwatch.createStarted();
-            AppFactory.eagerInitKevaDatabase();
             val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",
