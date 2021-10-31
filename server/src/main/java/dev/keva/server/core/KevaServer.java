@@ -36,6 +36,8 @@ public class KevaServer implements Server {
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
 
+    private static final Stopwatch stopwatch = Stopwatch.createUnstarted();
+
     @Autowired
     public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer) {
         this.config = config;
@@ -43,11 +45,13 @@ public class KevaServer implements Server {
     }
 
     public static KevaServer of(KevaConfig config) {
+        stopwatch.start();
         KevaIoC context = KevaIoC.initBeans(KevaServer.class, config);
         return context.getBean(KevaServer.class);
     }
 
     public static KevaServer ofDefaults() {
+        stopwatch.start();
         KevaIoC context = KevaIoC.initBeans(KevaServer.class);
         return context.getBean(KevaServer.class);
     }
@@ -78,7 +82,6 @@ public class KevaServer implements Server {
     @Override
     public void run() {
         try {
-            val stopwatch = Stopwatch.createStarted();
             val server = bootstrapServer();
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",
@@ -88,6 +91,7 @@ public class KevaServer implements Server {
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
             stopwatch.stop();
+            stopwatch.reset();
             channel = sync.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
