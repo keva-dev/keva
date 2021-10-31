@@ -8,6 +8,7 @@ java {
 }
 
 dependencies {
+    implementation project(':protocol')
     implementation 'net.openhft:chronicle-map:3.21.86'
 }
 
