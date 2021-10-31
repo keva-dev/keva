@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp.reply;
+package dev.keva.protocol.resp.reply;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import static dev.keva.server.protocol.resp.Encoding.numToBytes;
+import static dev.keva.protocol.resp.Encoding.numToBytes;
 
 public class BulkReply implements Reply<ByteBuf> {
     public static final BulkReply NIL_REPLY = new BulkReply();

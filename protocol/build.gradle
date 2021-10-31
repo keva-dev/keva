@@ -1,0 +1,29 @@
+plugins {
+    id 'com.adarshr.test-logger' version '2.1.0'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+    implementation 'io.netty:netty-handler:4.1.69.Final'
+    implementation 'io.netty:netty-buffer:4.1.69.Final'
+    implementation 'com.google.guava:guava:31.0.1-jre'
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
+}

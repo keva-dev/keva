@@ -1,15 +1,12 @@
-package dev.keva.server.protocol.resp;
+package dev.keva.protocol.resp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import static dev.keva.server.protocol.resp.Encoding.numToBytes;
+import static dev.keva.protocol.resp.Encoding.numToBytes;
 
 public class Command {
 

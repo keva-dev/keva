@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp.hashbytes;
+package dev.keva.protocol.resp.hashbytes;
 
 import com.google.common.primitives.SignedBytes;
 

@@ -5,7 +5,7 @@ import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 import dev.keva.server.command.base.BaseCommandImpl;
-import dev.keva.server.protocol.resp.reply.IntegerReply;
+import dev.keva.protocol.resp.reply.IntegerReply;
 
 @CommandImpl("del")
 @ParamLength(type = AT_LEAST, value = 1)

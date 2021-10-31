@@ -4,7 +4,7 @@ import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.base.BaseCommandImpl;
-import dev.keva.server.protocol.resp.reply.IntegerReply;
+import dev.keva.protocol.resp.reply.IntegerReply;
 
 import java.util.Timer;
 import java.util.TimerTask;

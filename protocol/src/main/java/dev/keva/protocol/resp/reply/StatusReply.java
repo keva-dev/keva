@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp.reply;
+package dev.keva.protocol.resp.reply;
 
 import io.netty.buffer.ByteBuf;
 

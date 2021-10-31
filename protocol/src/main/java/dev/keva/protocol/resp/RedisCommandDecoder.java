@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp;
+package dev.keva.protocol.resp;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -6,8 +6,6 @@ import io.netty.handler.codec.ReplayingDecoder;
 
 import java.io.IOException;
 import java.util.List;
-
-import static dev.keva.server.protocol.resp.RedisReplyDecoder.readLong;
 
 public class RedisCommandDecoder extends ReplayingDecoder<Void> {
 
@@ -20,7 +18,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             int numArgs = bytes.length;
             for (int i = arguments; i < numArgs; i++) {
                 if (in.readByte() == '$') {
-                    long l = readLong(in);
+                    long l = RedisReplyDecoder.readLong(in);
                     if (l > Integer.MAX_VALUE) {
                         throw new IllegalArgumentException("Java only supports arrays up to " + Integer.MAX_VALUE + " in size");
                     }
@@ -44,7 +42,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
                 arguments = 0;
             }
         } else if (in.readByte() == '*') {
-            long l = readLong(in);
+            long l = RedisReplyDecoder.readLong(in);
             if (l > Integer.MAX_VALUE) {
                 throw new IllegalArgumentException("Java only supports arrays up to " + Integer.MAX_VALUE + " in size");
             }

@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp;
+package dev.keva.protocol.resp;
 
 public class Encoding {
     public static final char LF = '\n';

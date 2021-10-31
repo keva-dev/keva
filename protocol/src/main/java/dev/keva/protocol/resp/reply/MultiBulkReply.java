@@ -1,7 +1,7 @@
-package dev.keva.server.protocol.resp.reply;
+package dev.keva.protocol.resp.reply;
 
-import dev.keva.server.protocol.resp.Encoding;
-import dev.keva.server.protocol.resp.RedisReplyDecoder;
+import dev.keva.protocol.resp.Encoding;
+import dev.keva.protocol.resp.RedisReplyDecoder;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;

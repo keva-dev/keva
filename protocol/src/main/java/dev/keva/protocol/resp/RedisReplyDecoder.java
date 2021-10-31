@@ -1,6 +1,6 @@
-package dev.keva.server.protocol.resp;
+package dev.keva.protocol.resp;
 
-import dev.keva.server.protocol.resp.reply.*;
+import dev.keva.protocol.resp.reply.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;

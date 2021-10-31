@@ -4,10 +4,10 @@ import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.pubsub.factory.PubSubFactory;
-import dev.keva.server.protocol.resp.reply.BulkReply;
-import dev.keva.server.protocol.resp.reply.IntegerReply;
-import dev.keva.server.protocol.resp.reply.MultiBulkReply;
-import dev.keva.server.protocol.resp.reply.Reply;
+import dev.keva.protocol.resp.reply.BulkReply;
+import dev.keva.protocol.resp.reply.IntegerReply;
+import dev.keva.protocol.resp.reply.MultiBulkReply;
+import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import lombok.val;
 

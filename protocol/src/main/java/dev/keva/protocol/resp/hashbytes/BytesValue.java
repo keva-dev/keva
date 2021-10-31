@@ -1,4 +1,4 @@
-package dev.keva.server.protocol.resp.hashbytes;
+package dev.keva.protocol.resp.hashbytes;
 
 public class BytesValue {
     protected final byte[] bytes;

@@ -1,6 +1,6 @@
-package dev.keva.server.protocol.resp.reply;
+package dev.keva.protocol.resp.reply;
 
-import dev.keva.server.protocol.resp.Encoding;
+import dev.keva.protocol.resp.Encoding;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;

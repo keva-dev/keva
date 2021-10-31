@@ -1,7 +1,7 @@
 package dev.keva.server.core;
 
-import dev.keva.server.protocol.resp.RedisCommandDecoder;
-import dev.keva.server.protocol.resp.RedisReplyEncoder;
+import dev.keva.protocol.resp.RedisCommandDecoder;
+import dev.keva.protocol.resp.RedisReplyEncoder;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
