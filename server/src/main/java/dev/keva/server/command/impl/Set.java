@@ -1,4 +1,4 @@
-package dev.keva.server.command;
+package dev.keva.server.command.impl;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -12,8 +12,12 @@ import dev.keva.store.KevaDatabase;
 @CommandImpl("set")
 @ParamLength(2)
 public class Set {
+    private final KevaDatabase database;
+
     @Autowired
-    private KevaDatabase database;
+    public Set(KevaDatabase database) {
+        this.database = database;
+    }
 
     @Execute
     public StatusReply execute(byte[] key, byte[] val) {

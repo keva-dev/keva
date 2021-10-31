@@ -1,4 +1,4 @@
-package dev.keva.server.command.wrapper;
+package dev.keva.server.command.mapping;
 
 import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.reply.Reply;

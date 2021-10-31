@@ -7,7 +7,7 @@ import dev.keva.server.config.KevaConfig;
 @Configuration
 public class ConfigSetup {
     @Bean
-    public KevaConfig setupKevaConfig() {
+    public KevaConfig defaultKevaConfig() {
         return KevaConfig.ofDefaults();
     }
 }

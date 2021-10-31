@@ -1,11 +1,11 @@
-package dev.keva.server.command.pubsub;
+package dev.keva.server.command.impl.pubsub;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.pubsub.manager.PubSubManager;
+import dev.keva.server.command.impl.pubsub.manager.PubSubManager;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
@@ -23,8 +23,12 @@ import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 @CommandImpl("subscribe")
 @ParamLength(type = AT_LEAST, value = 1)
 public class Subscribe {
+    private final PubSubManager manager;
+
     @Autowired
-    private PubSubManager manager;
+    public Subscribe(PubSubManager manager) {
+        this.manager = manager;
+    }
 
     @Execute
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {

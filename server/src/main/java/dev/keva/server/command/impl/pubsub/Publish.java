@@ -1,4 +1,4 @@
-package dev.keva.server.command.pubsub;
+package dev.keva.server.command.impl.pubsub;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -9,7 +9,7 @@ import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.pubsub.manager.PubSubManager;
+import dev.keva.server.command.impl.pubsub.manager.PubSubManager;
 import io.netty.channel.Channel;
 import lombok.val;
 
@@ -19,8 +19,12 @@ import java.util.Set;
 @CommandImpl("publish")
 @ParamLength(2)
 public class Publish {
+    private final PubSubManager manager;
+
     @Autowired
-    private PubSubManager manager;
+    public Publish(PubSubManager manager) {
+        this.manager = manager;
+    }
 
     @Execute
     public IntegerReply execute(byte[] topicBytes, byte[] message) {

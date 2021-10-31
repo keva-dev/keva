@@ -1,4 +1,4 @@
-package dev.keva.server.command.pubsub.manager;
+package dev.keva.server.command.impl.pubsub.manager;
 
 import dev.keva.ioc.annotation.Component;
 import io.netty.channel.Channel;

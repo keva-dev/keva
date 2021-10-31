@@ -1,4 +1,4 @@
-package dev.keva.server.command;
+package dev.keva.server.command.impl;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -14,8 +14,12 @@ import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 @CommandImpl("del")
 @ParamLength(type = AT_LEAST, value = 1)
 public class Del {
+    private final KevaDatabase database;
+
     @Autowired
-    private KevaDatabase database;
+    public Del(KevaDatabase database) {
+        this.database = database;
+    }
 
     @Execute
     public IntegerReply execute(byte[]... keys) {

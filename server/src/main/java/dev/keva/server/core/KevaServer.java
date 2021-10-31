@@ -5,6 +5,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
+import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -35,19 +36,15 @@ public class KevaServer implements Server {
 
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
+    private final CommandMapper commandMapper;
 
     private static final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
     @Autowired
-    public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer) {
+    public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
-    }
-
-    public static KevaServer of(KevaConfig config) {
-        stopwatch.start();
-        KevaIoC context = KevaIoC.initBeans(KevaServer.class, config);
-        return context.getBean(KevaServer.class);
+        this.commandMapper = commandMapper;
     }
 
     public static KevaServer ofDefaults() {
@@ -56,7 +53,20 @@ public class KevaServer implements Server {
         return context.getBean(KevaServer.class);
     }
 
+    public static KevaServer of(KevaConfig config) {
+        stopwatch.start();
+        KevaIoC context = KevaIoC.initBeans(KevaServer.class, config);
+        return context.getBean(KevaServer.class);
+    }
+
+    public static KevaServer ofCustomBeans(Object... beans) {
+        stopwatch.start();
+        KevaIoC context = KevaIoC.initBeans(KevaServer.class, beans);
+        return context.getBean(KevaServer.class);
+    }
+
     public ServerBootstrap bootstrapServer() {
+        commandMapper.init();
         bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup();
         return new ServerBootstrap().group(bossGroup, workerGroup)

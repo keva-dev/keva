@@ -1,4 +1,4 @@
-package dev.keva.server.command;
+package dev.keva.server.command.impl;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -15,10 +15,13 @@ import java.util.TimerTask;
 @CommandImpl("expire")
 @ParamLength(2)
 public class Expire {
-    @Autowired
-    private KevaDatabase database;
-
     private final Timer timer = new Timer();
+    private final KevaDatabase database;
+
+    @Autowired
+    public Expire(KevaDatabase database) {
+        this.database = database;
+    }
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] time) {

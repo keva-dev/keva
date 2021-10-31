@@ -1,4 +1,4 @@
-package dev.keva.server.command;
+package dev.keva.server.command.impl;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -14,8 +14,12 @@ import lombok.val;
 @CommandImpl("get")
 @ParamLength(1)
 public class Get {
+    private final KevaDatabase database;
+
     @Autowired
-    private KevaDatabase database;
+    public Get(KevaDatabase database) {
+        this.database = database;
+    }
 
     @Execute
     public Reply<?> execute(byte[] key) {
