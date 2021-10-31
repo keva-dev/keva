@@ -12,7 +12,7 @@ import lombok.val;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class KevaDBTest extends AbstractServerTest {
+public class KevaServerTest extends AbstractServerTest {
     static String host = "localhost";
     static int port = PortUtil.getAvailablePort();
 
@@ -24,7 +24,7 @@ public class KevaDBTest extends AbstractServerTest {
                 .port(port)
                 .build();
         AppFactory.setConfig(config);
-        server = new KevaDB();
+        server = new KevaServer();
 
         new Thread(() -> {
             try {
