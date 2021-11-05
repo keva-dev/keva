@@ -18,9 +18,9 @@ WORKDIR /root/binary/keva
 
 COPY --from=builder /root/src/keva/server/build/libs/server-1.0-SNAPSHOT-all.jar /root/binary/keva/keva.jar
 
-EXPOSE 6767
+EXPOSE 6379
 
 ENTRYPOINT ["java","-jar","keva.jar"]
 
 # docker build -t keva-server .
-# docker run -d --name keva-server --network=host -p 6767:6767 keva-server:latest
+# docker run -d --name keva-server --network=host -p 6767:6379 keva-server:latest

@@ -18,7 +18,7 @@ public class KevaConfig {
     @CliProp(name = "h", type = CliPropType.VAL)
     private String hostname;
 
-    @ConfigProp(name = "port", defaultVal = "6767")
+    @ConfigProp(name = "port", defaultVal = "6379")
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
@@ -86,7 +86,7 @@ public class KevaConfig {
         return builder()
                 .workDirectory("./")
                 .hostname("localhost")
-                .port(6767)
+                .port(6379)
                 .heapSize(64)
                 .persistence(true);
     }
@@ -98,7 +98,7 @@ public class KevaConfig {
         return builder()
                 .workDirectory("./")
                 .hostname("localhost")
-                .port(6767)
+                .port(6379)
                 .heapSize(64)
                 .persistence(true)
                 .build();

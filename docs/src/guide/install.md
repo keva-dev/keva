@@ -3,7 +3,7 @@
 ## Requirements
 
 - Linux/macOS environment
-- Java 11 (JDK 11) or higher
+- Java 11 (JDK/JRE 11) or higher
 
 ## Download
 
@@ -16,10 +16,10 @@ chmod +x /usr/local/bin/keva-server
 
 Options:
 - ```-h {host}```: hostname (default: localhost)
-- ```-p {port}```: port (default: 6767)
+- ```-p {port}```: port (default: 6379)
 - ```-dir {directory}```: working directory (default: ./)
 - ```-ps {true/false}```: persistence (default: 'true' if flag not set or provide value when set). 
 
 ```command
-$ keva-server -p 6767
+$ keva-server
 ```

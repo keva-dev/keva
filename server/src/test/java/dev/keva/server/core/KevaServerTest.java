@@ -38,6 +38,7 @@ public class KevaServerTest extends AbstractServerTest {
         TimeUnit.SECONDS.sleep(2);
 
         jedis = new Jedis(host, port);
+        subscriber = new Jedis(host, port);
     }
 
     @AfterAll

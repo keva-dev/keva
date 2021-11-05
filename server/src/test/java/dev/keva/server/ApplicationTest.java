@@ -17,7 +17,7 @@ class ApplicationTest {
         new Thread(() -> Application.main(ARGS)).start();
         TimeUnit.SECONDS.sleep(5);
 
-        Jedis jedis = new Jedis("localhost", 6767);
+        Jedis jedis = new Jedis("localhost", 6379);
         val pong = jedis.ping();
         assertEquals("PONG", pong);
     }
