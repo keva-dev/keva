@@ -84,6 +84,7 @@ public class KevaServer implements Server {
         workerGroup.shutdownGracefully();
         channel.close();
         log.info("Keva server at {} stopped", config.getPort());
+        log.info("Bye bye!");
     }
 
     @Override
@@ -108,7 +109,6 @@ public class KevaServer implements Server {
             log.error("Failed to start server: ", e);
         } finally {
             stopwatch.stop();
-            shutdown();
         }
     }
 }

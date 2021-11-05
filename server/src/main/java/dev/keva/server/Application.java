@@ -22,6 +22,7 @@ public final class Application {
         try {
             val config = ConfigManager.loadConfig(args);
             val server = KevaServer.of(config);
+            Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
             server.run();
         } catch (Exception e) {
             log.error("There was a problem running server: ", e);
