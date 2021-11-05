@@ -41,17 +41,9 @@ public class CommandMapper {
                     val paramLengthType = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).type() : null;
                     val instance = context.getBean(aClass);
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
-                        if (paramLength != -1 && paramLengthType != null) {
-                            val commandLength = command.getLength();
-                            if (paramLengthType == ParamLength.Type.EXACT && commandLength - 1 != paramLength) {
-                                return new ErrorReply("ERR wrong number of arguments for '" + name + "' command");
-                            }
-                            if (paramLengthType == ParamLength.Type.AT_LEAST && commandLength - 1 < paramLength) {
-                                return new ErrorReply("ERR wrong number of arguments for '" + name + "' command");
-                            }
-                            if (paramLengthType == ParamLength.Type.AT_MOST && commandLength - 1 > paramLength) {
-                                return new ErrorReply("ERR wrong number of arguments for '" + name + "' command");
-                            }
+                        ErrorReply errorReply = CommandValidate.validate(paramLengthType, paramLength, command.getLength(), name);
+                        if (errorReply != null) {
+                            return errorReply;
                         }
                         try {
                             Object[] objects = new Object[types.length];
