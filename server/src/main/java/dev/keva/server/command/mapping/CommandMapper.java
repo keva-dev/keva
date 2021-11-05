@@ -35,10 +35,6 @@ public class CommandMapper {
     @Autowired
     private TransactionManager txManager;
 
-    @Autowired
-    @Qualifier("transactionLock")
-    private ReentrantLock transactionLock;
-
     public void init() {
         Reflections reflections = new Reflections("dev.keva.server.command.impl");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
@@ -52,12 +48,6 @@ public class CommandMapper {
                     val instance = context.getBean(aClass);
 
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
-                        var isLocked = transactionLock.isLocked();
-                        while (isLocked) {
-                            Thread.sleep(100);
-                            isLocked = transactionLock.isLocked();
-                        }
-
                         val txContext = txManager.getTransactions().get(ctx.channel());
                         if (txContext != null && txContext.isQueuing()) {
                             if (!Arrays.equals(command.getName(), "exec".getBytes())) {

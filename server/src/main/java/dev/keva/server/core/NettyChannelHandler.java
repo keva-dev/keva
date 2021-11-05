@@ -2,6 +2,7 @@ package dev.keva.server.core;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.ioc.annotation.Qualifier;
 import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
@@ -14,6 +15,8 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 @Slf4j
 @Sharable
 @Component
@@ -22,12 +25,22 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private final CommandMapper commandMapper;
 
     @Autowired
+    @Qualifier("transactionLock")
+    private ReentrantLock transactionLock;
+
+    @Autowired
     public NettyChannelHandler(CommandMapper commandMapper) {
         this.commandMapper = commandMapper;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
+        var isLocked = transactionLock.isLocked();
+        while (isLocked) {
+            Thread.sleep(100);
+            isLocked = transactionLock.isLocked();
+        }
+
         val name = command.getName();
         // LowerCase bytes
         for (int i = 0; i < name.length; i++) {
