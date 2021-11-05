@@ -27,7 +27,7 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Command command) {
+    protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
         val name = command.getName();
         // LowerCase bytes
         for (int i = 0; i < name.length; i++) {
