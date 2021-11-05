@@ -14,8 +14,6 @@ import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
-import java.util.Objects;
-
 @Slf4j
 @Sharable
 @Component
@@ -45,8 +43,9 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
         } else {
             reply = commandWrapper.execute(ctx, command);
         }
-        ctx.write(Objects.requireNonNullElseGet(reply,
-                () -> new ErrorReply("ERR server return null reply")));
+        if (reply != null) {
+            ctx.write(reply);
+        }
     }
 
     @Override

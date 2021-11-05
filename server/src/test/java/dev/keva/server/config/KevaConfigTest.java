@@ -14,7 +14,7 @@ class KevaConfigTest {
         val def = KevaConfig.ofDefaults();
         assertTrue(def.getPersistence());
         assertEquals("localhost", def.getHostname());
-        assertEquals(6767, def.getPort());
+        assertEquals(6379, def.getPort());
         assertEquals("./", def.getWorkDirectory());
         assertEquals(64, def.getHeapSize());
     }
