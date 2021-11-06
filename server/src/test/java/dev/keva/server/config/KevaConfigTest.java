@@ -16,7 +16,6 @@ class KevaConfigTest {
         assertEquals("localhost", def.getHostname());
         assertEquals(6379, def.getPort());
         assertEquals("./", def.getWorkDirectory());
-        assertEquals(64, def.getHeapSize());
     }
 
     @Test
@@ -33,14 +32,12 @@ class KevaConfigTest {
         props.setProperty("port", "123123");
         props.setProperty("persistence", "false");
         props.setProperty("work_directory", "./snap/");
-        props.setProperty("heap_size", "123");
 
         val configHolder = KevaConfig.fromProperties(props);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertFalse(configHolder.getPersistence());
         assertEquals("./snap/", configHolder.getWorkDirectory());
-        assertEquals(123, configHolder.getHeapSize());
     }
 
     @Test
@@ -49,7 +46,6 @@ class KevaConfigTest {
         val emptyConfig = KevaConfig.fromArgs(emptyArgs);
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
-        assertNull(emptyConfig.getHeapSize());
         assertNull(emptyConfig.getWorkDirectory());
         assertNull(emptyConfig.getPersistence());
     }
@@ -61,7 +57,6 @@ class KevaConfigTest {
         argsHolder.addArgVal("p", "123123");
         argsHolder.addArgVal("ht", "123");
         argsHolder.addArgVal("dir", "./snap/");
-        argsHolder.addArgVal("hs", "123");
         argsHolder.addFlag("hb");
         argsHolder.addFlag("ps");
 
@@ -70,7 +65,6 @@ class KevaConfigTest {
         assertEquals(123123, configHolder.getPort());
         assertTrue(configHolder.getPersistence());
         assertEquals("./snap/", configHolder.getWorkDirectory());
-        assertEquals(123, configHolder.getHeapSize());
     }
 
     @Test

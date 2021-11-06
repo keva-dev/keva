@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class SnapshotTest {
+public class PersistenceTest {
     static String host = "localhost";
 
     Server startServer(int port) throws Exception {
@@ -23,7 +23,6 @@ public class SnapshotTest {
                 .port(port)
                 .persistence(true)
                 .workDirectory("./")
-                .heapSize(8)
                 .build();
         val server = KevaServer.of(config);
         new Thread(() -> {
