@@ -14,18 +14,18 @@ public final class ConfigManager {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
     public static KevaConfig loadConfig(String[] args) throws IOException {
-        var returnConf = KevaConfig.fromProperties(new Properties());
+        var returnConf = ConfigLoader.fromProperties(new Properties(), KevaConfig.class);
         val config = ArgsParser.parse(args);
-        val overrider = KevaConfig.fromArgs(config);
+        val overrider = ConfigLoader.fromArgs(config, KevaConfig.class);
 
         val configFilePath = config.getArgVal("f");
         if (configFilePath != null) {
             returnConf = loadConfigFromFile(configFilePath);
         }
 
-        KevaConfig result = returnConf.merge(overrider);
-        log.info(result.toString());
-        return result;
+        ConfigLoader.merge(returnConf, overrider);
+        log.info(returnConf.toString());
+        return returnConf;
     }
 
     public static KevaConfig loadConfigFromFile(String filePath) throws IOException {
@@ -37,6 +37,6 @@ public final class ConfigManager {
             props.load(file);
         }
 
-        return KevaConfig.fromProperties(props);
+        return ConfigLoader.fromProperties(props, KevaConfig.class);
     }
 }

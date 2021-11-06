@@ -21,7 +21,7 @@ class KevaConfigTest {
     @Test
     void fromPropsDefault() {
         val def = KevaConfig.ofDefaults();
-        val defFromProps = KevaConfig.fromProperties(new Properties());
+        val defFromProps = ConfigLoader.fromProperties(new Properties(), KevaConfig.class);
         assertEquals(def, defFromProps);
     }
 
@@ -33,7 +33,7 @@ class KevaConfigTest {
         props.setProperty("persistence", "false");
         props.setProperty("work_directory", "./snap/");
 
-        val configHolder = KevaConfig.fromProperties(props);
+        val configHolder = ConfigLoader.fromProperties(props, KevaConfig.class);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertFalse(configHolder.getPersistence());
@@ -43,7 +43,7 @@ class KevaConfigTest {
     @Test
     void fromEmptyArgs() {
         val emptyArgs = new ArgsHolder();
-        val emptyConfig = KevaConfig.fromArgs(emptyArgs);
+        val emptyConfig = ConfigLoader.fromArgs(emptyArgs, KevaConfig.class);
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getWorkDirectory());
@@ -60,7 +60,7 @@ class KevaConfigTest {
         argsHolder.addFlag("hb");
         argsHolder.addFlag("ps");
 
-        val configHolder = KevaConfig.fromArgs(argsHolder);
+        val configHolder = ConfigLoader.fromArgs(argsHolder, KevaConfig.class);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertTrue(configHolder.getPersistence());
@@ -73,12 +73,11 @@ class KevaConfigTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addFlag("hb");
-        val fromArgs = KevaConfig.fromArgs(argsHolder);
+        val fromArgs = ConfigLoader.fromArgs(argsHolder, KevaConfig.class);
 
         val baseConfig = KevaConfig.builder().build();
-        val merge = baseConfig.merge(fromArgs);
-        assertEquals("host", merge.getHostname());
-        assertEquals(123123, merge.getPort());
+        ConfigLoader.merge(baseConfig, fromArgs);
+        assertEquals("host", baseConfig.getHostname());
+        assertEquals(123123, baseConfig.getPort());
     }
-
 }
