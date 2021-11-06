@@ -59,7 +59,9 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("Handler exception caught: ", cause);
+        if (!cause.getMessage().equals("Connection reset by peer")) {
+            log.error("Handler exception caught: ", cause);
+        }
         ctx.close();
     }
 
