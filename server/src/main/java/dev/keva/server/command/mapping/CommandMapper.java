@@ -3,7 +3,6 @@ package dev.keva.server.command.mapping;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.ioc.annotation.Qualifier;
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
@@ -21,7 +20,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 @Slf4j

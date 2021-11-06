@@ -1,7 +1,7 @@
 package dev.keva.store;
 
 import dev.keva.store.impl.ChronicleMapImpl;
-import dev.keva.store.impl.ConcurrentHashMapImpl;
+import dev.keva.store.impl.HashMapImpl;
 import lombok.Setter;
 
 @Setter
@@ -10,7 +10,7 @@ public final class DatabaseFactory {
         return new ChronicleMapImpl(config);
     }
 
-    public synchronized static KevaDatabase createConcurrentMap() {
-        return new ConcurrentHashMapImpl();
+    public synchronized static KevaDatabase createHashMap() {
+        return new HashMapImpl();
     }
 }

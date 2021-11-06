@@ -1,0 +1,26 @@
+plugins {
+    id 'com.adarshr.test-logger' version '2.1.0'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
+}

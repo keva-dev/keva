@@ -22,9 +22,9 @@ public class Discard {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx) {
-        var context = manager.getTransactions().get(ctx.channel());
-        if (context != null) {
-            context.discard();
+        var txContext = manager.getTransactions().get(ctx.channel());
+        if (txContext != null) {
+            txContext.discard();
         }
         return new StatusReply("OK");
     }

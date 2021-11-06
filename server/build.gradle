@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation project(':config')
     implementation project(':store')
     implementation project(':protocol')
 

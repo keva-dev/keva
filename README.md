@@ -20,13 +20,13 @@ a shared way.
 
 ## Changelogs
 
-[Learn about the latest improvements.](https://jinyframework.com/guide/changelogs.html)
+[Learn about the latest improvements.](https://keva.dev/changelogs.html)
 
 ## Development
 
 Want to file a bug, contribute some code, or improve documentation? Excellent!
 
-First, [see Developer Guide](https://jinyframework.com/guide/developer-guide.html).
+First, [see Developer Guide](https://keva.dev/developer-guide.html).
 
 Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/keva-dev/keva/issues) and help
 us out!

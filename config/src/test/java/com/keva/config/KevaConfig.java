@@ -1,10 +1,8 @@
-package dev.keva.server.config;
+package com.keva.config;
 
 import com.keva.config.annotation.CliProp;
 import com.keva.config.annotation.CliPropType;
 import com.keva.config.annotation.ConfigProp;
-import dev.keva.ioc.annotation.Bean;
-import dev.keva.ioc.annotation.Configuration;
 import lombok.*;
 
 @Builder(toBuilder = true)
@@ -14,7 +12,6 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Configuration
 public class KevaConfig {
     @ConfigProp(name = "hostname", defaultVal = "localhost")
     @CliProp(name = "h", type = CliPropType.VAL)
@@ -33,19 +30,6 @@ public class KevaConfig {
     private String workDirectory;
 
     /**
-     * @return KevaConfig with sensible defaults
-     */
-    @Bean
-    public static KevaConfig ofDefaults() {
-        return builder()
-                .workDirectory("./")
-                .hostname("localhost")
-                .port(6379)
-                .persistence(true)
-                .build();
-    }
-
-    /**
      * Helper method to build custom config based of the defaults
      * @return Builder with some sensible defaults already set
      */
@@ -55,5 +39,17 @@ public class KevaConfig {
                 .hostname("localhost")
                 .port(6379)
                 .persistence(true);
+    }
+
+    /**
+     * @return KevaConfig with sensible defaults
+     */
+    public static KevaConfig ofDefaults() {
+        return builder()
+                .workDirectory("./")
+                .hostname("localhost")
+                .port(6379)
+                .persistence(true)
+                .build();
     }
 }
