@@ -13,7 +13,6 @@ import lombok.val;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
 
@@ -59,7 +58,7 @@ public class TransactionContext {
             isQueuing = false;
             val replies = new Reply[commandDeque.size()];
             var i = 0;
-            while(commandDeque.size() > 0) {
+            while (commandDeque.size() > 0) {
                 val command = commandDeque.removeFirst();
                 val commandWrapper = commandMapper.getMethods().get(new BytesKey(command.getName()));
                 if (commandWrapper == null) {
