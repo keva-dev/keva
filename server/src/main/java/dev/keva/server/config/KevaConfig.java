@@ -30,10 +30,6 @@ public class KevaConfig {
     @CliProp(name = "dir", type = CliPropType.VAL)
     private String workDirectory;
 
-    @ConfigProp(name = "heap_size", defaultVal = "64")
-    @CliProp(name = "hs", type = CliPropType.VAL)
-    private Integer heapSize;
-
     @SneakyThrows
     public static KevaConfig fromProperties(@NonNull Properties props) {
         val configHolder = builder().build();
@@ -87,7 +83,6 @@ public class KevaConfig {
                 .workDirectory("./")
                 .hostname("localhost")
                 .port(6379)
-                .heapSize(64)
                 .persistence(true);
     }
 
@@ -99,7 +94,6 @@ public class KevaConfig {
                 .workDirectory("./")
                 .hostname("localhost")
                 .port(6379)
-                .heapSize(64)
                 .persistence(true)
                 .build();
     }

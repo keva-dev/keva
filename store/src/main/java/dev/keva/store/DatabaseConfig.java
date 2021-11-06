@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DatabaseConfig {
-    Boolean snapshotEnabled;
-    Integer heapSize;
-    String snapshotLocation;
+    Boolean isPersistence;
+    String workingDirectory;
 }

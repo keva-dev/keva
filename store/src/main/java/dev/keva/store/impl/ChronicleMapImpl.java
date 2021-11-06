@@ -27,9 +27,9 @@ public class ChronicleMapImpl implements KevaDatabase {
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
                     .entries(100);
 
-            boolean shouldPersist = config.getSnapshotEnabled();
+            boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
-                String snapshotDir = config.getSnapshotLocation();
+                String snapshotDir = config.getWorkingDirectory();
                 String location = snapshotDir.equals("./") ? "" : snapshotDir + "/";
                 File file = new File(location + "dump.kdb");
                 this.chronicleMap = mapBuilder.createPersistedTo(file);

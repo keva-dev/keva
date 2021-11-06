@@ -17,9 +17,8 @@ public class DatabaseSetup {
     @Bean
     public KevaDatabase setupKevaDatabase() {
         val dbConfig = DatabaseConfig.builder()
-                .heapSize(kevaConfig.getHeapSize())
-                .snapshotEnabled(kevaConfig.getPersistence())
-                .snapshotLocation(kevaConfig.getWorkDirectory())
+                .isPersistence(kevaConfig.getPersistence())
+                .workingDirectory(kevaConfig.getWorkDirectory())
                 .build();
         return DatabaseFactory.createChronicleMap(dbConfig);
     }
