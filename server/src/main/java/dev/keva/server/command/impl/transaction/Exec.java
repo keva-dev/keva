@@ -2,15 +2,12 @@ package dev.keva.server.command.impl.transaction;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.ioc.annotation.Qualifier;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.concurrent.locks.ReentrantLock;
 
 import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
 
@@ -19,10 +16,6 @@ import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
 @ParamLength(0)
 public class Exec {
     private final TransactionManager manager;
-
-    @Autowired
-    @Qualifier("transactionLock")
-    private ReentrantLock transactionLock;
 
     @Autowired
     public Exec(TransactionManager manager) {
@@ -35,6 +28,6 @@ public class Exec {
         if (context == null) {
             return NIL_REPLY;
         }
-        return context.exec(ctx, transactionLock);
+        return context.exec(ctx, manager.getTransactionLock());
     }
 }

@@ -7,6 +7,7 @@ import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
+import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import dev.keva.server.command.mapping.CommandMapper;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,22 +24,23 @@ import java.util.concurrent.locks.ReentrantLock;
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private static final byte LOWER_DIFF = 'a' - 'A';
     private final CommandMapper commandMapper;
+    private final TransactionManager transactionManager;
 
     @Autowired
-    @Qualifier("transactionLock")
-    private ReentrantLock transactionLock;
-
-    @Autowired
-    public NettyChannelHandler(CommandMapper commandMapper) {
+    public NettyChannelHandler(CommandMapper commandMapper, TransactionManager transactionManager) {
         this.commandMapper = commandMapper;
+        this.transactionManager = transactionManager;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
-        var isLocked = transactionLock.isLocked();
+        val lock = transactionManager.getTransactionLock();
+        var isLocked = lock.isLocked();
+        var pollingTime = 10;
         while (isLocked) {
-            Thread.sleep(100);
-            isLocked = transactionLock.isLocked();
+            Thread.sleep(pollingTime);
+            pollingTime = pollingTime < 100 ? pollingTime + 10 : pollingTime;
+            isLocked = lock.isLocked();
         }
 
         val name = command.getName();
