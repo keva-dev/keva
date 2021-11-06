@@ -34,14 +34,14 @@ public class Watch {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx, byte[]... keys) {
-        var context = manager.getTransactions().get(ctx.channel());
-        if (context == null) {
-            context = new TransactionContext(database, commandMapper);
-            manager.getTransactions().put(ctx.channel(), context);
+        var txContext = manager.getTransactions().get(ctx.channel());
+        if (txContext == null) {
+            txContext = new TransactionContext(database, commandMapper);
+            manager.getTransactions().put(ctx.channel(), txContext);
         }
         for (val key : keys) {
             val value = database.get(key);
-            context.getWatchMap().put(new BytesKey(key), new BytesValue(value));
+            txContext.getWatchMap().put(new BytesKey(key), new BytesValue(value));
         }
         return new StatusReply("OK");
     }

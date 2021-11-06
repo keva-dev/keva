@@ -3,16 +3,19 @@ package dev.keva.store.impl;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
 
 @Slf4j
 public class ChronicleMapImpl implements KevaDatabase {
-    private final SpinLock lock = new SpinLock();
+    @Getter
+    private final Lock lock = new SpinLock();
 
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
@@ -36,16 +39,6 @@ public class ChronicleMapImpl implements KevaDatabase {
         } catch (IOException e) {
             log.error("Failed to create ChronicleMap: ", e);
         }
-    }
-
-    @Override
-    public void lock() {
-        lock.lock();
-    }
-
-    @Override
-    public void unlock() {
-        lock.unlock();
     }
 
     @Override

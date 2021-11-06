@@ -24,25 +24,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
     private static final byte LOWER_DIFF = 'a' - 'A';
     private final CommandMapper commandMapper;
-    private final TransactionManager transactionManager;
 
     @Autowired
     public NettyChannelHandler(CommandMapper commandMapper, TransactionManager transactionManager) {
         this.commandMapper = commandMapper;
-        this.transactionManager = transactionManager;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
-        val lock = transactionManager.getTransactionLock();
-        var isLocked = lock.isLocked();
-        var pollingTime = 10;
-        while (isLocked) {
-            Thread.sleep(pollingTime);
-            pollingTime = pollingTime < 100 ? pollingTime + 10 : pollingTime;
-            isLocked = lock.isLocked();
-        }
-
         val name = command.getName();
         // LowerCase bytes
         for (int i = 0; i < name.length; i++) {

@@ -22,13 +22,13 @@ public class Unwatch {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx, byte[]... keys) {
-        var context = manager.getTransactions().get(ctx.channel());
-        if (context != null) {
+        var txContext = manager.getTransactions().get(ctx.channel());
+        if (txContext != null) {
             if (keys.length == 0) {
-                context.getWatchMap().clear();
+                txContext.getWatchMap().clear();
             } else {
                 for (val key : keys) {
-                    context.getWatchMap().remove(new BytesKey(key));
+                    txContext.getWatchMap().remove(new BytesKey(key));
                 }
             }
         }

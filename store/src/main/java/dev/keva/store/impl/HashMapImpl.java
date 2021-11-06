@@ -4,24 +4,17 @@ import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.hashbytes.BytesValue;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 public class HashMapImpl implements KevaDatabase {
-    private final SpinLock lock = new SpinLock();
+    @Getter
+    private final Lock lock = new SpinLock();
 
     private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
-
-    @Override
-    public void lock() {
-        lock.lock();
-    }
-
-    @Override
-    public void unlock() {
-        lock.unlock();
-    }
 
     @Override
     public void put(byte[] key, byte[] val) {

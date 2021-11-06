@@ -29,12 +29,12 @@ public class Multi {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx) {
-        var context = manager.getTransactions().get(ctx.channel());
-        if (context == null) {
-            context = new TransactionContext(database, commandMapper);
-            manager.getTransactions().put(ctx.channel(), context);
+        var txContext = manager.getTransactions().get(ctx.channel());
+        if (txContext == null) {
+            txContext = new TransactionContext(database, commandMapper);
+            manager.getTransactions().put(ctx.channel(), txContext);
         }
-        context.multi();
+        txContext.multi();
         return new StatusReply("OK");
     }
 }

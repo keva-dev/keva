@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.val;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
@@ -42,7 +43,7 @@ public class TransactionContext {
         isQueuing = false;
     }
 
-    public Reply<?> exec(ChannelHandlerContext ctx, ReentrantLock txLock) throws InterruptedException {
+    public Reply<?> exec(ChannelHandlerContext ctx, Lock txLock) throws InterruptedException {
         txLock.lock();
         try {
             for (val watch : watchMap.entrySet()) {
@@ -56,7 +57,7 @@ public class TransactionContext {
             }
 
             isQueuing = false;
-            Reply<?>[] replies = new Reply[commandDeque.size()];
+            val replies = new Reply[commandDeque.size()];
             var i = 0;
             while(commandDeque.size() > 0) {
                 val command = commandDeque.removeFirst();

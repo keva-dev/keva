@@ -1,9 +1,9 @@
 package dev.keva.store;
 
-public interface KevaDatabase {
-    void lock();
+import java.util.concurrent.locks.Lock;
 
-    void unlock();
+public interface KevaDatabase {
+    Lock getLock();
 
     void put(byte[] key, byte[] val);
 
