@@ -6,5 +6,5 @@ import io.netty.channel.ChannelHandlerContext;
 
 @FunctionalInterface
 public interface CommandWrapper {
-    Reply<?> execute(ChannelHandlerContext ctx, Command command);
+    Reply<?> execute(ChannelHandlerContext ctx, Command command) throws InterruptedException;
 }
