@@ -1,4 +1,4 @@
-package dev.keva.server.command.impl;
+package dev.keva.server.command.impl.connection;
 
 import dev.keva.ioc.annotation.Component;
 import dev.keva.server.command.annotation.CommandImpl;

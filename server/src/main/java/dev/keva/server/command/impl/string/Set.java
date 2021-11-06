@@ -1,4 +1,4 @@
-package dev.keva.server.command.impl;
+package dev.keva.server.command.impl.string;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
