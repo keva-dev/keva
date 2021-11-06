@@ -1,22 +1,20 @@
 package dev.keva.store.impl;
 
-import dev.keva.store.KevaDatabase;
 import dev.keva.store.DatabaseConfig;
+import dev.keva.store.KevaDatabase;
+import dev.keva.store.lock.SpinLock;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import lombok.val;
 
 @Slf4j
 public class ChronicleMapImpl implements KevaDatabase {
+    private final SpinLock lock = new SpinLock();
+
     private ChronicleMap<byte[], byte[]> chronicleMap;
-    private String snapshotDir;
 
     public ChronicleMapImpl(DatabaseConfig config) {
         try {
@@ -24,13 +22,13 @@ public class ChronicleMapImpl implements KevaDatabase {
                     .name("keva-chronicle-map")
                     .averageKey("SampleSampleSampleKey".getBytes())
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
-                    .entries(1_000);
+                    .entries(100);
 
-            val shouldPersist = config.getSnapshotEnabled();
+            boolean shouldPersist = config.getSnapshotEnabled();
             if (shouldPersist) {
-                val location = config.getSnapshotLocation().equals("./") ? "" : config.getSnapshotLocation() + "/";
-                val file = new File(location + "dump.kdb");
-                snapshotDir = config.getSnapshotLocation();
+                String snapshotDir = config.getSnapshotLocation();
+                String location = snapshotDir.equals("./") ? "" : snapshotDir + "/";
+                File file = new File(location + "dump.kdb");
                 this.chronicleMap = mapBuilder.createPersistedTo(file);
             } else {
                 this.chronicleMap = mapBuilder.create();
@@ -41,27 +39,42 @@ public class ChronicleMapImpl implements KevaDatabase {
     }
 
     @Override
-    public void shutdownGracefully() {
-        chronicleMap.close();
+    public void lock() {
+        lock.lock();
     }
 
     @Override
-    public Path getSnapshotPath() {
-        return Paths.get(snapshotDir);
+    public void unlock() {
+        lock.unlock();
     }
 
     @Override
     public byte[] get(byte[] key) {
-        return chronicleMap.get(key);
+        lock.lock();
+        try {
+            return chronicleMap.get(key);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void put(byte[] key, byte[] val) {
-        chronicleMap.put(key, val);
+        lock.lock();
+        try {
+            chronicleMap.put(key, val);
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public boolean remove(byte[] key) {
-        return chronicleMap.remove(key) != null;
+        lock.lock();
+        try {
+            return chronicleMap.remove(key) != null;
+        } finally {
+            lock.unlock();
+        }
     }
 }

@@ -1,12 +1,9 @@
 package dev.keva.store;
 
-import java.nio.file.Path;
-
 public interface KevaDatabase {
+    void lock();
 
-    void shutdownGracefully();
-
-    Path getSnapshotPath();
+    void unlock();
 
     void put(byte[] key, byte[] val);
 
