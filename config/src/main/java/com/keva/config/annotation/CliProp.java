@@ -1,4 +1,4 @@
-package dev.keva.server.config.annotation;
+package com.keva.config.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface ConfigProp {
+public @interface CliProp {
     String name();
 
-    String defaultVal();
+    CliPropType type();
+
+    String value() default "";
 }

@@ -1,6 +1,7 @@
-package dev.keva.server.config;
+package com.keva.config;
 
-import dev.keva.server.config.util.ArgsParser;
+import com.keva.config.util.ArgsParser;
+import com.keva.config.util.ConfigLoaderUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -10,25 +11,25 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 @Slf4j
-public final class ConfigManager {
+public final class ConfigLoader {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
-    public static KevaConfig loadConfig(String[] args) throws IOException {
-        var returnConf = ConfigLoader.fromProperties(new Properties(), KevaConfig.class);
+    public static <T> T loadConfig(String[] args, Class<T> clazz) throws IOException {
+        var returnConf = ConfigLoaderUtil.fromProperties(new Properties(), clazz);
         val config = ArgsParser.parse(args);
-        val overrider = ConfigLoader.fromArgs(config, KevaConfig.class);
+        val overrider = ConfigLoaderUtil.fromArgs(config, clazz);
 
         val configFilePath = config.getArgVal("f");
         if (configFilePath != null) {
-            returnConf = loadConfigFromFile(configFilePath);
+            returnConf = loadConfigFromFile(configFilePath, clazz);
         }
 
-        ConfigLoader.merge(returnConf, overrider);
+        ConfigLoaderUtil.merge(returnConf, overrider);
         log.info(returnConf.toString());
         return returnConf;
     }
 
-    public static KevaConfig loadConfigFromFile(String filePath) throws IOException {
+    public static <T> T loadConfigFromFile(String filePath, Class<T> clazz) throws IOException {
         if (filePath.isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
@@ -37,6 +38,6 @@ public final class ConfigManager {
             props.load(file);
         }
 
-        return ConfigLoader.fromProperties(props, KevaConfig.class);
+        return ConfigLoaderUtil.fromProperties(props, clazz);
     }
 }

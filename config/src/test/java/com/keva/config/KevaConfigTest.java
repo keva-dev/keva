@@ -1,6 +1,7 @@
-package dev.keva.server.config;
+package com.keva.config;
 
-import dev.keva.server.config.util.ArgsHolder;
+import com.keva.config.util.ArgsHolder;
+import com.keva.config.util.ConfigLoaderUtil;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class KevaConfigTest {
     @Test
     void fromPropsDefault() {
         val def = KevaConfig.ofDefaults();
-        val defFromProps = ConfigLoader.fromProperties(new Properties(), KevaConfig.class);
+        val defFromProps = ConfigLoaderUtil.fromProperties(new Properties(), KevaConfig.class);
         assertEquals(def, defFromProps);
     }
 
@@ -33,7 +34,7 @@ class KevaConfigTest {
         props.setProperty("persistence", "false");
         props.setProperty("work_directory", "./snap/");
 
-        val configHolder = ConfigLoader.fromProperties(props, KevaConfig.class);
+        val configHolder = ConfigLoaderUtil.fromProperties(props, KevaConfig.class);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertFalse(configHolder.getPersistence());
@@ -43,7 +44,7 @@ class KevaConfigTest {
     @Test
     void fromEmptyArgs() {
         val emptyArgs = new ArgsHolder();
-        val emptyConfig = ConfigLoader.fromArgs(emptyArgs, KevaConfig.class);
+        val emptyConfig = ConfigLoaderUtil.fromArgs(emptyArgs, KevaConfig.class);
         assertNull(emptyConfig.getHostname());
         assertNull(emptyConfig.getPort());
         assertNull(emptyConfig.getWorkDirectory());
@@ -60,7 +61,7 @@ class KevaConfigTest {
         argsHolder.addFlag("hb");
         argsHolder.addFlag("ps");
 
-        val configHolder = ConfigLoader.fromArgs(argsHolder, KevaConfig.class);
+        val configHolder = ConfigLoaderUtil.fromArgs(argsHolder, KevaConfig.class);
         assertEquals("host", configHolder.getHostname());
         assertEquals(123123, configHolder.getPort());
         assertTrue(configHolder.getPersistence());
@@ -73,10 +74,10 @@ class KevaConfigTest {
         argsHolder.addArgVal("h", "host");
         argsHolder.addArgVal("p", "123123");
         argsHolder.addFlag("hb");
-        val fromArgs = ConfigLoader.fromArgs(argsHolder, KevaConfig.class);
+        val fromArgs = ConfigLoaderUtil.fromArgs(argsHolder, KevaConfig.class);
 
         val baseConfig = KevaConfig.builder().build();
-        ConfigLoader.merge(baseConfig, fromArgs);
+        ConfigLoaderUtil.merge(baseConfig, fromArgs);
         assertEquals("host", baseConfig.getHostname());
         assertEquals(123123, baseConfig.getPort());
     }

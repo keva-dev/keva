@@ -2,8 +2,9 @@ package dev.keva.server;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import dev.keva.server.config.ConfigManager;
+import com.keva.config.ConfigLoader;
 import dev.keva.server.core.KevaServer;
+import dev.keva.server.config.KevaConfig;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public final class Application {
 
     public static void main(String[] args) {
         try {
-            val config = ConfigManager.loadConfig(args);
+            val config = ConfigLoader.loadConfig(args, KevaConfig.class);
             val server = KevaServer.of(config);
             Runtime.getRuntime().addShutdownHook(new Thread(server::shutdown));
             server.run();

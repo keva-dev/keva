@@ -1,14 +1,15 @@
-package dev.keva.server.config;
+package com.keva.config.util;
 
-import dev.keva.server.config.annotation.CliProp;
-import dev.keva.server.config.annotation.CliPropType;
-import dev.keva.server.config.annotation.ConfigProp;
-import dev.keva.server.config.util.ArgsHolder;
-import lombok.*;
+import com.keva.config.annotation.CliProp;
+import com.keva.config.annotation.CliPropType;
+import com.keva.config.annotation.ConfigProp;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import lombok.val;
 
 import java.util.Properties;
 
-public class ConfigLoader {
+public class ConfigLoaderUtil {
     @SneakyThrows
     public static <T> T fromProperties(@NonNull Properties props, Class<T> clazz) {
         val configHolder = clazz.getDeclaredConstructor().newInstance();

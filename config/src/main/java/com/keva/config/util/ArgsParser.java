@@ -1,4 +1,4 @@
-package dev.keva.server.config.util;
+package com.keva.config.util;
 
 import lombok.val;
 

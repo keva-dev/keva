@@ -1,4 +1,4 @@
-package dev.keva.server.config;
+package com.keva.config;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -11,19 +11,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-class ConfigManagerTest {
+class ConfigLoaderTest {
     @Test
     void loadConfigArgs() throws Exception {
         String[] args = {
                 ""
         };
-        KevaConfig configDef = ConfigManager.loadConfig(args);
+        KevaConfig configDef = ConfigLoader.loadConfig(args, KevaConfig.class);
         val def = KevaConfig.ofDefaults();
         assertEquals(def, configDef);
         args = new String[]{
                 "-p", "123123"
         };
-        KevaConfig configOverridden = ConfigManager.loadConfig(args);
+        KevaConfig configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123123, configOverridden.getPort());
     }
 
@@ -42,14 +42,14 @@ class ConfigManagerTest {
         }
 
         try (val fileWriter = new FileWriter(testPropPath)) {
-            fileWriter.write("port = 123123\nheartbeat_enabled = false");
+            fileWriter.write("port = 123123");
             fileWriter.flush();
         }
 
         final String[] args = {
                 "-f", testPropPath
         };
-        val configOverridden = ConfigManager.loadConfig(args);
+        val configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123123, configOverridden.getPort());
     }
 
@@ -68,14 +68,14 @@ class ConfigManagerTest {
         }
 
         try (val fileWriter = new FileWriter(testPropPath)) {
-            fileWriter.write("port = 123123\nheartbeat_enabled = false");
+            fileWriter.write("port = 123123");
             fileWriter.flush();
         }
 
         final String[] args = {
                 "-f", testPropPath, "-p", "123"
         };
-        final KevaConfig configOverridden = ConfigManager.loadConfig(args);
+        final KevaConfig configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123, configOverridden.getPort());
     }
 }

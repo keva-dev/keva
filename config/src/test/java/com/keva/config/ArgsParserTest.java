@@ -1,6 +1,6 @@
-package dev.keva.server.config;
+package com.keva.config;
 
-import dev.keva.server.config.util.ArgsParser;
+import com.keva.config.util.ArgsParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
