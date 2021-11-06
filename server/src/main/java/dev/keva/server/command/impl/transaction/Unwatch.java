@@ -2,39 +2,36 @@ package dev.keva.server.command.impl.transaction;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.ioc.annotation.Qualifier;
-import dev.keva.protocol.resp.reply.Reply;
+import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.val;
 
-import java.util.concurrent.locks.ReentrantLock;
-
-import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
+import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 
 @Component
-@CommandImpl("exec")
-@ParamLength(0)
-public class Exec {
+@CommandImpl("unwatch")
+@ParamLength(type = AT_LEAST, value = 1)
+public class Unwatch {
     private final TransactionManager manager;
 
     @Autowired
-    @Qualifier("transactionLock")
-    private ReentrantLock transactionLock;
-
-    @Autowired
-    public Exec(TransactionManager manager) {
+    public Unwatch(TransactionManager manager) {
         this.manager = manager;
     }
 
     @Execute
-    public Reply<?> execute(ChannelHandlerContext ctx) throws InterruptedException {
+    public StatusReply execute(ChannelHandlerContext ctx, byte[]... keys) {
         var context = manager.getTransactions().get(ctx.channel());
-        if (context == null) {
-            return NIL_REPLY;
+        if (context != null) {
+            for (val key : keys) {
+                context.getWatchMap().remove(new BytesKey(key));
+            }
         }
-        return context.exec(ctx, transactionLock);
+        return new StatusReply("OK");
     }
 }

@@ -50,7 +50,7 @@ public class CommandMapper {
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
                         val txContext = txManager.getTransactions().get(ctx.channel());
                         if (txContext != null && txContext.isQueuing()) {
-                            if (!Arrays.equals(command.getName(), "exec".getBytes())) {
+                            if (!Arrays.equals(command.getName(), "exec".getBytes()) && !Arrays.equals(command.getName(), "discard".getBytes())) {
                                 ErrorReply errorReply = CommandValidate.validate(paramLengthType, paramLength, command.getLength(), name);
                                 if (errorReply == null) {
                                     txContext.getCommandDeque().add(command);
