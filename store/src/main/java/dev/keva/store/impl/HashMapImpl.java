@@ -6,6 +6,7 @@ import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -43,6 +44,23 @@ public class HashMapImpl implements KevaDatabase {
         try {
             BytesValue removed = map.remove(new BytesKey(key));
             return removed != null;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public byte[] incrBy(byte[] key, long amount) {
+        lock.lock();
+        try {
+            return map.compute(new BytesKey(key), (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(oldVal.toString());
+                }
+                curVal = curVal + amount;
+                return new BytesValue(Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
+            }).getBytes();
         } finally {
             lock.unlock();
         }

@@ -166,8 +166,7 @@ public abstract class AbstractServerTest {
         // with wrong key type
         res = jedis.set("wrong", "type");
         assertEquals("OK", res);
-        assertThrows(JedisDataException.class, () -> jedis.incr("wrong"),
-                "ERR Failed to parse integer value from key");
+        assertThrows(JedisDataException.class, () -> jedis.incr("wrong"));
     }
 
     @Test
@@ -175,7 +174,7 @@ public abstract class AbstractServerTest {
         // with exist key
         String res = jedis.set("1to5", "1");
         assertEquals("OK", res);
-        Long newVal = jedis.incrBy("1to5",4);
+        Long newVal = jedis.incrBy("1to5", 4);
         assertEquals(5, newVal);
         String val = jedis.get("1to5");
         assertEquals("5", val);
@@ -183,7 +182,7 @@ public abstract class AbstractServerTest {
         // with non exist key
         res = jedis.get("0to10");
         assertNull(res);
-        newVal = jedis.incrBy("0to10",10);
+        newVal = jedis.incrBy("0to10", 10);
         assertEquals(10, newVal);
         val = jedis.get("0to10");
         assertEquals("10", val);
@@ -191,7 +190,6 @@ public abstract class AbstractServerTest {
         // with wrong key type
         res = jedis.set("wrong", "type");
         assertEquals("OK", res);
-        assertThrows(JedisDataException.class, () -> jedis.incrBy("wrong", 10),
-                "ERR Failed to parse integer value from key");
+        assertThrows(JedisDataException.class, () -> jedis.incrBy("wrong", 10));
     }
 }

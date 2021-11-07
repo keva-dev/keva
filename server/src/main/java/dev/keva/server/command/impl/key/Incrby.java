@@ -26,23 +26,13 @@ public class Incrby {
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] incrBy) {
-        var afterIncr = 0L;
-        var toIncr = Long.parseLong(new String(incrBy, StandardCharsets.UTF_8));
-        database.getLock().lock();
+        var amount = Long.parseLong(new String(incrBy, StandardCharsets.UTF_8));
+        byte[] newVal;
         try {
-            byte[] valBytes = database.get(key);
-            long curVal = 0L;
-            if (valBytes != null) {
-                curVal = Long.parseLong(new String(valBytes, StandardCharsets.UTF_8));
-            }
-            curVal = curVal + toIncr;
-            database.put(key, Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
-            afterIncr = curVal;
+            newVal = database.incrBy(key, amount);
         } catch (NumberFormatException ex) {
-            throw new CommandException("Failed to parse integer value from key");
-        } finally {
-            database.getLock().unlock();
+            throw new CommandException("Failed to parse integer from value stored");
         }
-        return new IntegerReply(afterIncr);
+        return new IntegerReply(Long.parseLong(new String(newVal, StandardCharsets.UTF_8)));
     }
 }

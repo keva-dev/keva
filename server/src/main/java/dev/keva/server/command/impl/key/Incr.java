@@ -26,22 +26,12 @@ public class Incr {
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        var afterIncr = 0L;
-        database.getLock().lock();
+        byte[] newVal;
         try {
-            byte[] valBytes = database.get(key);
-            long curVal = 0L;
-            if (valBytes != null) {
-                curVal = Long.parseLong(new String(valBytes, StandardCharsets.UTF_8));
-            }
-            curVal++;
-            database.put(key, Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
-            afterIncr = curVal;
+            newVal = database.incrBy(key, 1L);
         } catch (NumberFormatException ex) {
-            throw new CommandException("Failed to parse integer value from key");
-        } finally {
-            database.getLock().unlock();
+            throw new CommandException("Failed to parse integer from value stored");
         }
-        return new IntegerReply(afterIncr);
+        return new IntegerReply(Long.parseLong(new String(newVal, StandardCharsets.UTF_8)));
     }
 }
