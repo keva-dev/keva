@@ -10,6 +10,7 @@ import net.openhft.chronicle.map.ChronicleMapBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.Lock;
 
 @Slf4j
@@ -69,5 +70,23 @@ public class ChronicleMapImpl implements KevaDatabase {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public byte[] incrBy(byte[] key, long amount) {
+        lock.lock();
+        try {
+            return chronicleMap.compute(key, (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal + amount;
+                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
+        } finally {
+            lock.unlock();
+        }
+
     }
 }
