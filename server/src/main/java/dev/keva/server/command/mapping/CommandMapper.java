@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.reflections.Reflections;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,6 +71,9 @@ public class CommandMapper {
                             return (Reply<?>) method.invoke(instance, objects);
                         } catch (Exception e) {
                             log.error("", e);
+                            if (e instanceof InvocationTargetException) {
+                                return new ErrorReply("ERR " + e.getCause().getMessage());
+                            }
                             return new ErrorReply("ERR " + e.getMessage());
                         }
                     });
