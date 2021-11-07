@@ -143,4 +143,23 @@ public abstract class AbstractServerTest {
         val message = future.get();
         assertEquals("Test message", message);
     }
+
+    @Test
+    @Timeout(5)
+    void rename() {
+        try {
+            final String initKey = "Key";
+            final String initVal = "Val";
+            final String newKey = "Nkey";
+            final String renameBeforeSet = jedis.rename(initKey, newKey);
+            jedis.set(initKey, initVal);
+            final String renameAfterSet = jedis.rename(initKey, newKey);
+            final String getAfterRename = jedis.get(newKey);
+            assertEquals("ERR unknown key", renameBeforeSet);
+            assertEquals("OK", renameAfterSet);
+            assertEquals(initVal, getAfterRename);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }
