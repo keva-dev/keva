@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -142,5 +143,53 @@ public abstract class AbstractServerTest {
         }).start();
         val message = future.get();
         assertEquals("Test message", message);
+    }
+
+    @Test
+    void incr() {
+        // with exist key
+        String res = jedis.set("1to2", "1");
+        assertEquals("OK", res);
+        Long newVal = jedis.incr("1to2");
+        assertEquals(2, newVal);
+        String val = jedis.get("1to2");
+        assertEquals("2", val);
+
+        // with non exist key
+        res = jedis.get("0to1");
+        assertNull(res);
+        newVal = jedis.incr("0to1");
+        assertEquals(1, newVal);
+        val = jedis.get("0to1");
+        assertEquals("1", val);
+
+        // with wrong key type
+        res = jedis.set("wrong", "type");
+        assertEquals("OK", res);
+        assertThrows(JedisDataException.class, () -> jedis.incr("wrong"));
+    }
+
+    @Test
+    void incrBy() {
+        // with exist key
+        String res = jedis.set("1to5", "1");
+        assertEquals("OK", res);
+        Long newVal = jedis.incrBy("1to5", 4);
+        assertEquals(5, newVal);
+        String val = jedis.get("1to5");
+        assertEquals("5", val);
+
+        // with non exist key
+        res = jedis.get("0to10");
+        assertNull(res);
+        newVal = jedis.incrBy("0to10", 10);
+        assertEquals(10, newVal);
+        val = jedis.get("0to10");
+        assertEquals("10", val);
+
+        // with wrong key type
+        res = jedis.set("wrong", "type");
+        assertEquals("OK", res);
+        assertThrows(JedisDataException.class, () -> jedis.incrBy("wrong", 10));
     }
 }
