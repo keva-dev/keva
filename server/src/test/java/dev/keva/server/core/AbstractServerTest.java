@@ -163,6 +163,34 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+
+    @Test
+    void getdel() {
+        try {
+            val setAbc = jedis.set("abc", "123");
+            val getdelAbc = jedis.getDel("abc");
+            val getAbcAgain = jedis.get("abc");
+            assertEquals("OK", setAbc);
+            assertEquals("123", getdelAbc);
+            assertNull(getAbcAgain);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void append() {
+        try {
+            val append1 = jedis.append("1", "Hello");
+            val append2 = jedis.append("1", " World");
+            val get = jedis.get("1");
+            assertEquals(5, append1);
+            assertEquals(11, append2);
+            assertEquals("Hello World", get);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
   
     @Test
     void incr() {
