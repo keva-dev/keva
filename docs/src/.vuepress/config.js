@@ -52,15 +52,25 @@ module.exports = {
     sidebar: {
       '/guide/': [
         {
-          title: 'Guide',
+          title: 'Overview',
           collapsable: false,
           children: [
             '',
-            'install',
-            'commands',
-            'replication',
+            'overview/install',
+            'overview/commands',
+            'overview/replication',
           ]
-        }
+        },
+        {
+          title: 'Insight',
+          collapsable: false,
+          children: [
+            'insight/design',
+            'insight/benchmark'
+          ]
+        },
+        'roadmap',
+        'developer-guide'
       ],
     }
   },
