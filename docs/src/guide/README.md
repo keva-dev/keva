@@ -17,5 +17,5 @@ a shared way.
 ## Major dependencies
 
 - Run on JVM
-- Netty for handling TCP messages
-- ChronicleMap for storage engine
+- [Netty](https://github.com/netty/netty) for network layer
+- [ChronicleMap](https://github.com/OpenHFT/Chronicle-Map) for storage layer

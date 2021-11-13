@@ -50,5 +50,6 @@ Implemented commands:
 - MULTI
 - EXEC
 - DISCARD
+- WATCH
 
 </details>

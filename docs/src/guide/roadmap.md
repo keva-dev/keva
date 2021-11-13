@@ -9,14 +9,12 @@
 ## Todo-list
 
 - Implement various Redis commands
+- Implement RDB, AOF persistence mode
 - Implement Pub/Sub :heavy_check_mark:
 - Implement Transactions :heavy_check_mark:
 - Implement Replication ([@axblueblader](https://github.com/axblueblader))
 - Implement Keva Proxy ([@haphananhtuan](https://github.com/haphananhtuan))
 - Implement Keva Sentinel ([@duongcongtoai](https://github.com/duongcongtoai))
 - Implement Keva SQL (TBD)
-
-## Backlogs
-
 - Publish dedicated Maven package for `protocol` and `config`
 - Create automation for release workflow

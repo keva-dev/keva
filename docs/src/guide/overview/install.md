@@ -14,15 +14,20 @@ chmod +x /usr/local/bin/keva-server
 
 ## Run commands
 
-Options:
-- ```-h {host}```: hostname (default: localhost)
-- ```-p {port}```: port (default: 6379)
-- ```-dir {directory}```: working directory (default: ./)
-- ```-ps {true/false}```: persistence (default: 'true' if flag not set or provide value when set). 
+Run:
 
 ```
 $ keva-server
 ```
+
+Parameters:
+
+    Option          Description
+    ------          -----------
+    -h <String>     host (default: localhost)
+    -p <Integer>    port (default: 6379)
+    -ps <Boolean>   enable persistence (default: true)
+    -dir <String>   working directory (default: ./)
 
 ## Docker
 
