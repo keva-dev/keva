@@ -3,6 +3,7 @@ package dev.keva.protocol.resp;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
@@ -131,6 +132,10 @@ public class Command {
         return getBytes(objects[0]);
     }
 
+    public byte[] getKey() {
+        return getBytes(objects[1]);
+    }
+
     public boolean isInline() {
         return inline;
     }
@@ -179,5 +184,16 @@ public class Command {
 
     public void write(ByteBuf os) throws IOException {
         writeDirect(os, name, object1, object2, object3, objects);
+    }
+
+    public byte[] getOriginal() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        if (inline) {
+            for (Object bytes : objects) {
+                out.write((byte[]) bytes);
+                out.write(EMPTY_BYTES);
+            }
+        }
+        return out.toByteArray();
     }
 }

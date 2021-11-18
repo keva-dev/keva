@@ -32,6 +32,14 @@ public class KevaConfig {
     @CliProp(name = "dir", type = CliPropType.VAL)
     private String workDirectory;
 
+    @ConfigProp(name = "cluster", defaultVal = "false")
+    @CliProp(name = "c", type = CliPropType.FLAG)
+    private Boolean cluster;
+
+    @ConfigProp(name = "slotId", defaultVal = "")
+    @CliProp(name = "slotId", type = CliPropType.VAL)
+    private Boolean slotId;
+
     /**
      * @return KevaConfig with sensible defaults
      */
@@ -42,6 +50,7 @@ public class KevaConfig {
                 .hostname("localhost")
                 .port(6379)
                 .persistence(true)
+                .cluster(false)
                 .build();
     }
 
