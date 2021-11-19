@@ -80,13 +80,38 @@ public abstract class AbstractServerTest {
     void getSetExpire() {
         try {
             val setAbc = jedis.set("abc", "123");
-            val getAbc = jedis.get("abc");
-            val expireAbc = jedis.expire("abc", 1);
+            var getAbc = jedis.get("abc");
+            val expireAbc = jedis.expire("abc", 1L);
 
             assertEquals("OK", setAbc);
             assertEquals("123", getAbc);
             assertEquals(1, expireAbc);
-            Thread.sleep(1500);
+            Thread.sleep(500);
+            getAbc = jedis.get("abc");
+            assertEquals("123", getAbc);
+            Thread.sleep(501);
+            val getAbcNull = jedis.get("abc");
+            assertNull(getAbcNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void getSetExpireAt() {
+        try {
+            val setAbc = jedis.set("abc", "123");
+            var getAbc = jedis.get("abc");
+            val oneSecondLaterTime = System.currentTimeMillis() + 1000;
+            val expireAbc = jedis.expireAt("abc", oneSecondLaterTime);
+
+            assertEquals("OK", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals(1, expireAbc);
+            Thread.sleep(500);
+            getAbc = jedis.get("abc");
+            assertEquals("123", getAbc);
+            Thread.sleep(501);
             val getAbcNull = jedis.get("abc");
             assertNull(getAbcNull);
         } catch (Exception e) {
