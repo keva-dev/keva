@@ -15,6 +15,7 @@ public class Command {
     public static final byte[] CRLF = "\r\n".getBytes();
     public static final byte[] BYTES_PREFIX = "$".getBytes();
     public static final byte[] EMPTY_BYTES = new byte[0];
+    private static final ByteArrayOutputStream BYTE_ARRAY_STREAM = new ByteArrayOutputStream();
 
     private final Object name;
     private final Object[] objects;
@@ -187,13 +188,16 @@ public class Command {
     }
 
     public byte[] getOriginal() throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        if (inline) {
-            for (Object bytes : objects) {
-                out.write((byte[]) bytes);
-                out.write(EMPTY_BYTES);
+        try {
+            if (inline) {
+                for (Object bytes : objects) {
+                    BYTE_ARRAY_STREAM.write((byte[]) bytes);
+                    BYTE_ARRAY_STREAM.write(EMPTY_BYTES);
+                }
             }
+            return BYTE_ARRAY_STREAM.toByteArray();
+        } finally {
+            BYTE_ARRAY_STREAM.reset();
         }
-        return out.toByteArray();
     }
 }
