@@ -11,6 +11,11 @@ import java.util.concurrent.Executors;
 
 @Component
 public class ExpirationManager {
+    /**
+     * the 4 bytes is equivalent to '[DELETE]/at' in UTF-8 encoding, with DELETE being a special character
+     * so user is won't to accidentally set a key with the postfix included in normal usage,
+     * but still has the option to
+     */
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     private final KevaDatabase database;
     private final ExecutorService expireExecutor = Executors.newFixedThreadPool(1);
@@ -20,13 +25,13 @@ public class ExpirationManager {
         this.database = database;
     }
 
-    public void expireAt(byte[] key, long at) {
+    public void expireAt(byte[] key, long timestampInMillis) {
         byte[] expireKey = getExpireKey(key);
-        byte[] timestampInMillis = Longs.toByteArray(at);
-        if (at <= System.currentTimeMillis()) {
+        byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
+        if (timestampInMillis <= System.currentTimeMillis()) {
             executeExpire(key);
         } else {
-            database.put(expireKey, timestampInMillis);
+            database.put(expireKey, timestampBytes);
         }
     }
 
@@ -56,5 +61,13 @@ public class ExpirationManager {
             database.remove(key);
             clearExpiration(key);
         });
+    }
+
+    public void move(byte[] key, byte[] newName) {
+        byte[] timestampBytes = database.get(getExpireKey(key));
+        if (timestampBytes != null) {
+            database.put(getExpireKey(newName), timestampBytes);
+            clearExpiration(key);
+        }
     }
 }

@@ -96,6 +96,34 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+    @Test
+    void updateExpire() {
+        try {
+            val setAbc = jedis.set("abc", "123");
+            var getAbc = jedis.get("abc");
+            var expireAbc = jedis.expire("abc", 1L);
+
+            assertEquals("OK", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals(1, expireAbc);
+
+            Thread.sleep(500);
+            getAbc = jedis.get("abc");
+            expireAbc = jedis.expire("abc", 1L);
+            assertEquals(1, expireAbc);
+            assertEquals("123", getAbc);
+
+            Thread.sleep(501);
+            getAbc = jedis.get("abc");
+            assertEquals("123", getAbc);
+
+            Thread.sleep(1001);
+            val getAbcNull = jedis.get("abc");
+            assertNull(getAbcNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 
     @Test
     void getSetExpireAt() {
@@ -114,6 +142,30 @@ public abstract class AbstractServerTest {
             Thread.sleep(501);
             val getAbcNull = jedis.get("abc");
             assertNull(getAbcNull);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void setAfterExpireAt() {
+        try {
+            var setAbc = jedis.set("abc", "123");
+            var getAbc = jedis.get("abc");
+            val oneSecondLaterTime = System.currentTimeMillis() + 1000;
+            val expireAbc = jedis.expireAt("abc", oneSecondLaterTime);
+
+            assertEquals("OK", setAbc);
+            assertEquals("123", getAbc);
+            assertEquals(1, expireAbc);
+            Thread.sleep(500);
+            getAbc = jedis.get("abc");
+            assertEquals("123", getAbc);
+            setAbc = jedis.set("abc", "456");
+            assertEquals("OK", setAbc);
+            Thread.sleep(501);
+            getAbc = jedis.get("abc");
+            assertEquals("456", getAbc);
         } catch (Exception e) {
             fail(e);
         }
@@ -190,6 +242,29 @@ public abstract class AbstractServerTest {
     }
 
     @Test
+    @Timeout(5)
+    void renameWithExpire() {
+        try {
+            val initKey = "Key";
+            val initVal = "Val";
+            val newKey = "Nkey";
+            val renameBeforeSet = jedis.rename(initKey, newKey);
+            jedis.set(initKey, initVal);
+            jedis.expireAt(initKey, System.currentTimeMillis() + 500);
+            val renameAfterSet = jedis.rename(initKey, newKey);
+            String getAfterRename = jedis.get(newKey);
+            assertEquals("ERR unknown key", renameBeforeSet);
+            assertEquals("OK", renameAfterSet);
+            assertEquals(initVal, getAfterRename);
+            Thread.sleep(501);
+            getAfterRename = jedis.get(newKey);
+            assertNull(getAfterRename);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void getdel() {
         try {
             val setAbc = jedis.set("abc", "123");
@@ -216,7 +291,7 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
-  
+
     @Test
     void incr() {
         // with exist key
