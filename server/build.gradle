@@ -24,6 +24,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.reflections:reflections:0.10.1'
 
+    implementation 'com.github.jsqlparser:jsqlparser:3.2'
+
     // Experimental
     implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
 
