@@ -17,10 +17,11 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class KqlManager {
-    private final Map<String, List<KevaColumnDefinition>> metadata = new HashMap<>();
-    private final Map<String, List<Object>> tableData = new HashMap<>();
+    private final Map<String, List<KevaColumnDefinition>> metadata = new ConcurrentHashMap<>();
+    private final Map<String, List<Object>> tableData = new ConcurrentHashMap<>();
 
     public Statement parse(String sql) throws JSQLParserException {
         return CCJSqlParserUtil.parse(sql);
