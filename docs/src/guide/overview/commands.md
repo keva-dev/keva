@@ -18,9 +18,9 @@ Implemented commands:
 
 - DEL
 - EXISTS
-- KEYS
 - RENAME
 - EXPIRE
+- EXPIREAT
 
 </details>
 
