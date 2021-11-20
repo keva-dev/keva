@@ -31,7 +31,7 @@ public class KqlManager {
         CreateTable createTable = (CreateTable) stmt;
         String tableName = createTable.getTable().getName();
         if (metadata.get(tableName) != null) {
-            throw new KevaSQLException("table " + tableName + " already exists!");
+            throw new KevaSQLException("table " + tableName + " already exists");
         }
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
         List<KevaColumnDefinition> kevaColumns = new ArrayList<>();
@@ -55,7 +55,7 @@ public class KqlManager {
         String tableName = table.getName();
         List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
         if (columnDefinitions == null) {
-            throw new KevaSQLException("table " + tableName + " does not exist!");
+            throw new KevaSQLException("table " + tableName + " does not exist");
         }
         List<Expression> insertValuesExpression = ((ExpressionList) insertStatement.getItemsList()).getExpressions();
         List<String> values = new ArrayList<>();
@@ -69,7 +69,7 @@ public class KqlManager {
             for (Column column : insertColumns) {
                 int index = findColumn(column.getColumnName(), columnDefinitions);
                 if (index == -1) {
-                    throw new KevaSQLException("column " + column + " does not exist!");
+                    throw new KevaSQLException("column " + column + " does not exist");
                 }
                 String type = columnDefinitions.get(index).type;
                 String value = values.get(index);
@@ -117,7 +117,7 @@ public class KqlManager {
         String tableName = tableList.get(0);
         List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
         if (columnDefinitions == null) {
-            throw new KevaSQLException("table " + tableName + " does not exist!");
+            throw new KevaSQLException("table " + tableName + " does not exist");
         }
         List<String> columns = new ArrayList<>();
         PlainSelect plainSelect = (PlainSelect) selectStatement.getSelectBody();
@@ -137,7 +137,7 @@ public class KqlManager {
                     } else {
                         int index = findColumn(column, columnDefinitions);
                         if (index == -1) {
-                            throw new KevaSQLException("column " + column + " does not exist!");
+                            throw new KevaSQLException("column " + column + " does not exist");
                         }
                         row.add(value.get(index));
                     }

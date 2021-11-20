@@ -51,17 +51,17 @@ public class Kql {
             List<List<Object>> result = kqlManager.select(stmt);
             Reply<?>[] rowReplies = new Reply[result.size()];
             for (int i = 0; i < result.size(); i++) {
-                Reply<?>[] item = new Reply[result.get(i).size()];
+                Reply<?>[] columnReplies = new Reply[result.get(i).size()];
                 for (int j = 0; j < result.get(i).size(); j++) {
                     if (result.get(i).get(j) instanceof String) {
-                        item[j] = new BulkReply((String) result.get(i).get(j));
+                        columnReplies[j] = new BulkReply((String) result.get(i).get(j));
                     } else if (result.get(i).get(j) instanceof Integer) {
-                        item[j] = new IntegerReply((Integer) result.get(i).get(j));
+                        columnReplies[j] = new IntegerReply((Integer) result.get(i).get(j));
                     } else if (result.get(i).get(j) instanceof Boolean) {
-                        item[j] = new IntegerReply((Boolean) result.get(i).get(j) ? 1 : 0);
+                        columnReplies[j] = new IntegerReply((Boolean) result.get(i).get(j) ? 1 : 0);
                     }
                 }
-                rowReplies[i] = new MultiBulkReply(item);
+                rowReplies[i] = new MultiBulkReply(columnReplies);
             }
             return new MultiBulkReply(rowReplies);
         } else {
