@@ -2,7 +2,7 @@ package dev.keva.server.command.impl.kql.manager;
 
 import java.util.List;
 
-public class ColumnFinder {
+public class KevaColumnFinder {
     public static int findColumn(String columnName, List<KevaColumnDefinition> kevaColumns) {
         for (int i = 0; i < kevaColumns.size(); i++) {
             KevaColumnDefinition kevaColumn = kevaColumns.get(i);

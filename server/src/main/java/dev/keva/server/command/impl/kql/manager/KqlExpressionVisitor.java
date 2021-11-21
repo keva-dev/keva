@@ -150,9 +150,9 @@ public class KqlExpressionVisitor implements ExpressionVisitor {
     @Override
     public void visit(EqualsTo equalsTo) {
         String columnName = equalsTo.getLeftExpression().toString();
-        int columnIndex = ColumnFinder.findColumn(columnName, kevaColumns);
+        int columnIndex = KevaColumnFinder.findColumn(columnName, kevaColumns);
         String type = kevaColumns.get(columnIndex).type;
-        String valueStr = KevaSQLStrUtil.escape(equalsTo.getRightExpression().toString());
+        String valueStr = KevaSQLStringUtil.escape(equalsTo.getRightExpression().toString());
         if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
             temp = result.stream()
                     .filter(row -> row.get(columnIndex).equals(valueStr))
@@ -223,9 +223,9 @@ public class KqlExpressionVisitor implements ExpressionVisitor {
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
         String columnName = notEqualsTo.getLeftExpression().toString();
-        int columnIndex = ColumnFinder.findColumn(columnName, kevaColumns);
+        int columnIndex = KevaColumnFinder.findColumn(columnName, kevaColumns);
         String type = kevaColumns.get(columnIndex).type;
-        String valueStr = KevaSQLStrUtil.escape(notEqualsTo.getRightExpression().toString());
+        String valueStr = KevaSQLStringUtil.escape(notEqualsTo.getRightExpression().toString());
         if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
             temp = result.stream()
                     .filter(row -> !row.get(columnIndex).equals(valueStr))

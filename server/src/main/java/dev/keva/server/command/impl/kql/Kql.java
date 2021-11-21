@@ -77,10 +77,8 @@ public class Kql {
                         columnReplies[j] = new BulkReply(result.get(i).get(j).toString());
                     } else if (result.get(i).get(j) instanceof Boolean) {
                         columnReplies[j] = new IntegerReply((Boolean) result.get(i).get(j) ? 1 : 0);
-                    } else if (result.get(i).get(j) instanceof byte[]) {
-                        columnReplies[j] = new BulkReply((byte[]) result.get(i).get(j));
-                    } else {
-                        columnReplies[j] = new BulkReply(result.get(i).get(j).toString());
+                    } else if (result.get(i).get(j) == null) {
+                        columnReplies[j] = BulkReply.NIL_REPLY;
                     }
                 }
                 rowReplies[i] = new MultiBulkReply(columnReplies);

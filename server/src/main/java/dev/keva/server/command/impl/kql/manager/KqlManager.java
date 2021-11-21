@@ -19,6 +19,7 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class KqlManager {
     private final Map<String, List<KevaColumnDefinition>> metadata = new ConcurrentHashMap<>();
@@ -58,23 +59,26 @@ public class KqlManager {
             values.add(expression.toString());
         }
 
-        List<Object> result = new ArrayList<>();
+        List<Object> result = new ArrayList<>(columnDefinitions.size());
+        for (int i = 0; i < columnDefinitions.size(); i++) {
+            result.add(null);
+        }
         List<Column> insertColumns = insertStatement.getColumns();
         if (insertColumns != null) {
             for (Column column : insertColumns) {
-                int index = ColumnFinder.findColumn(column.getColumnName(), columnDefinitions);
+                int index = KevaColumnFinder.findColumn(column.getColumnName(), columnDefinitions);
                 if (index == -1) {
                     throw new KevaSQLException("column " + column + " does not exist");
                 }
                 String type = columnDefinitions.get(index).type;
                 String value = values.get(index);
-                result.add(addResult(type, value));
+                result.set(index, addResult(type, value));
             }
         } else {
             for (int i = 0; i < columnDefinitions.size(); i++) {
                 String type = columnDefinitions.get(i).type;
                 String value = values.get(i);
-                result.add(addResult(type, value));
+                result.set(i, addResult(type, value));
             }
         }
 
@@ -84,8 +88,9 @@ public class KqlManager {
     }
 
     private Object addResult(String type, String value) {
-        if (value.startsWith("'") && value.endsWith("'")) {
-            value = KevaSQLStrUtil.escape(value);
+        value = KevaSQLStringUtil.escape(value);
+        if (value.toLowerCase().equals("null")) {
+            return null;
         }
         if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
             return value;
@@ -135,7 +140,7 @@ public class KqlManager {
                     // Update
                     List<Column> updateColumns = updateStatement.getColumns();
                     for (int i = 0; i < updateColumns.size(); i++) {
-                        int index = ColumnFinder.findColumn(updateColumns.get(i).getColumnName(), columnDefinitions);
+                        int index = KevaColumnFinder.findColumn(updateColumns.get(i).getColumnName(), columnDefinitions);
                         if (index == -1) {
                             throw new KevaSQLException("column " + updateColumns.get(i).getColumnName() + " does not exist");
                         }
@@ -205,26 +210,59 @@ public class KqlManager {
             String key = entry.getKey();
             if (key.startsWith(tableName + ":")) {
                 List<Object> value = entry.getValue();
-                List<Object> row = new ArrayList<>();
+                List<Object> row = null;
                 for (String column : columns) {
-                    if (column.equals("*")) {
+                    if (column.equals("*") || column.equals("COUNT(*)") ||
+                            column.startsWith("COUNT(") || column.startsWith("SUM(") || column.startsWith("AVG(")) {
                         result.addAll(Collections.singleton(value));
                         break;
                     } else {
-                        int index = ColumnFinder.findColumn(column, columnDefinitions);
+                        int index = KevaColumnFinder.findColumn(column, columnDefinitions);
                         if (index == -1) {
                             throw new KevaSQLException("column " + column + " does not exist");
+                        }
+                        if (row == null) {
+                            row = new ArrayList<>();
                         }
                         row.add(value.get(index));
                     }
                 }
-                result.add(row);
+                if (row != null) {
+                    result.add(row);
+                }
             }
         }
 
         KqlExpressionVisitor kqlExpressionVisitor = new KqlExpressionVisitor(result, columnDefinitions);
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(kqlExpressionVisitor);
+        }
+        if (columns.get(0).equals("COUNT(*)")) {
+            return Collections.singletonList(Collections.singletonList(kqlExpressionVisitor.getTemp().size()));
+        } else if (columns.get(0).startsWith("COUNT(") ||  columns.get(0).startsWith("AVG(") || columns.get(0).startsWith("SUM(")) {
+            String columnInBracket = columns.get(0).substring(columns.get(0).indexOf("(")+1, columns.get(0).indexOf(")"));
+            int index = KevaColumnFinder.findColumn(columnInBracket, columnDefinitions);
+            if (index == -1) {
+                throw new KevaSQLException("column " + columnInBracket + " does not exist");
+            }
+            if (columns.get(0).startsWith("COUNT(")) {
+                return Collections.singletonList(
+                        Collections.singletonList(
+                                (int) kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null).count()));
+            }
+            Double sum = 0.0D;
+            int count = 0;
+            List<List<Object>> temp = kqlExpressionVisitor.getTemp();
+            for (List<Object> row : temp) {
+                if (row.get(index) != null) {
+                    sum += (Double) row.get(index);
+                    count++;
+                }
+            }
+            if (columns.get(0).startsWith("AVG(")) {
+                return Collections.singletonList(Collections.singletonList(sum/count));
+            }
+            return Collections.singletonList(Collections.singletonList(sum));
         }
         return kqlExpressionVisitor.getTemp();
     }
