@@ -31,7 +31,7 @@ public class Kql {
     @Execute
     public Reply<?> execute(byte[] sqlBytes) {
         String sql = new String(sqlBytes);
-        Statement stmt = null;
+        Statement stmt;
         try {
             stmt = kqlManager.parse(sql);
         } catch (JSQLParserException e) {

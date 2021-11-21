@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class KqlExpressionVisitor implements ExpressionVisitor {
-    private List<List<Object>> result;
     private final List<KevaColumnDefinition> kevaColumns;
-
+    private List<List<Object>> result;
     @Getter
     private List<List<Object>> temp;
 
