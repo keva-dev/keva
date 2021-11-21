@@ -213,7 +213,8 @@ public class KqlManager {
                 List<Object> row = null;
                 for (String column : columns) {
                     if (column.equals("*") || column.equals("COUNT(*)") ||
-                            column.startsWith("COUNT(") || column.startsWith("SUM(") || column.startsWith("AVG(")) {
+                            column.startsWith("COUNT(") || column.startsWith("SUM(") || column.startsWith("AVG(") ||
+                            column.startsWith("MIN(") || column.startsWith("MAX(")) {
                         result.addAll(Collections.singleton(value));
                         break;
                     } else {
@@ -239,16 +240,30 @@ public class KqlManager {
         }
         if (columns.get(0).equals("COUNT(*)")) {
             return Collections.singletonList(Collections.singletonList(kqlExpressionVisitor.getTemp().size()));
-        } else if (columns.get(0).startsWith("COUNT(") ||  columns.get(0).startsWith("AVG(") || columns.get(0).startsWith("SUM(")) {
+        } else if (columns.get(0).startsWith("COUNT(") ||  columns.get(0).startsWith("AVG(") || columns.get(0).startsWith("SUM(")
+                || columns.get(0).startsWith("MIN(") || columns.get(0).startsWith("MAX(")) {
             String columnInBracket = columns.get(0).substring(columns.get(0).indexOf("(")+1, columns.get(0).indexOf(")"));
             int index = KevaColumnFinder.findColumn(columnInBracket, columnDefinitions);
             if (index == -1) {
                 throw new KevaSQLException("column " + columnInBracket + " does not exist");
             }
             if (columns.get(0).startsWith("COUNT(")) {
-                return Collections.singletonList(
-                        Collections.singletonList(
-                                (int) kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null).count()));
+                int count = (int) kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null).count();
+                return KevaSQLStringUtil.singleSelectResponse(count);
+            } else if (columns.get(0).startsWith("MIN(")) {
+                Optional<Double> minOptional = kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null)
+                        .map(row -> row.get(index).toString())
+                        .map(Double::parseDouble)
+                        .min(Double::compare);
+                return minOptional.map(KevaSQLStringUtil::singleSelectResponse)
+                        .orElseGet(() -> KevaSQLStringUtil.singleSelectResponse(null));
+            } else if (columns.get(0).startsWith("MAX(")) {
+                Optional<Double> maxOptional = kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null)
+                        .map(row -> row.get(index).toString())
+                        .map(Double::parseDouble)
+                        .max(Double::compare);
+                return maxOptional.map(KevaSQLStringUtil::singleSelectResponse)
+                        .orElseGet(() -> KevaSQLStringUtil.singleSelectResponse(null));
             }
             Double sum = 0.0D;
             int count = 0;
@@ -260,9 +275,9 @@ public class KqlManager {
                 }
             }
             if (columns.get(0).startsWith("AVG(")) {
-                return Collections.singletonList(Collections.singletonList(sum/count));
+                return KevaSQLStringUtil.singleSelectResponse(sum/count);
             }
-            return Collections.singletonList(Collections.singletonList(sum));
+            return KevaSQLStringUtil.singleSelectResponse(sum);
         }
         return kqlExpressionVisitor.getTemp();
     }
