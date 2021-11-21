@@ -1,6 +1,5 @@
 package dev.keva.server.command.impl.kql.manager;
 
-import lombok.AllArgsConstructor;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -10,6 +9,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
@@ -43,12 +43,6 @@ public class KqlManager {
         metadata.put(tableName, kevaColumns);
     }
 
-    @AllArgsConstructor
-    public static class KevaColumnDefinition {
-        public String name;
-        public String type;
-    }
-
     public void insert(Statement stmt) {
         Insert insertStatement = (Insert) stmt;
         Table table = insertStatement.getTable();
@@ -67,7 +61,7 @@ public class KqlManager {
         List<Column> insertColumns = insertStatement.getColumns();
         if (insertColumns != null) {
             for (Column column : insertColumns) {
-                int index = findColumn(column.getColumnName(), columnDefinitions);
+                int index = ColumnFinder.findColumn(column.getColumnName(), columnDefinitions);
                 if (index == -1) {
                     throw new KevaSQLException("column " + column + " does not exist");
                 }
@@ -88,26 +82,62 @@ public class KqlManager {
         tableData.put(tableName + ":" + uuid, result);
     }
 
-    private int findColumn(String columnName, List<KevaColumnDefinition> kevaColumns) {
-        for (int i = 0; i < kevaColumns.size(); i++) {
-            KevaColumnDefinition kevaColumn = kevaColumns.get(i);
-            if (kevaColumn.name.equals(columnName)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     private Object addResult(String type, String value) {
-        if (type.equals("STRING") || type.equals("TEXT")) {
-            return value.replaceAll("^.|.$", "");
-        } else if (type.equals("NUMBER")) {
+        if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
+            return KevaSQLStrUtil.escape(value);
+        } else if (type.equals("INT") || type.equals("INTEGER")) {
             return Integer.parseInt(value);
-        } else if (type.equals("BOOLEAN")) {
+        } else if (type.equals("BIGINT")) {
+            return Long.parseLong(value);
+        } else if (type.equals("DOUBLE")) {
+            return Double.parseDouble(value);
+        } else if (type.equals("FLOAT")) {
+            return Float.parseFloat(value);
+        } else if (type.equals("BOOL") || type.equals("BOOLEAN")) {
             return Boolean.parseBoolean(value);
         } else {
             throw new KevaSQLException("unknown type: " + type);
         }
+    }
+
+    public int update(Statement stmt) {
+        return 1;
+    }
+
+    public int delete(Statement stmt) {
+        Delete deleteStatement = (Delete) stmt;
+        Expression where = deleteStatement.getWhere();
+        if (where == null) {
+            return 0;
+        }
+        String tableName = deleteStatement.getTable().getName();
+        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        if (columnDefinitions == null) {
+            throw new KevaSQLException("table " + tableName + " does not exist");
+        }
+        List<List<Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(tableName + ":")) {
+                List<Object> value = entry.getValue();
+                result.addAll(Collections.singleton(value));
+            }
+        }
+        KqlExpressionVisitor kqlExpressionVisitor = new KqlExpressionVisitor(result, columnDefinitions);
+        where.accept(kqlExpressionVisitor);
+        List<List<Object>> toBeDeleted = kqlExpressionVisitor.getTemp();
+        int count = 0;
+        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(tableName + ":")) {
+                List<Object> value = entry.getValue();
+                if (toBeDeleted.contains(value)) {
+                    tableData.remove(key);
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public List<List<Object>> select(Statement stmt) {
@@ -135,7 +165,7 @@ public class KqlManager {
                         result.addAll(Collections.singleton(value));
                         break;
                     } else {
-                        int index = findColumn(column, columnDefinitions);
+                        int index = ColumnFinder.findColumn(column, columnDefinitions);
                         if (index == -1) {
                             throw new KevaSQLException("column " + column + " does not exist");
                         }
@@ -145,6 +175,11 @@ public class KqlManager {
                 result.add(row);
             }
         }
-        return result;
+
+        KqlExpressionVisitor kqlExpressionVisitor = new KqlExpressionVisitor(result, columnDefinitions);
+        if (plainSelect.getWhere() != null) {
+            plainSelect.getWhere().accept(kqlExpressionVisitor);
+        }
+        return kqlExpressionVisitor.getTemp();
     }
 }

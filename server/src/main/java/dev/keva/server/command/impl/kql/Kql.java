@@ -10,8 +10,10 @@ import dev.keva.server.command.impl.kql.manager.KqlManager;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.update.Update;
 
 import java.util.List;
 
@@ -47,6 +49,18 @@ public class Kql {
             replies[0] = new StatusReply("DONE");
             replies[1] = new IntegerReply(1);
             return new MultiBulkReply(replies);
+        } else if (stmt instanceof Update) {
+            int numOfUpdated = kqlManager.update(stmt);
+            Reply<?>[] replies = new Reply[2];
+            replies[0] = new StatusReply("DONE");
+            replies[1] = new IntegerReply(numOfUpdated);
+            return new MultiBulkReply(replies);
+        } else if (stmt instanceof Delete) {
+            int numOfDeleted = kqlManager.delete(stmt);
+            Reply<?>[] replies = new Reply[2];
+            replies[0] = new StatusReply("DONE");
+            replies[1] = new IntegerReply(numOfDeleted);
+            return new MultiBulkReply(replies);
         } else if (stmt instanceof Select) {
             List<List<Object>> result = kqlManager.select(stmt);
             Reply<?>[] rowReplies = new Reply[result.size()];
@@ -57,8 +71,16 @@ public class Kql {
                         columnReplies[j] = new BulkReply((String) result.get(i).get(j));
                     } else if (result.get(i).get(j) instanceof Integer) {
                         columnReplies[j] = new IntegerReply((Integer) result.get(i).get(j));
+                    } else if (result.get(i).get(j) instanceof Long) {
+                        columnReplies[j] = new IntegerReply((Long) result.get(i).get(j));
+                    } else if (result.get(i).get(j) instanceof Double) {
+                        columnReplies[j] = new BulkReply(result.get(i).get(j).toString());
                     } else if (result.get(i).get(j) instanceof Boolean) {
                         columnReplies[j] = new IntegerReply((Boolean) result.get(i).get(j) ? 1 : 0);
+                    } else if (result.get(i).get(j) instanceof byte[]) {
+                        columnReplies[j] = new BulkReply((byte[]) result.get(i).get(j));
+                    } else {
+                        columnReplies[j] = new BulkReply(result.get(i).get(j).toString());
                     }
                 }
                 rowReplies[i] = new MultiBulkReply(columnReplies);
