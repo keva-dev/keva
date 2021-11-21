@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class KqlManager {
-    private final Map<String, List<KevaColumnDefinition>> metadata = new ConcurrentHashMap<>();
+    private final Map<String, List<KevaColumnDefinition>> tableMetadata = new ConcurrentHashMap<>();
+    private final Map<String, Long> tableIncrement = new ConcurrentHashMap<>();
     private final Map<String, List<Object>> tableData = new ConcurrentHashMap<>();
 
     public Statement parse(String sql) throws JSQLParserException {
@@ -34,7 +35,7 @@ public class KqlManager {
     public void create(Statement stmt) {
         CreateTable createTable = (CreateTable) stmt;
         String tableName = createTable.getTable().getName();
-        if (metadata.get(tableName) != null) {
+        if (tableMetadata.get(tableName) != null) {
             throw new KevaSQLException("table " + tableName + " already exists");
         }
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
@@ -44,14 +45,15 @@ public class KqlManager {
                     (columnDefinition.getColumnName(), columnDefinition.getColDataType().getDataType());
             kevaColumns.add(kevaColumn);
         }
-        metadata.put(tableName, kevaColumns);
+        tableMetadata.put(tableName, kevaColumns);
+        tableIncrement.put(tableName, 0L);
     }
 
     public void insert(Statement stmt) {
         Insert insertStatement = (Insert) stmt;
         Table table = insertStatement.getTable();
         String tableName = table.getName();
-        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        List<KevaColumnDefinition> columnDefinitions = tableMetadata.get(tableName);
         if (columnDefinitions == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
@@ -83,15 +85,15 @@ public class KqlManager {
                 result.set(i, addResult(type, value));
             }
         }
-
-        String uuid = UUID.randomUUID().toString();
+        String id = tableIncrement.get(tableName).toString();
         tableData.computeIfAbsent(tableName, k -> new ArrayList<>());
-        tableData.put(tableName + ":" + uuid, result);
+        tableData.put(tableName + ":" + id, result);
+        tableIncrement.put(tableName, tableIncrement.get(tableName) + 1);
     }
 
     private Object addResult(String type, String value) {
         value = KevaSQLStringUtil.escape(value);
-        if (value.toLowerCase().equals("null")) {
+        if (value.equalsIgnoreCase("null")) {
             return null;
         }
         if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
@@ -118,15 +120,15 @@ public class KqlManager {
             return 0;
         }
         String tableName = updateStatement.getTable().getName();
-        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        List<KevaColumnDefinition> columnDefinitions = tableMetadata.get(tableName);
         if (columnDefinitions == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
         List<List<Object>> result = new ArrayList<>();
-        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(tableName + ":")) {
-                List<Object> value = entry.getValue();
+        for (int i = 0; i < tableIncrement.get(tableName); i++) {
+            String key = tableName + ":" + i;
+            if (tableData.containsKey(key)) {
+                List<Object> value = tableData.get(key);
                 result.addAll(Collections.singleton(value));
             }
         }
@@ -134,20 +136,20 @@ public class KqlManager {
         where.accept(kqlExpressionVisitor);
         List<List<Object>> toBeUpdated = kqlExpressionVisitor.getTemp();
         int count = 0;
-        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(tableName + ":")) {
-                List<Object> value = entry.getValue();
+        for (int i = 0; i < tableIncrement.get(tableName); i++) {
+            String key = tableName + ":" + i;
+            if (tableData.containsKey(key)) {
+                List<Object> value = tableData.get(key);
                 if (toBeUpdated.contains(value)) {
                     // Update
                     List<Column> updateColumns = updateStatement.getColumns();
-                    for (int i = 0; i < updateColumns.size(); i++) {
-                        int index = KevaColumnFinder.findColumn(updateColumns.get(i).getColumnName(), columnDefinitions);
+                    for (int j = 0; j < updateColumns.size(); j++) {
+                        int index = KevaColumnFinder.findColumn(updateColumns.get(j).getColumnName(), columnDefinitions);
                         if (index == -1) {
-                            throw new KevaSQLException("column " + updateColumns.get(i).getColumnName() + " does not exist");
+                            throw new KevaSQLException("column " + updateColumns.get(j).getColumnName() + " does not exist");
                         }
                         String type = columnDefinitions.get(index).type;
-                        String updatedValue = updateStatement.getExpressions().get(i).toString();
+                        String updatedValue = updateStatement.getExpressions().get(j).toString();
                         value.set(index, addResult(type, updatedValue));
                     }
                     count++;
@@ -164,15 +166,15 @@ public class KqlManager {
             return 0;
         }
         String tableName = deleteStatement.getTable().getName();
-        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        List<KevaColumnDefinition> columnDefinitions = tableMetadata.get(tableName);
         if (columnDefinitions == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
         List<List<Object>> result = new ArrayList<>();
-        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(tableName + ":")) {
-                List<Object> value = entry.getValue();
+        for (int i = 0; i < tableIncrement.get(tableName); i++) {
+            String key = tableName + ":" + i;
+            if (tableData.containsKey(key)) {
+                List<Object> value = tableData.get(key);
                 result.addAll(Collections.singleton(value));
             }
         }
@@ -180,10 +182,10 @@ public class KqlManager {
         where.accept(kqlExpressionVisitor);
         List<List<Object>> toBeDeleted = kqlExpressionVisitor.getTemp();
         int count = 0;
-        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(tableName + ":")) {
-                List<Object> value = entry.getValue();
+        for (int i = 0; i < tableIncrement.get(tableName); i++) {
+            String key = tableName + ":" + i;
+            if (tableData.containsKey(key)) {
+                List<Object> value = tableData.get(key);
                 if (toBeDeleted.contains(value)) {
                     tableData.remove(key);
                     count++;
@@ -198,7 +200,7 @@ public class KqlManager {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
         String tableName = tableList.get(0);
-        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        List<KevaColumnDefinition> columnDefinitions = tableMetadata.get(tableName);
         if (columnDefinitions == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
@@ -208,10 +210,10 @@ public class KqlManager {
             columns.add(selectItem.toString());
         }
         List<List<Object>> result = new ArrayList<>();
-        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
-            String key = entry.getKey();
-            if (key.startsWith(tableName + ":")) {
-                List<Object> value = entry.getValue();
+        for (int i = 0; i < tableIncrement.get(tableName); i++) {
+            String key = tableName + ":" + i;
+            if (tableData.containsKey(key)) {
+                List<Object> value = tableData.get(key);
                 List<Object> row = null;
                 for (String column : columns) {
                     if (column.equals("*") || column.equals("COUNT(*)") ||
@@ -237,8 +239,7 @@ public class KqlManager {
         }
 
         List<List<Object>> proceededResult = selectProcess(plainSelect, result, columns, columnDefinitions);
-        List<List<Object>> postProcessResult = selectPostProcess(plainSelect, proceededResult, columns, columnDefinitions);
-        return postProcessResult;
+        return selectPostProcess(plainSelect, proceededResult, columns, columnDefinitions);
     }
 
     private List<List<Object>> selectProcess(PlainSelect plainSelect, List<List<Object>> result,
