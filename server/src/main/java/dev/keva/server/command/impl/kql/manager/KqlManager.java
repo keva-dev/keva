@@ -11,6 +11,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -20,6 +21,7 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class KqlManager {
     private final Map<String, List<KevaColumnDefinition>> metadata = new ConcurrentHashMap<>();
@@ -234,6 +236,13 @@ public class KqlManager {
             }
         }
 
+        List<List<Object>> proceededResult = selectProcess(plainSelect, result, columns, columnDefinitions);
+        List<List<Object>> postProcessResult = selectPostProcess(plainSelect, proceededResult, columns, columnDefinitions);
+        return postProcessResult;
+    }
+
+    private List<List<Object>> selectProcess(PlainSelect plainSelect, List<List<Object>> result,
+                                             List<String> columns, List<KevaColumnDefinition> columnDefinitions) {
         KqlExpressionVisitor kqlExpressionVisitor = new KqlExpressionVisitor(result, columnDefinitions);
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(kqlExpressionVisitor);
@@ -249,21 +258,21 @@ public class KqlManager {
             }
             if (columns.get(0).startsWith("COUNT(")) {
                 int count = (int) kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null).count();
-                return KevaSQLStringUtil.singleSelectResponse(count);
+                return KevaSQLResponseUtil.singleSelectResponse(count);
             } else if (columns.get(0).startsWith("MIN(")) {
                 Optional<Double> minOptional = kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null)
                         .map(row -> row.get(index).toString())
                         .map(Double::parseDouble)
                         .min(Double::compare);
-                return minOptional.map(KevaSQLStringUtil::singleSelectResponse)
-                        .orElseGet(() -> KevaSQLStringUtil.singleSelectResponse(null));
+                return minOptional.map(KevaSQLResponseUtil::singleSelectResponse)
+                        .orElseGet(() -> KevaSQLResponseUtil.singleSelectResponse(null));
             } else if (columns.get(0).startsWith("MAX(")) {
                 Optional<Double> maxOptional = kqlExpressionVisitor.getTemp().stream().filter(row -> row.get(index) != null)
                         .map(row -> row.get(index).toString())
                         .map(Double::parseDouble)
                         .max(Double::compare);
-                return maxOptional.map(KevaSQLStringUtil::singleSelectResponse)
-                        .orElseGet(() -> KevaSQLStringUtil.singleSelectResponse(null));
+                return maxOptional.map(KevaSQLResponseUtil::singleSelectResponse)
+                        .orElseGet(() -> KevaSQLResponseUtil.singleSelectResponse(null));
             }
             Double sum = 0.0D;
             int count = 0;
@@ -275,10 +284,70 @@ public class KqlManager {
                 }
             }
             if (columns.get(0).startsWith("AVG(")) {
-                return KevaSQLStringUtil.singleSelectResponse(sum/count);
+                return KevaSQLResponseUtil.singleSelectResponse(sum/count);
             }
-            return KevaSQLStringUtil.singleSelectResponse(sum);
+            return KevaSQLResponseUtil.singleSelectResponse(sum);
         }
         return kqlExpressionVisitor.getTemp();
+    }
+
+    private List<List<Object>> selectPostProcess(PlainSelect plainSelect, List<List<Object>> result,
+                                             List<String> columns, List<KevaColumnDefinition> columnDefinitions) {
+        List<List<Object>> postProcessedResult = result;
+        if (plainSelect.getOrderByElements() != null) {
+            Stream<List<Object>> sortedResultStream;
+            for (OrderByElement orderByElement : plainSelect.getOrderByElements()) {
+                String column = orderByElement.getExpression().toString();
+                int index = KevaColumnFinder.findColumn(column, columnDefinitions);
+                if (index == -1) {
+                    throw new KevaSQLException("column " + column + " does not exist");
+                }
+                String type = columnDefinitions.get(index).type;
+                sortedResultStream = postProcessedResult.stream()
+                        .sorted((p1, p2) -> {
+                            if (p1.get(index) == null && p2.get(index) == null) {
+                                return 0;
+                            } else if (p1.get(index) == null) {
+                                return -1;
+                            } else if (p2.get(index) == null) {
+                                return 1;
+                            } else if (type.equals("TEXT") || type.equals("VARCHAR") || type.equals("CHAR")) {
+                                return p1.get(index).toString().compareTo(p2.get(index).toString());
+                            } else if (type.equals("INTEGER") || type.equals("INT")) {
+                                return ((Integer) p1.get(index)).compareTo((Integer) p2.get(index));
+                            } else if (type.equals("DOUBLE") || type.equals("FLOAT")) {
+                                return ((Double) p1.get(index)).compareTo((Double) p2.get(index));
+                            } else if (type.equals("BOOLEAN")) {
+                                return ((Boolean) p1.get(index)).compareTo((Boolean) p2.get(index));
+                            } else {
+                                return 0;
+                            }
+                        });
+                if (orderByElement.isAsc()) {
+                    postProcessedResult = sortedResultStream.collect(Collectors.toList());
+                } else {
+                    postProcessedResult = sortedResultStream.collect(Collectors.toList());
+                    Collections.reverse(postProcessedResult);
+                }
+            }
+        }
+        if (plainSelect.getOffset() != null) {
+            long offset = plainSelect.getOffset().getOffset();
+            postProcessedResult = postProcessedResult.stream().skip(offset).collect(Collectors.toList());
+
+        }
+        if (plainSelect.getLimit() != null) {
+            Stream<List<Object>> limitedResultStream = postProcessedResult.stream();
+            if (plainSelect.getLimit().getOffset() != null) {
+                long offset = Long.parseLong(plainSelect.getLimit().getOffset().toString());
+                limitedResultStream = limitedResultStream.skip(offset);
+            }
+            if (plainSelect.getLimit().getRowCount() != null) {
+                long rowCount = Long.parseLong(plainSelect.getLimit().getRowCount().toString());
+                limitedResultStream = limitedResultStream.limit(rowCount);
+            }
+            postProcessedResult = limitedResultStream.collect(Collectors.toList());
+        }
+        return postProcessedResult;
     }
 }
