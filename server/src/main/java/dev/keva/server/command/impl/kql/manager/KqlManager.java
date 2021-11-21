@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.util.*;
@@ -83,8 +84,11 @@ public class KqlManager {
     }
 
     private Object addResult(String type, String value) {
+        if (value.startsWith("'") && value.endsWith("'")) {
+            value = KevaSQLStrUtil.escape(value);
+        }
         if (type.equals("CHAR") || type.equals("VARCHAR") || type.equals("TEXT")) {
-            return KevaSQLStrUtil.escape(value);
+            return value;
         } else if (type.equals("INT") || type.equals("INTEGER")) {
             return Integer.parseInt(value);
         } else if (type.equals("BIGINT")) {
@@ -101,7 +105,49 @@ public class KqlManager {
     }
 
     public int update(Statement stmt) {
-        return 1;
+        Update updateStatement = (Update) stmt;
+        Expression where = updateStatement.getWhere();
+        if (where == null) {
+            return 0;
+        }
+        String tableName = updateStatement.getTable().getName();
+        List<KevaColumnDefinition> columnDefinitions = metadata.get(tableName);
+        if (columnDefinitions == null) {
+            throw new KevaSQLException("table " + tableName + " does not exist");
+        }
+        List<List<Object>> result = new ArrayList<>();
+        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(tableName + ":")) {
+                List<Object> value = entry.getValue();
+                result.addAll(Collections.singleton(value));
+            }
+        }
+        KqlExpressionVisitor kqlExpressionVisitor = new KqlExpressionVisitor(result, columnDefinitions);
+        where.accept(kqlExpressionVisitor);
+        List<List<Object>> toBeUpdated = kqlExpressionVisitor.getTemp();
+        int count = 0;
+        for (Map.Entry<String, List<Object>> entry : tableData.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(tableName + ":")) {
+                List<Object> value = entry.getValue();
+                if (toBeUpdated.contains(value)) {
+                    // Update
+                    List<Column> updateColumns = updateStatement.getColumns();
+                    for (int i = 0; i < updateColumns.size(); i++) {
+                        int index = ColumnFinder.findColumn(updateColumns.get(i).getColumnName(), columnDefinitions);
+                        if (index == -1) {
+                            throw new KevaSQLException("column " + updateColumns.get(i).getColumnName() + " does not exist");
+                        }
+                        String type = columnDefinitions.get(index).type;
+                        String updatedValue = updateStatement.getExpressions().get(i).toString();
+                        value.set(index, addResult(type, updatedValue));
+                    }
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     public int delete(Statement stmt) {
