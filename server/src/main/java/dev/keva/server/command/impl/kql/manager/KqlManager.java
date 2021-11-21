@@ -13,6 +13,7 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -81,7 +82,24 @@ public class KqlManager {
         sqlPut(tableName, kevaTable);
     }
 
-    @SuppressWarnings("unchecked")
+    public void drop(Statement stmt) {
+        Drop dropStatement = (Drop) stmt;
+        String tableName = dropStatement.getName().getName();
+        KevaTable kevaTable = (KevaTable) sqlGet(tableName);
+        if (kevaTable == null) {
+            throw new KevaSQLException("table " + tableName + " does not exist");
+        }
+
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
+            String key = tableName + ":" + i;
+            if (sqlContainsKey(key)) {
+                sqlRemove(key);
+            }
+        }
+
+        sqlRemove(tableName);
+    }
+
     public void insert(Statement stmt) {
         Insert insertStatement = (Insert) stmt;
         Table table = insertStatement.getTable();
@@ -130,7 +148,7 @@ public class KqlManager {
         Update updateStatement = (Update) stmt;
         Expression where = updateStatement.getWhere();
         if (where == null) {
-            return 0;
+            throw new KevaSQLException("where clause is required");
         }
         String tableName = updateStatement.getTable().getName();
         KevaTable kevaTable = (KevaTable) sqlGet(tableName);
@@ -179,7 +197,7 @@ public class KqlManager {
         Delete deleteStatement = (Delete) stmt;
         Expression where = deleteStatement.getWhere();
         if (where == null) {
-            return 0;
+            throw new KevaSQLException("where clause is required");
         }
         String tableName = deleteStatement.getTable().getName();
         KevaTable kevaTable = (KevaTable) sqlGet(tableName);

@@ -11,6 +11,7 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.update.Update;
@@ -39,6 +40,12 @@ public class Kql {
         }
         if (stmt instanceof CreateTable) {
             kqlManager.create(stmt);
+            Reply<?>[] replies = new Reply[2];
+            replies[0] = new StatusReply("DONE");
+            replies[1] = new IntegerReply(0);
+            return new MultiBulkReply(replies);
+        } else if (stmt instanceof Drop) {
+            kqlManager.drop(stmt);
             Reply<?>[] replies = new Reply[2];
             replies[0] = new StatusReply("DONE");
             replies[1] = new IntegerReply(0);
