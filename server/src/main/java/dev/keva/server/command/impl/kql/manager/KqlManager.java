@@ -1,6 +1,8 @@
 package dev.keva.server.command.impl.kql.manager;
 
+import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.store.KevaDatabase;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
@@ -18,24 +20,53 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.apache.commons.lang3.SerializationUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
 public class KqlManager {
-    private final ConcurrentHashMap<String, Object> sqlData = new ConcurrentHashMap<>();
+    private final KevaDatabase database;
+
+    @Autowired
+    public KqlManager(KevaDatabase database) {
+        this.database = database;
+    }
 
     public Statement parse(String sql) throws JSQLParserException {
         return CCJSqlParserUtil.parse(sql);
     }
 
+    public Object sqlGet(String key) {
+        byte[] got = database.get(key.getBytes());
+        if (got == null) {
+            return null;
+        }
+        return SerializationUtils.deserialize(got);
+    }
+
+    public void sqlPut(String key, Object object) {
+        database.put(key.getBytes(), SerializationUtils.serialize((Serializable) object));
+    }
+
+    public void sqlRemove(String key) {
+        database.remove(key.getBytes());
+    }
+
+    public boolean sqlContainsKey(String key) {
+        return sqlGet(key) != null;
+    }
+
     public void create(Statement stmt) {
         CreateTable createTable = (CreateTable) stmt;
         String tableName = createTable.getTable().getName();
-        if (sqlData.get(tableName) != null) {
+        if (sqlGet(tableName) != null) {
             throw new KevaSQLException("table " + tableName + " already exists");
         }
         List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
@@ -46,8 +77,8 @@ public class KqlManager {
                             columnDefinition.getColDataType().getDataType().toUpperCase());
             kevaColumns.add(kevaColumn);
         }
-        sqlData.put(tableName, kevaColumns);
-        sqlData.put(tableName + ":increment", 0L);
+        KevaTable kevaTable = new KevaTable(kevaColumns);
+        sqlPut(tableName, kevaTable);
     }
 
     @SuppressWarnings("unchecked")
@@ -55,10 +86,11 @@ public class KqlManager {
         Insert insertStatement = (Insert) stmt;
         Table table = insertStatement.getTable();
         String tableName = table.getName();
-        List<KevaColumnDefinition> columnDefinitions = (List<KevaColumnDefinition>) sqlData.get(tableName);
-        if (columnDefinitions == null) {
+        KevaTable kevaTable = (KevaTable) sqlGet(tableName);
+        if (kevaTable == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
+        List<KevaColumnDefinition> columnDefinitions = kevaTable.getColumns();
         List<Expression> insertValuesExpression = ((ExpressionList) insertStatement.getItemsList()).getExpressions();
         List<String> values = new ArrayList<>();
         for (Expression expression : insertValuesExpression) {
@@ -87,10 +119,10 @@ public class KqlManager {
                 result.set(i, KevaSQLConvertUtil.convertToRowData(type, value));
             }
         }
-        String id = sqlData.get(tableName + ":increment").toString();
-        sqlData.computeIfAbsent(tableName, k -> new ArrayList<>());
-        sqlData.put(tableName + ":" + id, result);
-        sqlData.put(tableName + ":increment", (Long) sqlData.get(tableName + ":increment") + 1);
+        String id = Long.toString(kevaTable.getIncrement());
+        sqlPut(tableName + ":" + id, result);
+        kevaTable.increment();
+        sqlPut(tableName, kevaTable);
     }
 
     @SuppressWarnings("unchecked")
@@ -101,15 +133,16 @@ public class KqlManager {
             return 0;
         }
         String tableName = updateStatement.getTable().getName();
-        List<KevaColumnDefinition> columnDefinitions = (List<KevaColumnDefinition>) sqlData.get(tableName);
-        if (columnDefinitions == null) {
+        KevaTable kevaTable = (KevaTable) sqlGet(tableName);
+        if (kevaTable == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
+        List<KevaColumnDefinition> columnDefinitions = kevaTable.getColumns();
         List<List<Object>> result = new ArrayList<>();
-        for (int i = 0; i < (Long) sqlData.get(tableName + ":increment"); i++) {
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
             String key = tableName + ":" + i;
-            if (sqlData.containsKey(key)) {
-                List<Object> value = (List<Object>) sqlData.get(key);
+            if (sqlContainsKey(key)) {
+                List<Object> value = (List<Object>) sqlGet(key);
                 result.addAll(Collections.singleton(value));
             }
         }
@@ -117,11 +150,11 @@ public class KqlManager {
         where.accept(kqlExpressionVisitor);
         List<List<Object>> toBeUpdated = kqlExpressionVisitor.getTemp();
         int count = 0;
-        for (int i = 0; i < (Long) sqlData.get(tableName + ":increment"); i++) {
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
             String key = tableName + ":" + i;
-            if (sqlData.containsKey(key)) {
-                List<Object> value = (List<Object>) sqlData.get(key);
-                if (toBeUpdated.contains(value)) {
+            if (sqlContainsKey(key)) {
+                List<Object> value = (List<Object>) sqlGet(key);
+                if (value != null && toBeUpdated.contains(value)) {
                     // Update
                     List<Column> updateColumns = updateStatement.getColumns();
                     for (int j = 0; j < updateColumns.size(); j++) {
@@ -133,6 +166,7 @@ public class KqlManager {
                         String updatedValue = updateStatement.getExpressions().get(j).toString();
                         value.set(index, KevaSQLConvertUtil.convertToRowData(type, updatedValue));
                     }
+                    sqlPut(key, value);
                     count++;
                 }
             }
@@ -148,15 +182,16 @@ public class KqlManager {
             return 0;
         }
         String tableName = deleteStatement.getTable().getName();
-        List<KevaColumnDefinition> columnDefinitions = (List<KevaColumnDefinition>) sqlData.get(tableName);
-        if (columnDefinitions == null) {
+        KevaTable kevaTable = (KevaTable) sqlGet(tableName);
+        if (kevaTable == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
+        List<KevaColumnDefinition> columnDefinitions = kevaTable.getColumns();
         List<List<Object>> result = new ArrayList<>();
-        for (int i = 0; i < (Long) sqlData.get(tableName + ":increment"); i++) {
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
             String key = tableName + ":" + i;
-            if (sqlData.containsKey(key)) {
-                List<Object> value = (List<Object>) sqlData.get(key);
+            if (sqlContainsKey(key)) {
+                List<Object> value = (List<Object>) sqlGet(key);
                 result.addAll(Collections.singleton(value));
             }
         }
@@ -164,12 +199,12 @@ public class KqlManager {
         where.accept(kqlExpressionVisitor);
         List<List<Object>> toBeDeleted = kqlExpressionVisitor.getTemp();
         int count = 0;
-        for (int i = 0; i < (Long) sqlData.get(tableName + ":increment"); i++) {
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
             String key = tableName + ":" + i;
-            if (sqlData.containsKey(key)) {
-                List<Object> value = (List<Object>) sqlData.get(key);
+            if (sqlContainsKey(key)) {
+                List<Object> value = (List<Object>) sqlGet(key);
                 if (toBeDeleted.contains(value)) {
-                    sqlData.remove(key);
+                    sqlRemove(key);
                     count++;
                 }
             }
@@ -183,20 +218,21 @@ public class KqlManager {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
         List<String> tableList = tablesNamesFinder.getTableList(selectStatement);
         String tableName = tableList.get(0);
-        List<KevaColumnDefinition> columnDefinitions = (List<KevaColumnDefinition>) sqlData.get(tableName);
-        if (columnDefinitions == null) {
+        KevaTable kevaTable = (KevaTable) sqlGet(tableName);
+        if (kevaTable == null) {
             throw new KevaSQLException("table " + tableName + " does not exist");
         }
+        List<KevaColumnDefinition> columnDefinitions = kevaTable.getColumns();
         List<String> columns = new ArrayList<>();
         PlainSelect plainSelect = (PlainSelect) selectStatement.getSelectBody();
         for (SelectItem selectItem : plainSelect.getSelectItems()) {
             columns.add(selectItem.toString());
         }
         List<List<Object>> result = new ArrayList<>();
-        for (int i = 0; i < (Long) sqlData.get(tableName + ":increment"); i++) {
+        for (int i = 0; i < kevaTable.getIncrement(); i++) {
             String key = tableName + ":" + i;
-            if (sqlData.containsKey(key)) {
-                List<Object> value = (List<Object>) sqlData.get(key);
+            if (sqlContainsKey(key)) {
+                List<Object> value = (List<Object>) sqlGet(key);
                 List<Object> row = null;
                 for (String column : columns) {
                     if (column.equals("*") || column.equals("COUNT(*)") ||
