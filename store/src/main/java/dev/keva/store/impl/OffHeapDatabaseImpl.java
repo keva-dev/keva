@@ -7,6 +7,7 @@ import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;
@@ -654,6 +655,60 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                 chronicleMap.remove(key);
             } else {
                 chronicleMap.put(key, SerializationUtils.serialize(set));
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int strlen(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if(value == null) {
+                return 0;
+            }
+            return new String(value, StandardCharsets.UTF_8).length();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int setrange(byte[] key, byte[] offset, byte[] val) {
+        lock.lock();
+        try {
+            var offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
+            byte[] oldVal = chronicleMap.get(key);
+            int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
+            byte[] newVal = new byte[newValLength];
+            for (int i = 0; i < newValLength; i++) {
+                if (i >= offsetPosition && i < offsetPosition + val.length) {
+                    newVal[i] = val[i - offsetPosition];
+                } else if (oldVal != null && i < oldVal.length) {
+                    newVal[i] = oldVal[i];
+                } else {
+                    newVal[i] = 0b0;
+                }
+            }
+            chronicleMap.put(key, newVal);
+            return newValLength;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public byte[][] mget(byte[]... keys) {
+        lock.lock();
+        try {
+            byte[][] result = new byte[keys.length][];
+            for (int i = 0; i < keys.length; i++) {
+                byte[] key = keys[i];
+                val got = chronicleMap.get(key);
+                result[i] = got;
             }
             return result;
         } finally {

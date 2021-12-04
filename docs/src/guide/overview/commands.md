@@ -32,6 +32,10 @@ Implemented commands:
 - INCRBY
 - INCR
 - SET
+- GETSET
+- MGET
+- STRLEN
+- SETRANGE
 
 </details>
 

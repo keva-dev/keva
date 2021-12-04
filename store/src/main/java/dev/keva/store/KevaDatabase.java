@@ -62,4 +62,11 @@ public interface KevaDatabase {
     int smove(byte[] source, byte[] destination, byte[] value);
 
     int srem(byte[] key, byte[]... values);
+
+    int strlen(byte[] key);
+
+    int setrange(byte[] key, byte[] offset, byte[] val);
+
+    byte[][] mget(byte[]... keys);
+
 }
