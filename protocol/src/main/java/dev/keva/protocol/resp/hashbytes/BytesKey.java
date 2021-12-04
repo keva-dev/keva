@@ -2,9 +2,10 @@ package dev.keva.protocol.resp.hashbytes;
 
 import com.google.common.primitives.SignedBytes;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class BytesKey extends BytesValue implements Comparable<BytesKey> {
+public class BytesKey extends BytesValue implements Comparable<BytesKey>, Serializable {
     private static final Comparator<byte[]> COMPARATOR = SignedBytes.lexicographicalComparator();
 
     private final int hashCode;

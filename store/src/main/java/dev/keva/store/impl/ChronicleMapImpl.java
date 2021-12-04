@@ -1,5 +1,7 @@
 package dev.keva.store.impl;
 
+import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.protocol.resp.hashbytes.BytesValue;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
@@ -7,10 +9,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 @Slf4j
@@ -87,6 +92,126 @@ public class ChronicleMapImpl implements KevaDatabase {
         } finally {
             lock.unlock();
         }
+    }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] hget(byte[] key, byte[] field) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            BytesValue got = map.get(new BytesKey(field));
+            return got == null ? null : got.getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] hgetAll(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            byte[][] result = new byte[map.size() * 2][];
+            int i = 0;
+            for (Map.Entry<BytesKey, BytesValue> entry : map.entrySet()) {
+                result[i++] = entry.getKey().getBytes();
+                result[i++] = entry.getValue().getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] hkeys(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            byte[][] result = new byte[map.size()][];
+            int i = 0;
+            for (Map.Entry<BytesKey, BytesValue> entry : map.entrySet()) {
+                result[i++] = entry.getKey().getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] hvals(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            byte[][] result = new byte[map.size()][];
+            int i = 0;
+            for (Map.Entry<BytesKey, BytesValue> entry : map.entrySet()) {
+                result[i++] = entry.getValue().getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void hset(byte[] key, byte[] field, byte[] value) {
+        lock.lock();
+        try {
+            chronicleMap.compute(key, (k, oldVal) -> {
+                HashMap<BytesKey, BytesValue> map;
+                if (oldVal == null) {
+                    map = new HashMap<>();
+                } else {
+                    map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(oldVal);
+                }
+                map.put(new BytesKey(field), new BytesValue(value));
+                return SerializationUtils.serialize(map);
+            });
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean hdel(byte[] key, byte[] field) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return false;
+            }
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            boolean result = map.remove(new BytesKey(field)) != null;
+            if (result) {
+                chronicleMap.put(key, SerializationUtils.serialize(map));
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
     }
 }
