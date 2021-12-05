@@ -1,6 +1,8 @@
 package dev.keva.protocol.resp.hashbytes;
 
-public class BytesValue {
+import java.io.Serializable;
+
+public class BytesValue implements Serializable {
     protected final byte[] bytes;
 
     public BytesValue(byte[] bytes) {

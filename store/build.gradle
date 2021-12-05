@@ -10,6 +10,7 @@ java {
 dependencies {
     implementation project(':protocol')
     implementation 'net.openhft:chronicle-map:3.21.86'
+    implementation 'org.apache.commons:commons-lang3:3.0'
 }
 
 javadoc {

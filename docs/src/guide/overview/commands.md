@@ -36,6 +36,21 @@ Implemented commands:
 </details>
 
 <details>
+    <summary>Hash</summary>
+
+- HGET
+- HGETALL
+- HKEYS
+- HVALS
+- HSET
+- HDEL
+- HEXISTS
+- HLEN
+- HSTRLEN
+
+</details>
+
+<details>
     <summary>Pub/Sub</summary>
 
 - SUBSCRIBE
