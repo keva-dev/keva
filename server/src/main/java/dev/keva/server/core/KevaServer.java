@@ -7,6 +7,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
 import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
+import dev.keva.store.KevaDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -34,6 +35,7 @@ public class KevaServer implements Server {
 
     private Channel channel;
 
+    private final KevaDatabase database;
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
@@ -41,7 +43,8 @@ public class KevaServer implements Server {
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
     @Autowired
-    public KevaServer(KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
+    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
+        this.database = database;
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
         this.commandMapper = commandMapper;
@@ -110,5 +113,10 @@ public class KevaServer implements Server {
         } finally {
             stopwatch.stop();
         }
+    }
+
+    @Override
+    public void clear() {
+        database.clear();
     }
 }

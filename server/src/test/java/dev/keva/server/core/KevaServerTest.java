@@ -5,6 +5,7 @@ import dev.keva.server.utils.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import redis.clients.jedis.Jedis;
 
 import lombok.val;
@@ -45,5 +46,10 @@ public class KevaServerTest extends AbstractServerTest {
     static void stop() {
         jedis.disconnect();
         server.shutdown();
+    }
+
+    @BeforeEach
+    void reset() {
+        server.clear();
     }
 }

@@ -51,6 +51,21 @@ Implemented commands:
 </details>
 
 <details>
+    <summary>List</summary>
+
+- LPUSH
+- RPUSH
+- LPOP
+- RPOP
+- LLEN
+- LRANGE
+- LINDEX
+- LSET
+- LREM
+
+</details>
+
+<details>
     <summary>Pub/Sub</summary>
 
 - SUBSCRIBE
