@@ -2,6 +2,8 @@ package dev.keva.server.command.impl.key;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.ErrorReply;
+import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
@@ -23,10 +25,10 @@ public class Rename {
     }
 
     @Execute
-    public StatusReply execute(byte[] key, byte[] newName) {
+    public Reply<?> execute(byte[] key, byte[] newName) {
         byte[] keyValue = database.get(key);
         if (keyValue == null) {
-            return new StatusReply("ERR unknown key");
+            return new ErrorReply("ERR unknown key");
         }
         database.put(newName, keyValue);
         database.remove(key);

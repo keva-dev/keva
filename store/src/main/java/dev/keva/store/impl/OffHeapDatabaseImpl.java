@@ -667,7 +667,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             byte[] value = chronicleMap.get(key);
-            if(value == null) {
+            if (value == null) {
                 return 0;
             }
             return new String(value, StandardCharsets.UTF_8).length();

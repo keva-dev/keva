@@ -7,6 +7,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface ParamLength {
     int value() default -1;
+
     Type type() default Type.EXACT;
 
     enum Type {

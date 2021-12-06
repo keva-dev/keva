@@ -26,6 +26,6 @@ public class Discard {
         if (txContext != null) {
             txContext.discard();
         }
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }

@@ -9,15 +9,6 @@ public class BytesValue implements Serializable {
         this.bytes = bytes;
     }
 
-    @Override
-    public int hashCode() {
-        int hashCode = 0;
-        for (byte aByte : this.bytes) {
-            hashCode += 43 * aByte;
-        }
-        return hashCode;
-    }
-
     public static boolean equals(byte[] thisBytes, byte[] otherBytes) {
         int length = thisBytes.length;
         if (length != otherBytes.length) {
@@ -33,6 +24,15 @@ public class BytesValue implements Serializable {
             return thisBytes[half] == otherBytes[half];
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 0;
+        for (byte aByte : this.bytes) {
+            hashCode += 43 * aByte;
+        }
+        return hashCode;
     }
 
     public boolean equals(Object o) {

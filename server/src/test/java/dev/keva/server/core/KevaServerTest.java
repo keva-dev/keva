@@ -3,12 +3,11 @@ package dev.keva.server.core;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.server.utils.PortUtil;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import redis.clients.jedis.Jedis;
-
-import lombok.val;
 
 import java.util.concurrent.TimeUnit;
 

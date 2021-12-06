@@ -26,7 +26,7 @@ public class LRange {
     public Reply<?> execute(byte[] key, byte[] start, byte[] stop) {
         val got = database.lrange(key, Integer.parseInt(new String(start)), Integer.parseInt(new String(stop)));
         if (got == null) {
-            return new MultiBulkReply(new BulkReply[0]);
+            return MultiBulkReply.EMPTY;
         }
         BulkReply[] replies = new BulkReply[got.length];
         for (int i = 0; i < got.length; i++) {

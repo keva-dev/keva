@@ -2,7 +2,6 @@ package dev.keva.store.impl;
 
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.hashbytes.BytesValue;
-import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
@@ -664,7 +663,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             byte[][] result = new byte[keys.length][];
-            for (int i=0; i<keys.length; i++) {
+            for (int i = 0; i < keys.length; i++) {
                 byte[] key = keys[i];
                 val got = map.get(new BytesKey(key)).getBytes();
                 result[i] = got;

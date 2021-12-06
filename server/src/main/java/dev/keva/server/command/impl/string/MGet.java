@@ -4,13 +4,11 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
-import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.impl.key.manager.ExpirationManager;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 

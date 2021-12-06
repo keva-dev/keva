@@ -30,7 +30,7 @@ public class Command {
     }
 
     public byte[] getName() {
-        byte[] name =  getBytes(objects[0]);
+        byte[] name = getBytes(objects[0]);
         // LowerCase bytes
         for (int i = 0; i < name.length; i++) {
             byte b = name[i];
@@ -73,7 +73,7 @@ public class Command {
                 int left = isFirstVararg ? (objects.length - position - 1) : (objects.length - 1);
                 byte[][] lastArgument = new byte[left][];
                 for (int i = 0; i < left; i++) {
-                    lastArgument[i] =  isFirstVararg ? (byte[]) (objects[i + position + 1]) : (byte[]) (objects[i + position]);
+                    lastArgument[i] = isFirstVararg ? (byte[]) (objects[i + position + 1]) : (byte[]) (objects[i + position]);
                 }
                 arguments[position] = lastArgument;
             }

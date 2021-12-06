@@ -26,6 +26,6 @@ public class Set {
     public StatusReply execute(byte[] key, byte[] val) {
         database.put(key, val);
         expirationManager.clearExpiration(key);
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }

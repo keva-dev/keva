@@ -22,6 +22,6 @@ public class LSet {
     @Execute
     public StatusReply execute(byte[] key, byte[] index, byte[] value) {
         database.lset(key, Integer.parseInt(new String(index)), value);
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }
