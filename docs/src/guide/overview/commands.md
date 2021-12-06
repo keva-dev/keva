@@ -66,6 +66,21 @@ Implemented commands:
 </details>
 
 <details>
+    <summary>Set</summary>
+
+- SADD
+- SMEMBERS
+- SISMEMBER
+- SCARD
+- SDIFF
+- SINTER
+- SUNION
+- SMOVE
+- SREM
+
+</details>
+
+<details>
     <summary>Pub/Sub</summary>
 
 - SUBSCRIBE
