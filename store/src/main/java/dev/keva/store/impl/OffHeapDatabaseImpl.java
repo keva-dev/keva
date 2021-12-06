@@ -2,31 +2,55 @@ package dev.keva.store.impl;
 
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.hashbytes.BytesValue;
+import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import net.openhft.chronicle.map.ChronicleMap;
+import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
-public class HashMapImpl implements KevaDatabase {
+@Slf4j
+public class OffHeapDatabaseImpl implements KevaDatabase {
     @Getter
     private final Lock lock = new SpinLock();
 
-    private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
+    private ChronicleMap<byte[], byte[]> chronicleMap;
 
-    @Override
-    public void clear() {
-        map.clear();
+    public OffHeapDatabaseImpl(DatabaseConfig config) {
+        try {
+            ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
+                    .name("keva-chronicle-map")
+                    .averageKey("SampleSampleSampleKey".getBytes())
+                    .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
+                    .entries(100);
+
+            boolean shouldPersist = config.getIsPersistence();
+            if (shouldPersist) {
+                String snapshotDir = config.getWorkingDirectory();
+                String location = snapshotDir.equals("./") ? "" : snapshotDir + "/";
+                File file = new File(location + "dump.kdb");
+                this.chronicleMap = mapBuilder.createPersistedTo(file);
+            } else {
+                this.chronicleMap = mapBuilder.create();
+            }
+        } catch (IOException e) {
+            log.error("Failed to create ChronicleMap: ", e);
+        }
     }
 
     @Override
-    public void put(byte[] key, byte[] val) {
+    public void clear() {
         lock.lock();
         try {
-            map.put(new BytesKey(key), new BytesValue(val));
+            chronicleMap.clear();
         } finally {
             lock.unlock();
         }
@@ -36,8 +60,17 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] get(byte[] key) {
         lock.lock();
         try {
-            BytesValue got = map.get(new BytesKey(key));
-            return got != null ? got.getBytes() : null;
+            return chronicleMap.get(key);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void put(byte[] key, byte[] val) {
+        lock.lock();
+        try {
+            chronicleMap.put(key, val);
         } finally {
             lock.unlock();
         }
@@ -47,8 +80,7 @@ public class HashMapImpl implements KevaDatabase {
     public boolean remove(byte[] key) {
         lock.lock();
         try {
-            BytesValue removed = map.remove(new BytesKey(key));
-            return removed != null;
+            return chronicleMap.remove(key) != null;
         } finally {
             lock.unlock();
         }
@@ -58,14 +90,14 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] incrBy(byte[] key, long amount) {
         lock.lock();
         try {
-            return map.compute(new BytesKey(key), (k, oldVal) -> {
+            return chronicleMap.compute(key, (k, oldVal) -> {
                 long curVal = 0L;
                 if (oldVal != null) {
-                    curVal = Long.parseLong(oldVal.toString());
+                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
                 }
                 curVal = curVal + amount;
-                return new BytesValue(Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
-            }).getBytes();
+                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
         } finally {
             lock.unlock();
         }
@@ -76,13 +108,13 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] hget(byte[] key, byte[] field) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
             HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
             BytesValue got = map.get(new BytesKey(field));
-            return got != null ? got.getBytes() : null;
+            return got == null ? null : got.getBytes();
         } finally {
             lock.unlock();
         }
@@ -93,11 +125,11 @@ public class HashMapImpl implements KevaDatabase {
     public byte[][] hgetAll(byte[] key) {
         lock.lock();
         try {
-            BytesValue value = map.get(new BytesKey(key));
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
-            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value.getBytes());
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
             byte[][] result = new byte[map.size() * 2][];
             int i = 0;
             for (Map.Entry<BytesKey, BytesValue> entry : map.entrySet()) {
@@ -115,7 +147,7 @@ public class HashMapImpl implements KevaDatabase {
     public byte[][] hkeys(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
@@ -136,7 +168,7 @@ public class HashMapImpl implements KevaDatabase {
     public byte[][] hvals(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
@@ -157,15 +189,15 @@ public class HashMapImpl implements KevaDatabase {
     public void hset(byte[] key, byte[] field, byte[] value) {
         lock.lock();
         try {
-            map.compute(new BytesKey(key), (k, oldVal) -> {
+            chronicleMap.compute(key, (k, oldVal) -> {
                 HashMap<BytesKey, BytesValue> map;
                 if (oldVal == null) {
                     map = new HashMap<>();
                 } else {
-                    map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(oldVal.getBytes());
+                    map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(oldVal);
                 }
                 map.put(new BytesKey(field), new BytesValue(value));
-                return new BytesValue(SerializationUtils.serialize(map));
+                return SerializationUtils.serialize(map);
             });
         } finally {
             lock.unlock();
@@ -177,16 +209,16 @@ public class HashMapImpl implements KevaDatabase {
     public boolean hdel(byte[] key, byte[] field) {
         lock.lock();
         try {
-            BytesValue value = map.get(new BytesKey(key));
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return false;
             }
-            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value.getBytes());
-            boolean removed = map.remove(new BytesKey(field)) != null;
-            if (removed) {
-                map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(map)));
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
+            boolean result = map.remove(new BytesKey(field)) != null;
+            if (result) {
+                chronicleMap.put(key, SerializationUtils.serialize(map));
             }
-            return removed;
+            return result;
         } finally {
             lock.unlock();
         }
@@ -197,13 +229,13 @@ public class HashMapImpl implements KevaDatabase {
     public int lpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(key).getBytes();
+            byte[] value = chronicleMap.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
                 list.addFirst(new BytesValue(v));
             }
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            chronicleMap.put(key, SerializationUtils.serialize(list));
             return list.size();
         } finally {
             lock.unlock();
@@ -215,13 +247,13 @@ public class HashMapImpl implements KevaDatabase {
     public int rpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(key).getBytes();
+            byte[] value = chronicleMap.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
                 list.addLast(new BytesValue(v));
             }
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            chronicleMap.put(key, SerializationUtils.serialize(list));
             return list.size();
         } finally {
             lock.unlock();
@@ -233,15 +265,17 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] lpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
-            LinkedList<BytesValue> list;
-            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (list.isEmpty()) {
                 return null;
             }
-            BytesValue v = list.removeFirst();
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
-            return v.getBytes();
+            byte[] result = list.removeFirst().getBytes();
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return result;
         } finally {
             lock.unlock();
         }
@@ -252,15 +286,17 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] rpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
-            LinkedList<BytesValue> list;
-            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (list.isEmpty()) {
                 return null;
             }
-            BytesValue v = list.removeLast();
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
-            return v.getBytes();
+            byte[] result = list.removeLast().getBytes();
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return result;
         } finally {
             lock.unlock();
         }
@@ -271,9 +307,11 @@ public class HashMapImpl implements KevaDatabase {
     public int llen(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
-            LinkedList<BytesValue> list;
-            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return 0;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             return list.size();
         } finally {
             lock.unlock();
@@ -285,7 +323,7 @@ public class HashMapImpl implements KevaDatabase {
     public byte[][] lrange(byte[] key, int start, int end) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
@@ -326,9 +364,11 @@ public class HashMapImpl implements KevaDatabase {
     public byte[] lindex(byte[] key, int index) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
-            LinkedList<BytesValue> list;
-            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (index < 0) {
                 index = list.size() + index;
             }
@@ -346,9 +386,11 @@ public class HashMapImpl implements KevaDatabase {
     public void lset(byte[] key, int index, byte[] value) {
         lock.lock();
         try {
-            byte[] v = map.get(new BytesKey(key)).getBytes();
-            LinkedList<BytesValue> list;
-            list = v == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(v);
+            byte[] value1 = chronicleMap.get(key);
+            if (value1 == null) {
+                return;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value1);
             if (index < 0) {
                 index = list.size() + index;
             }
@@ -356,7 +398,7 @@ public class HashMapImpl implements KevaDatabase {
                 return;
             }
             list.set(index, new BytesValue(value));
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            chronicleMap.put(key, SerializationUtils.serialize(list));
         } finally {
             lock.unlock();
         }
@@ -367,7 +409,7 @@ public class HashMapImpl implements KevaDatabase {
     public int lrem(byte[] key, int count, byte[] value) {
         lock.lock();
         try {
-            byte[] value1 = map.get(new BytesKey(key)).getBytes();
+            byte[] value1 = chronicleMap.get(key);
             if (value1 == null) {
                 return 0;
             }
@@ -405,7 +447,7 @@ public class HashMapImpl implements KevaDatabase {
                     }
                 }
             }
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            chronicleMap.put(key, SerializationUtils.serialize(list));
             return result;
         } finally {
             lock.unlock();
@@ -417,7 +459,7 @@ public class HashMapImpl implements KevaDatabase {
     public int sadd(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             HashSet<BytesKey> set;
             set = value == null ? new HashSet<>() : (HashSet<BytesKey>) SerializationUtils.deserialize(value);
             int count = 0;
@@ -427,7 +469,7 @@ public class HashMapImpl implements KevaDatabase {
                     count++;
                 }
             }
-            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(set)));
+            chronicleMap.put(key, SerializationUtils.serialize(set));
             return count;
         } finally {
             lock.unlock();
@@ -439,7 +481,7 @@ public class HashMapImpl implements KevaDatabase {
     public byte[][] smembers(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return null;
             }
@@ -460,7 +502,7 @@ public class HashMapImpl implements KevaDatabase {
     public boolean sismember(byte[] key, byte[] value) {
         lock.lock();
         try {
-            byte[] got = map.get(new BytesKey(key)).getBytes();
+            byte[] got = chronicleMap.get(key);
             if (got == null) {
                 return false;
             }
@@ -476,7 +518,7 @@ public class HashMapImpl implements KevaDatabase {
     public int scard(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return 0;
             }
@@ -494,7 +536,7 @@ public class HashMapImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = chronicleMap.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -520,7 +562,7 @@ public class HashMapImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = chronicleMap.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -546,7 +588,7 @@ public class HashMapImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = chronicleMap.get(key);
                 if (value != null) {
                     HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
                     set.addAll(set1);
@@ -568,23 +610,23 @@ public class HashMapImpl implements KevaDatabase {
     public int smove(byte[] source, byte[] destination, byte[] value) {
         lock.lock();
         try {
-            byte[] sourceValue = map.get(new BytesKey(source)).getBytes();
+            byte[] sourceValue = chronicleMap.get(source);
             if (sourceValue == null) {
                 return 0;
             }
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(sourceValue);
             if (set.remove(new BytesKey(value))) {
-                byte[] destinationValue = map.get(new BytesKey(destination)).getBytes();
+                byte[] destinationValue = chronicleMap.get(destination);
                 HashSet<BytesKey> set1;
                 if (destinationValue == null) {
                     set1 = new HashSet<>();
                 } else {
                     set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(destinationValue);
                 }
-                set1.add(new BytesKey(value));
-                map.put(new BytesKey(destination), new BytesKey(SerializationUtils.serialize(set1)));
-                map.put(new BytesKey(source), new BytesKey(SerializationUtils.serialize(set)));
-                return 1;
+                boolean result = set1.add(new BytesKey(value));
+                chronicleMap.put(source, SerializationUtils.serialize(set));
+                chronicleMap.put(destination, SerializationUtils.serialize(set1));
+                return result ? 1 : 0;
             }
             return 0;
         } finally {
@@ -597,23 +639,23 @@ public class HashMapImpl implements KevaDatabase {
     public int srem(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = chronicleMap.get(key);
             if (value == null) {
                 return 0;
             }
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
-            int count = 0;
+            int result = 0;
             for (byte[] v : values) {
                 if (set.remove(new BytesKey(v))) {
-                    count++;
+                    result++;
                 }
             }
             if (set.isEmpty()) {
-                map.remove(new BytesKey(key));
+                chronicleMap.remove(key);
             } else {
-                map.put(new BytesKey(key), new BytesKey(SerializationUtils.serialize(set)));
+                chronicleMap.put(key, SerializationUtils.serialize(set));
             }
-            return count;
+            return result;
         } finally {
             lock.unlock();
         }

@@ -1,7 +1,6 @@
 package dev.keva.store;
 
 import java.util.concurrent.locks.Lock;
-import java.util.function.BinaryOperator;
 
 public interface KevaDatabase {
     Lock getLock();
