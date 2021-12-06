@@ -411,4 +411,211 @@ public class HashMapImpl implements KevaDatabase {
             lock.unlock();
         }
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int sadd(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            HashSet<BytesKey> set;
+            set = value == null ? new HashSet<>() : (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            int count = 0;
+            for (byte[] v : values) {
+                boolean isNewElement = set.add(new BytesKey(v));
+                if (isNewElement) {
+                    count++;
+                }
+            }
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(set)));
+            return count;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] smembers(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            if (value == null) {
+                return null;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean sismember(byte[] key, byte[] value) {
+        lock.lock();
+        try {
+            byte[] got = map.get(new BytesKey(key)).getBytes();
+            if (got == null) {
+                return false;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(got);
+            return set.contains(new BytesKey(value));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int scard(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            if (value == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            return set.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sdiff(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = map.get(new BytesKey(key)).getBytes();
+                if (set.isEmpty() && value != null) {
+                    set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
+                } else if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.removeAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sinter(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = map.get(new BytesKey(key)).getBytes();
+                if (set.isEmpty() && value != null) {
+                    set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
+                } else if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.retainAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sunion(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = map.get(new BytesKey(key)).getBytes();
+                if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.addAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int smove(byte[] source, byte[] destination, byte[] value) {
+        lock.lock();
+        try {
+            byte[] sourceValue = map.get(new BytesKey(source)).getBytes();
+            if (sourceValue == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(sourceValue);
+            if (set.remove(new BytesKey(value))) {
+                byte[] destinationValue = map.get(new BytesKey(destination)).getBytes();
+                HashSet<BytesKey> set1;
+                if (destinationValue == null) {
+                    set1 = new HashSet<>();
+                } else {
+                    set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(destinationValue);
+                }
+                set1.add(new BytesKey(value));
+                map.put(new BytesKey(destination), new BytesKey(SerializationUtils.serialize(set1)));
+                map.put(new BytesKey(source), new BytesKey(SerializationUtils.serialize(set)));
+                return 1;
+            }
+            return 0;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int srem(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            if (value == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            int count = 0;
+            for (byte[] v : values) {
+                if (set.remove(new BytesKey(v))) {
+                    count++;
+                }
+            }
+            if (set.isEmpty()) {
+                map.remove(new BytesKey(key));
+            } else {
+                map.put(new BytesKey(key), new BytesKey(SerializationUtils.serialize(set)));
+            }
+            return count;
+        } finally {
+            lock.unlock();
+        }
+    }
 }

@@ -453,4 +453,211 @@ public class ChronicleMapImpl implements KevaDatabase {
             lock.unlock();
         }
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int sadd(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            HashSet<BytesKey> set;
+            set = value == null ? new HashSet<>() : (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            int count = 0;
+            for (byte[] v : values) {
+                boolean isNewElement = set.add(new BytesKey(v));
+                if (isNewElement) {
+                    count++;
+                }
+            }
+            chronicleMap.put(key, SerializationUtils.serialize(set));
+            return count;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] smembers(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean sismember(byte[] key, byte[] value) {
+        lock.lock();
+        try {
+            byte[] got = chronicleMap.get(key);
+            if (got == null) {
+                return false;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(got);
+            return set.contains(new BytesKey(value));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int scard(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            return set.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sdiff(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = chronicleMap.get(key);
+                if (set.isEmpty() && value != null) {
+                    set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
+                } else if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.removeAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sinter(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = chronicleMap.get(key);
+                if (set.isEmpty() && value != null) {
+                    set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
+                } else if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.retainAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] sunion(byte[]... keys) {
+        lock.lock();
+        try {
+            HashSet<BytesKey> set = new HashSet<>();
+            for (byte[] key : keys) {
+                byte[] value = chronicleMap.get(key);
+                if (value != null) {
+                    HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+                    set.addAll(set1);
+                }
+            }
+            byte[][] result = new byte[set.size()][];
+            int i = 0;
+            for (BytesKey v : set) {
+                result[i++] = v.getBytes();
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int smove(byte[] source, byte[] destination, byte[] value) {
+        lock.lock();
+        try {
+            byte[] sourceValue = chronicleMap.get(source);
+            if (sourceValue == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(sourceValue);
+            if (set.remove(new BytesKey(value))) {
+                byte[] destinationValue = chronicleMap.get(destination);
+                HashSet<BytesKey> set1;
+                if (destinationValue == null) {
+                    set1 = new HashSet<>();
+                } else {
+                    set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(destinationValue);
+                }
+                boolean result = set1.add(new BytesKey(value));
+                chronicleMap.put(source, SerializationUtils.serialize(set));
+                chronicleMap.put(destination, SerializationUtils.serialize(set1));
+                return result ? 1 : 0;
+            }
+            return 0;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int srem(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return 0;
+            }
+            HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
+            int result = 0;
+            for (byte[] v : values) {
+                if (set.remove(new BytesKey(v))) {
+                    result++;
+                }
+            }
+            if (set.isEmpty()) {
+                chronicleMap.remove(key);
+            } else {
+                chronicleMap.put(key, SerializationUtils.serialize(set));
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
 }

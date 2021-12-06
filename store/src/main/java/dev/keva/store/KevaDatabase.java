@@ -45,4 +45,22 @@ public interface KevaDatabase {
     void lset(byte[] key, int index, byte[] value);
 
     int lrem(byte[] key, int count, byte[] value);
+
+    int sadd(byte[] key, byte[]... values);
+
+    byte[][] smembers(byte[] key);
+
+    boolean sismember(byte[] key, byte[] value);
+
+    int scard(byte[] key);
+
+    byte[][] sdiff(byte[]... keys);
+
+    byte[][] sinter(byte[]... keys);
+
+    byte[][] sunion(byte[]... keys);
+
+    int smove(byte[] source, byte[] destination, byte[] value);
+
+    int srem(byte[] key, byte[]... values);
 }

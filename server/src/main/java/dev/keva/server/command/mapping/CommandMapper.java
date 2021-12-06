@@ -72,6 +72,9 @@ public class CommandMapper {
                         } catch (Exception e) {
                             log.error("", e);
                             if (e instanceof InvocationTargetException) {
+                                if (e.getCause() instanceof ClassCastException) {
+                                    return new ErrorReply("ERR WRONGTYPE Operation against a key holding the wrong kind of value");
+                                }
                                 return new ErrorReply("ERR " + e.getCause().getMessage());
                             }
                             return new ErrorReply("ERR " + e.getMessage());
