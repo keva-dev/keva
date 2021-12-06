@@ -97,6 +97,7 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+
     @Test
     void updateExpire() {
         try {
@@ -658,7 +659,7 @@ public abstract class AbstractServerTest {
     @Test
     void strlen() {
         try {
-            val set1= jedis.set("mykey", "Hello World");
+            val set1 = jedis.set("mykey", "Hello World");
             assertEquals("OK", set1);
             Long strlen1 = jedis.strlen("mykey");
             Long strlen2 = jedis.strlen("nonexisting");
@@ -672,7 +673,7 @@ public abstract class AbstractServerTest {
     @Test
     void getset() {
         try {
-            val set1= jedis.set("mykey", "Hello");
+            val set1 = jedis.set("mykey", "Hello");
             assertEquals("OK", set1);
             val getset1 = jedis.getSet("mykey", "World");
             assertEquals("Hello", getset1);
@@ -686,7 +687,7 @@ public abstract class AbstractServerTest {
     @Test
     void mget() {
         try {
-            val set1= jedis.set("mykey1", "Hello");
+            val set1 = jedis.set("mykey1", "Hello");
             assertEquals("OK", set1);
             val set2 = jedis.set("mykey2", "World");
             assertEquals("OK", set2);

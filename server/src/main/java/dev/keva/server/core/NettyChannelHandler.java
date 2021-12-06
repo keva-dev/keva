@@ -6,7 +6,6 @@ import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
-import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import dev.keva.server.command.mapping.CommandMapper;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,24 +18,16 @@ import lombok.val;
 @Sharable
 @Component
 public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
-    private static final byte LOWER_DIFF = 'a' - 'A';
     private final CommandMapper commandMapper;
 
     @Autowired
-    public NettyChannelHandler(CommandMapper commandMapper, TransactionManager transactionManager) {
+    public NettyChannelHandler(CommandMapper commandMapper) {
         this.commandMapper = commandMapper;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
         val name = command.getName();
-        // LowerCase bytes
-        for (int i = 0; i < name.length; i++) {
-            byte b = name[i];
-            if (b >= 'A' && b <= 'Z') {
-                name[i] = (byte) (b + LOWER_DIFF);
-            }
-        }
         val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
         Reply<?> reply;
         if (commandWrapper == null) {

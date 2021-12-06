@@ -47,6 +47,7 @@ public class KevaConfig {
 
     /**
      * Helper method to build custom config based of the defaults
+     *
      * @return Builder with some sensible defaults already set
      */
     public static KevaConfigBuilder custom() {

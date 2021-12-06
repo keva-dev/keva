@@ -10,15 +10,6 @@ public class BytesKey extends BytesValue implements Comparable<BytesKey>, Serial
 
     private final int hashCode;
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof BytesKey) {
-            BytesKey other = (BytesKey) o;
-            return hashCode == other.hashCode && equals(bytes, other.bytes);
-        }
-        return false;
-    }
-
     public BytesKey(byte[] bytes) {
         super(bytes);
         int hashCode = 0;
@@ -26,6 +17,15 @@ public class BytesKey extends BytesValue implements Comparable<BytesKey>, Serial
             hashCode += 43 * aByte;
         }
         this.hashCode = hashCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof BytesKey) {
+            BytesKey other = (BytesKey) o;
+            return hashCode == other.hashCode && equals(bytes, other.bytes);
+        }
+        return false;
     }
 
     public int hashCode() {

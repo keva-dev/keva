@@ -40,11 +40,6 @@ public class BulkReply implements Reply<ByteBuf> {
         return bytes;
     }
 
-    public String asAsciiString() {
-        if (bytes == null) return null;
-        return bytes.toString(StandardCharsets.US_ASCII);
-    }
-
     public String asUTF8String() {
         if (bytes == null) return null;
         return bytes.toString(StandardCharsets.UTF_8);

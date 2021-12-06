@@ -29,18 +29,14 @@ public class KevaServer implements Server {
             " | |/ / | __| \\ \\ / /   /_\\  \n" +
             " | ' <  | _|   \\ V /   / _ \\ \n" +
             " |_|\\_\\ |___|   \\_/   /_/ \\_\\";
-
-    private EventLoopGroup bossGroup;
-    private EventLoopGroup workerGroup;
-
-    private Channel channel;
-
     private final KevaDatabase database;
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
-
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+    private Channel channel;
 
     @Autowired
     public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {

@@ -19,13 +19,12 @@ import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
 public class TransactionContext {
     private final KevaDatabase database;
     private final CommandMapper commandMapper;
-
-    @Getter
-    private boolean isQueuing = false;
     @Getter
     private final Map<BytesKey, BytesValue> watchMap = new HashMap<>();
     @Getter
     private final Deque<Command> commandDeque = new ArrayDeque<>();
+    @Getter
+    private boolean isQueuing = false;
 
     public TransactionContext(KevaDatabase database, CommandMapper commandMapper) {
         this.database = database;

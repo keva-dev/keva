@@ -43,6 +43,6 @@ public class Watch {
             val value = database.get(key);
             txContext.getWatchMap().put(new BytesKey(key), new BytesValue(value));
         }
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }

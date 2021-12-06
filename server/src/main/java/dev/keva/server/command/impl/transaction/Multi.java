@@ -35,6 +35,6 @@ public class Multi {
             manager.getTransactions().put(ctx.channel(), txContext);
         }
         txContext.multi();
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }

@@ -4,7 +4,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
-import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
@@ -25,7 +24,7 @@ public class SMembers {
     public MultiBulkReply execute(byte[] key) {
         byte[][] result = database.smembers(key);
         if (result == null) {
-            return new MultiBulkReply(new Reply[0]);
+            return MultiBulkReply.EMPTY;
         }
         BulkReply[] replies = new BulkReply[result.length];
         for (int i = 0; i < result.length; i++) {

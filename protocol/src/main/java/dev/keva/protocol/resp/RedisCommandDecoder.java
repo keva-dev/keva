@@ -4,11 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
-import java.io.IOException;
 import java.util.List;
 
 public class RedisCommandDecoder extends ReplayingDecoder<Void> {
-
     private byte[][] bytes;
     private int arguments = 0;
 
@@ -26,17 +24,17 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
                     bytes[i] = new byte[size];
                     in.readBytes(bytes[i]);
                     if (in.bytesBefore((byte) '\r') != 0) {
-                        throw new RuntimeException("Argument doesn't end in CRLF");
+                        throw new IllegalArgumentException("Argument doesn't end in CRLF");
                     }
                     in.skipBytes(2);
                     arguments++;
                     checkpoint();
                 } else {
-                    throw new IOException("Unexpected character");
+                    throw new IllegalArgumentException("Unexpected character");
                 }
             }
             try {
-                out.add(new Command(bytes));
+                out.add(new Command(bytes, false));
             } finally {
                 bytes = null;
                 arguments = 0;
@@ -48,12 +46,13 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             }
             int numArgs = (int) l;
             if (numArgs < 0) {
-                throw new RuntimeException("Invalid size: " + numArgs);
+                throw new IllegalArgumentException("Invalid size: " + numArgs);
             }
             bytes = new byte[numArgs][];
             checkpoint();
             decode(ctx, in, out);
         } else {
+            // Inline command (rarely used)
             in.readerIndex(in.readerIndex() - 1);
             byte[][] b = new byte[1][];
             boolean isCRLF = in.indexOf(0, in.readerIndex(), (byte) '\r') != -1;

@@ -17,10 +17,6 @@ public class RedisReplyDecoder extends ReplayingDecoder<Void> {
     private final boolean checkpointEnabled;
     private MultiBulkReply reply;
 
-    public RedisReplyDecoder() {
-        this(true);
-    }
-
     public RedisReplyDecoder(boolean checkpointEnabled) {
         this.checkpointEnabled = checkpointEnabled;
     }

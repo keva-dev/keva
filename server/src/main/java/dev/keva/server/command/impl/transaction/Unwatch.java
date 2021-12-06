@@ -32,6 +32,6 @@ public class Unwatch {
                 }
             }
         }
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 }

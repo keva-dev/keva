@@ -54,35 +54,4 @@ public class Encoding {
         bytes[--index] = (byte) ('0' + abs);
         return bytes;
     }
-
-    public static long bytesToNum(byte[] bytes) {
-        int length = bytes.length;
-        if (length == 0) {
-            throw new IllegalArgumentException("value is not an integer or out of range");
-        }
-        int position = 0;
-        int sign;
-        int read = bytes[position++];
-        if (read == '-') {
-            read = bytes[position++];
-            sign = -1;
-        } else {
-            sign = 1;
-        }
-        long number = 0;
-        do {
-            int value = read - '0';
-            if (value >= 0 && value < 10) {
-                number *= 10;
-                number += value;
-            } else {
-                throw new IllegalArgumentException("value is not an integer or out of range");
-            }
-            if (position == length) {
-                return number * sign;
-            }
-            read = bytes[position++];
-        } while (true);
-    }
-
 }

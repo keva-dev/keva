@@ -7,11 +7,8 @@ import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.impl.key.manager.ExpirationManager;
-import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @Component
 @CommandImpl("expire")

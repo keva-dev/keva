@@ -2,6 +2,8 @@ package dev.keva.server.command.impl.key;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.ErrorReply;
+import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
