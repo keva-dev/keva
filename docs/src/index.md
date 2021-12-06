@@ -6,7 +6,7 @@ actionText: Quick Start →
 actionLink: /guide/
 features:
 - title: Redis drop-in alternative
-  details: Compatible with Redis protocol, it's easy to switch from Redis to Keva with a minimum fuss
+  details: Front-end tools and Redis clients will work with Keva. Keva is a drop in alternative to Redis.
 - title: High Throughput
   details: Keva comes with multithreaded engine which will maximize the use of your system's resources
 - title: High Availability

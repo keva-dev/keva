@@ -2,17 +2,18 @@
   <img width="150" src="https://i.imgur.com/z0c9bV7.png">
 </p>
 
-Keva is an open source (Apache 2.0 licensed), off-heap in-memory data structure, used as a database or cache,
+Keva is an open source (Apache 2.0 licensed), JVM off-heap in-memory data store, used as a database or cache,
 can be a drop-in replacement for Redis.
 
-Keva Server provides access to mutable data structures via a set of commands, which are sent using a server-client model
-with TCP sockets and a [RESP](https://redis.io/topics/protocol) protocol. So different processes/clients can query and modify the same data structures in
-a shared way.
+Keva provides access to mutable data structures (String, Set, Sorted Set, List, Hash) via a set of commands, which are sent using a server-client model
+with TCP sockets and a [RESP](https://redis.io/topics/protocol) protocol.
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/keva-dev/keva/Build/master?label=build&style=flat-square)
 ![Lines of code](https://img.shields.io/tokei/lines/github/keva-dev/keva?style=flat-square)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/keva-dev/keva?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/keva-dev/keva?style=flat-square)
+
+Major dependencies: [Netty](https://github.com/netty/netty), [ChronicleMap](https://github.com/OpenHFT/Chronicle-Map)
 
 ## Quick Start
 

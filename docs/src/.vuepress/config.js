@@ -37,7 +37,7 @@ module.exports = {
     lastUpdated: false,
     nav: [
       {
-        text: 'Guide',
+        text: 'Documentations',
         link: '/guide/',
       },
       {
@@ -47,6 +47,14 @@ module.exports = {
       {
         text: 'Team',
         link: '/team/',
+      },
+      {
+        text: 'Keva IoC',
+        link: 'https://github.com/keva-dev/keva-ioc',
+      },
+      {
+        text: 'Keva Web',
+        link: 'https://github.com/keva-dev/keva-web',
       },
     ],
     sidebar: {
@@ -58,7 +66,9 @@ module.exports = {
             '',
             'overview/install',
             'overview/commands',
+            'overview/security',
             'overview/replication',
+            'overview/kql',
           ]
         },
         {
