@@ -7,6 +7,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -653,4 +654,73 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+
+    @Test
+    void strlen() {
+        try {
+            val set1= jedis.set("mykey", "Hello World");
+            assertEquals("OK", set1);
+            Long strlen1 = jedis.strlen("mykey");
+            Long strlen2 = jedis.strlen("nonexisting");
+            assertEquals(11, strlen1);
+            assertEquals(0, strlen2);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void getset() {
+        try {
+            val set1= jedis.set("mykey", "Hello");
+            assertEquals("OK", set1);
+            val getset1 = jedis.getSet("mykey", "World");
+            assertEquals("Hello", getset1);
+            val get1 = jedis.get("mykey");
+            assertEquals("World", get1);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void mget() {
+        try {
+            val set1= jedis.set("mykey1", "Hello");
+            assertEquals("OK", set1);
+            val set2 = jedis.set("mykey2", "World");
+            assertEquals("OK", set2);
+            val mget1 = jedis.mget("mykey1", "mykey2", "nonexistingkey");
+            assertEquals(mget1.size(), 3);
+            assertEquals(mget1, Arrays.asList("Hello", "World", null));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void setrange() {
+        try {
+            val set1 = jedis.set("key1", "Hello World");
+            assertEquals("OK", set1);
+            val setrange1 = jedis.setrange("key1", 6, "Keva");
+            assertEquals(11, setrange1);
+            val get1 = jedis.get("key1");
+            assertEquals("Hello Kevad", get1);
+
+            val setrange2 = jedis.setrange("key2", 5, "Kevas");
+            assertEquals(10, setrange2);
+            val get2 = jedis.get("key2");
+            assertEquals("\u0000\u0000\u0000\u0000\u0000Kevas", get2);
+
+            val setrange3 = jedis.setrange("key2", 0, "Ke");
+            assertEquals(10, setrange3);
+            val get3 = jedis.get("key2");
+            assertEquals("Ke\u0000\u0000\u0000Kevas", get3);
+
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
 }

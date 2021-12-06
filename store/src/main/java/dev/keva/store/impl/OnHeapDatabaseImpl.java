@@ -2,9 +2,11 @@ package dev.keva.store.impl;
 
 import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.hashbytes.BytesValue;
+import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
+import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -614,6 +616,60 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
                 map.put(new BytesKey(key), new BytesKey(SerializationUtils.serialize(set)));
             }
             return count;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int strlen(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            if (value == null) {
+                return 0;
+            }
+            return new String(value, StandardCharsets.UTF_8).length();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int setrange(byte[] key, byte[] offset, byte[] val) {
+        lock.lock();
+        try {
+            var offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
+            byte[] oldVal = map.get(new BytesKey(key)).getBytes();
+            int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
+            byte[] newVal = new byte[newValLength];
+            for (int i = 0; i < newValLength; i++) {
+                if (i >= offsetPosition && i < offsetPosition + val.length) {
+                    newVal[i] = val[i - offsetPosition];
+                } else if (oldVal != null && i < oldVal.length) {
+                    newVal[i] = oldVal[i];
+                } else {
+                    newVal[i] = 0b0;
+                }
+            }
+            map.put(new BytesKey(key), new BytesValue(newVal));
+            return newValLength;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public byte[][] mget(byte[]... keys) {
+        lock.lock();
+        try {
+            byte[][] result = new byte[keys.length][];
+            for (int i=0; i<keys.length; i++) {
+                byte[] key = keys[i];
+                val got = map.get(new BytesKey(key)).getBytes();
+                result[i] = got;
+            }
+            return result;
         } finally {
             lock.unlock();
         }
