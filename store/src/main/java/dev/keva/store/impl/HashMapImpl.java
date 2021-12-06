@@ -8,8 +8,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 public class HashMapImpl implements KevaDatabase {
@@ -17,6 +16,11 @@ public class HashMapImpl implements KevaDatabase {
     private final Lock lock = new SpinLock();
 
     private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
+
+    @Override
+    public void clear() {
+        map.clear();
+    }
 
     @Override
     public void put(byte[] key, byte[] val) {
@@ -183,6 +187,226 @@ public class HashMapImpl implements KevaDatabase {
                 map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(map)));
             }
             return removed;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int lpush(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = map.get(key).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            for (byte[] v : values) {
+                list.addFirst(new BytesValue(v));
+            }
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int rpush(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = map.get(key).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            for (byte[] v : values) {
+                list.addLast(new BytesValue(v));
+            }
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] lpop(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (list.isEmpty()) {
+                return null;
+            }
+            BytesValue v = list.removeFirst();
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            return v.getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] rpop(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (list.isEmpty()) {
+                return null;
+            }
+            BytesValue v = list.removeLast();
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            return v.getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int llen(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] lrange(byte[] key, int start, int end) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            int size = list.size();
+            if (start < 0) {
+                start = size + start;
+            }
+            if (end < 0) {
+                end = size + end;
+            }
+            if (start < 0) {
+                start = 0;
+            }
+            if (end > size) {
+                end = size;
+            }
+            if (start > end) {
+                return null;
+            }
+            List<byte[]> result = new ArrayList<>(0);
+            for (int j = start; j <= end; j++) {
+                try {
+                    if (list.get(j) != null) {
+                        result.add(list.get(j).getBytes());
+                    }
+                } catch (IndexOutOfBoundsException ignored) {
+                }
+            }
+            return result.toArray(new byte[0][0]);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] lindex(byte[] key, int index) {
+        lock.lock();
+        try {
+            byte[] value = map.get(new BytesKey(key)).getBytes();
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (index < 0) {
+                index = list.size() + index;
+            }
+            if (index < 0 || index >= list.size()) {
+                return null;
+            }
+            return list.get(index).getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void lset(byte[] key, int index, byte[] value) {
+        lock.lock();
+        try {
+            byte[] v = map.get(new BytesKey(key)).getBytes();
+            LinkedList<BytesValue> list;
+            list = v == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(v);
+            if (index < 0) {
+                index = list.size() + index;
+            }
+            if (index < 0 || index >= list.size()) {
+                return;
+            }
+            list.set(index, new BytesValue(value));
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int lrem(byte[] key, int count, byte[] value) {
+        lock.lock();
+        try {
+            byte[] value1 = map.get(new BytesKey(key)).getBytes();
+            if (value1 == null) {
+                return 0;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value1);
+            int size = list.size();
+            int result = 0;
+            if (count > 0) {
+                for (int i = 0; i < size; i++) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        if (count != 0) {
+                            count--;
+                            list.remove(i);
+                            result++;
+                            size--;
+                        }
+                    }
+                }
+            } else if (count < 0) {
+                for (int i = size - 1; i >= 0; i--) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        if (count != 0) {
+                            count++;
+                            list.remove(i);
+                            result++;
+                            size--;
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        list.remove(i);
+                        result++;
+                        size--;
+                    }
+                }
+            }
+            map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
+            return result;
         } finally {
             lock.unlock();
         }

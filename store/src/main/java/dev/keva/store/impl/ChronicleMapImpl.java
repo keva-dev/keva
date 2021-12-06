@@ -14,8 +14,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 
 @Slf4j
@@ -44,6 +43,16 @@ public class ChronicleMapImpl implements KevaDatabase {
             }
         } catch (IOException e) {
             log.error("Failed to create ChronicleMap: ", e);
+        }
+    }
+
+    @Override
+    public void clear() {
+        lock.lock();
+        try {
+            chronicleMap.clear();
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -209,6 +218,236 @@ public class ChronicleMapImpl implements KevaDatabase {
             if (result) {
                 chronicleMap.put(key, SerializationUtils.serialize(map));
             }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int lpush(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            for (byte[] v : values) {
+                list.addFirst(new BytesValue(v));
+            }
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int rpush(byte[] key, byte[]... values) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            LinkedList<BytesValue> list;
+            list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            for (byte[] v : values) {
+                list.addLast(new BytesValue(v));
+            }
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] lpop(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (list.isEmpty()) {
+                return null;
+            }
+            byte[] result = list.removeFirst().getBytes();
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] rpop(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (list.isEmpty()) {
+                return null;
+            }
+            byte[] result = list.removeLast().getBytes();
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int llen(byte[] key) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return 0;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            return list.size();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[][] lrange(byte[] key, int start, int end) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            int size = list.size();
+            if (start < 0) {
+                start = size + start;
+            }
+            if (end < 0) {
+                end = size + end;
+            }
+            if (start < 0) {
+                start = 0;
+            }
+            if (end > size) {
+                end = size;
+            }
+            if (start > end) {
+                return null;
+            }
+            List<byte[]> result = new ArrayList<>(0);
+            for (int j = start; j <= end; j++) {
+                try {
+                    if (list.get(j) != null) {
+                        result.add(list.get(j).getBytes());
+                    }
+                } catch (IndexOutOfBoundsException ignored) {
+                }
+            }
+            return result.toArray(new byte[0][0]);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public byte[] lindex(byte[] key, int index) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
+            if (index < 0) {
+                index = list.size() + index;
+            }
+            if (index < 0 || index >= list.size()) {
+                return null;
+            }
+            return list.get(index).getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void lset(byte[] key, int index, byte[] value) {
+        lock.lock();
+        try {
+            byte[] value1 = chronicleMap.get(key);
+            if (value1 == null) {
+                return;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value1);
+            if (index < 0) {
+                index = list.size() + index;
+            }
+            if (index < 0 || index >= list.size()) {
+                return;
+            }
+            list.set(index, new BytesValue(value));
+            chronicleMap.put(key, SerializationUtils.serialize(list));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public int lrem(byte[] key, int count, byte[] value) {
+        lock.lock();
+        try {
+            byte[] value1 = chronicleMap.get(key);
+            if (value1 == null) {
+                return 0;
+            }
+            LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value1);
+            int size = list.size();
+            int result = 0;
+            if (count > 0) {
+                for (int i = 0; i < size; i++) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        if (count != 0) {
+                            count--;
+                            list.remove(i);
+                            result++;
+                            size--;
+                        }
+                    }
+                }
+            } else if (count < 0) {
+                for (int i = size - 1; i >= 0; i--) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        if (count != 0) {
+                            count++;
+                            list.remove(i);
+                            result++;
+                            size--;
+                        }
+                    }
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    if (Arrays.equals(list.get(i).getBytes(), value)) {
+                        list.remove(i);
+                        result++;
+                        size--;
+                    }
+                }
+            }
+            chronicleMap.put(key, SerializationUtils.serialize(list));
             return result;
         } finally {
             lock.unlock();
