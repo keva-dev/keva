@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 
 public class RedisCommandDecoder extends ReplayingDecoder<Void> {
-
     private byte[][] bytes;
     private int arguments = 0;
 
@@ -36,7 +35,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
                 }
             }
             try {
-                out.add(new Command(bytes));
+                out.add(new Command(bytes, false));
             } finally {
                 bytes = null;
                 arguments = 0;
@@ -54,6 +53,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             checkpoint();
             decode(ctx, in, out);
         } else {
+            // Inline command (rarely used)
             in.readerIndex(in.readerIndex() - 1);
             byte[][] b = new byte[1][];
             boolean isCRLF = in.indexOf(0, in.readerIndex(), (byte) '\r') != -1;
