@@ -198,7 +198,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int lpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(key).getBytes();
+            byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
@@ -216,7 +216,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int rpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(key).getBytes();
+            byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {

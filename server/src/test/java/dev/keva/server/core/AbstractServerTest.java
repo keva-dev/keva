@@ -791,4 +791,37 @@ public abstract class AbstractServerTest {
         }
     }
 
+    @Test
+    void dumpAndRestore() {
+        try {
+            val set1 = jedis.set("key1", "Hello World");
+            assertEquals("OK", set1);
+            val dump1 = jedis.dump("key1");
+            assertNotNull(dump1);
+            val restore1 = jedis.restore("key2", 0, dump1);
+            assertEquals("OK", restore1);
+            val key2 = jedis.get("key2");
+            assertEquals("Hello World", key2);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void type() {
+        try {
+            val set1 = jedis.set("key1", "Hello World");
+            assertEquals("OK", set1);
+            val type1 = jedis.type("key1");
+            assertEquals("string", type1);
+            val type2 = jedis.type("key2");
+            assertEquals("none", type2);
+            val hashSet = jedis.hset("key3", "field1", "value1");
+            assertEquals(1, hashSet.intValue());
+            val type3 = jedis.type("key3");
+            assertEquals("hash", type3);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }

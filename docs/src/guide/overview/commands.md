@@ -33,6 +33,9 @@ Implemented commands:
 - RENAME
 - EXPIRE
 - EXPIREAT
+- DUMP
+- RESTORE
+- TYPE
 
 </details>
 
