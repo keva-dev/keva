@@ -13,11 +13,10 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -61,20 +60,25 @@ public class KevaServer implements Server {
         return context.getBean(KevaServer.class);
     }
 
-    public ServerBootstrap bootstrapServer() {
-        commandMapper.init();
-        bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup();
-        return new ServerBootstrap().group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .childHandler(nettyChannelInitializer)
-                .option(ChannelOption.SO_BACKLOG, 100)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.SO_RCVBUF, 1024 * 1024)
-                .childOption(ChannelOption.SO_SNDBUF, 1024 * 1024)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .childOption(ChannelOption.TCP_NODELAY, true);
+    public ServerBootstrap bootstrapServer() throws NettyNativeLoader.NettyNativeLoaderException {
+        try {
+            commandMapper.init();
+            val executorGroupClazz = NettyNativeLoader.getEventExecutorGroupClazz();
+            bossGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(1);
+            workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor().newInstance();
+            return new ServerBootstrap().group(bossGroup, workerGroup)
+                    .channel(NettyNativeLoader.getServerSocketChannelClazz())
+                    .childHandler(nettyChannelInitializer)
+                    .option(ChannelOption.SO_BACKLOG, 100)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.SO_RCVBUF, 1024 * 1024)
+                    .childOption(ChannelOption.SO_SNDBUF, 1024 * 1024)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .childOption(ChannelOption.TCP_NODELAY, true);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            throw new NettyNativeLoader.NettyNativeLoaderException("Cannot load Netty classes");
+        }
     }
 
     @Override
