@@ -2,14 +2,13 @@ package dev.keva.server.command.aof;
 
 import dev.keva.protocol.resp.Command;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class AOFWriter {
+public class AOFOperations {
     public static void write(Command command) throws FileNotFoundException {
         FileOutputStream fos = new FileOutputStream("keva.aof", true);
         try (ObjectOutputStream output = new ObjectOutputStream(fos)) {
@@ -28,7 +27,6 @@ public class AOFWriter {
                     ObjectInputStream input = new ObjectInputStream(fis);
                     Command command = (Command) input.readObject();
                     commands.add(command);
-                    log.info("Read command {}", new String(command.getName()));
                 } catch (IOException | ClassNotFoundException e) {
                     return commands;
                 }

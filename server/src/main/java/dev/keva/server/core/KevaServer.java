@@ -5,9 +5,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
-import dev.keva.protocol.resp.Command;
-import dev.keva.protocol.resp.hashbytes.BytesKey;
-import dev.keva.server.command.aof.AOFWriter;
+import dev.keva.server.command.aof.AOFManager;
 import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
@@ -20,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -36,17 +33,19 @@ public class KevaServer implements Server {
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
+    private final AOFManager aofManager;
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel channel;
 
     @Autowired
-    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
+    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper, AOFManager aofManager) {
         this.database = database;
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
         this.commandMapper = commandMapper;
+        this.aofManager = aofManager;
     }
 
     public static KevaServer ofDefaults() {
@@ -101,16 +100,7 @@ public class KevaServer implements Server {
             stopwatch.start();
             val server = bootstrapServer();
 
-            List<Command> commands = AOFWriter.read();
-            if (commands != null) {
-                for (Command command : commands) {
-                    val name = command.getName();
-                    val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
-                    if (commandWrapper != null) {
-                        commandWrapper.execute(null, command);
-                    }
-                }
-            }
+            aofManager.init();
 
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",

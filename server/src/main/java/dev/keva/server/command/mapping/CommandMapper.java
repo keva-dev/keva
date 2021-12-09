@@ -11,13 +11,13 @@ import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.aof.AOFWriter;
+import dev.keva.server.command.aof.AOFOperations;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
+import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang3.SerializationUtils;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -41,9 +41,13 @@ public class CommandMapper {
     @Autowired
     private KevaDatabase database;
 
+    @Autowired
+    private KevaConfig kevaConfig;
+
     public void init() {
         Reflections reflections = new Reflections("dev.keva.server.command.impl");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
+        val isAoF = kevaConfig.getAof();
         for (Class<?> aClass : annotated) {
             for (val method : aClass.getMethods()) {
                 if (method.isAnnotationPresent(Execute.class)) {
@@ -76,11 +80,11 @@ public class CommandMapper {
                             return errorReply;
                         }
                         try {
-                            if (ctx != null &&  isMutate) {
+                            if (ctx != null && isAoF && isMutate) {
                                 val lock = database.getLock();
                                 lock.lock();
                                 try {
-                                    AOFWriter.write(command);
+                                    AOFOperations.write(command);
                                 } catch (Exception e) {
                                     log.error("Error writing to AOF", e);
                                 } finally {
