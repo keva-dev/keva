@@ -17,11 +17,13 @@ import java.util.List;
 public class AOFManager {
     private final KevaConfig kevaConfig;
     private final CommandMapper commandMapper;
+    private final AOFOperations aofOperations;
 
     @Autowired
-    public AOFManager(KevaConfig kevaConfig, CommandMapper commandMapper) {
+    public AOFManager(KevaConfig kevaConfig, CommandMapper commandMapper, AOFOperations aofOperations) {
         this.kevaConfig = kevaConfig;
         this.commandMapper = commandMapper;
+        this.aofOperations = aofOperations;
     }
 
     public void init() {
@@ -30,7 +32,7 @@ public class AOFManager {
         }
 
         try {
-            List<Command> commands = AOFOperations.read();
+            List<Command> commands = aofOperations.read();
             if (commands != null) {
                 for (Command command : commands) {
                     val name = command.getName();
@@ -39,6 +41,7 @@ public class AOFManager {
                         commandWrapper.execute(null, command);
                     }
                 }
+                log.info("Recovered {} commands from AOF file", commands.size());
             }
         } catch (IOException | InterruptedException e) {
             log.error("Error while reading AOF file", e);

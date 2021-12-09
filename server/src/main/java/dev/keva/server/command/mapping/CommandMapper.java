@@ -44,6 +44,9 @@ public class CommandMapper {
     @Autowired
     private KevaConfig kevaConfig;
 
+    @Autowired
+    private AOFOperations aof;
+
     public void init() {
         Reflections reflections = new Reflections("dev.keva.server.command.impl");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
@@ -84,7 +87,7 @@ public class CommandMapper {
                                 val lock = database.getLock();
                                 lock.lock();
                                 try {
-                                    AOFOperations.write(command);
+                                    aof.write(command);
                                 } catch (Exception e) {
                                     log.error("Error writing to AOF", e);
                                 } finally {
