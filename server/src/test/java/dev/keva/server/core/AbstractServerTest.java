@@ -62,6 +62,18 @@ public abstract class AbstractServerTest {
     }
 
     @Test
+    void getSetEmptyString() {
+        try {
+            val setEmpty = jedis.set("empty", "");
+            val getEmpty = jedis.get("empty");
+            assertEquals("OK", setEmpty);
+            assertEquals("", getEmpty);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void del() {
         try {
             var setAbc = jedis.set("abc", "123");

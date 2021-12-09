@@ -22,7 +22,11 @@ public class BulkReply implements Reply<ByteBuf> {
     }
 
     public BulkReply(byte[] bytes) {
-        this.bytes = Unpooled.wrappedBuffer(bytes);
+        if (bytes.length == 0) {
+            this.bytes = Unpooled.EMPTY_BUFFER;
+        } else {
+            this.bytes = Unpooled.wrappedBuffer(bytes);
+        }
         capacity = bytes.length;
     }
 
@@ -56,6 +60,9 @@ public class BulkReply implements Reply<ByteBuf> {
         os.writeBytes(numToBytes(capacity, true));
         if (capacity > 0) {
             os.writeBytes(bytes);
+            os.writeBytes(CRLF);
+        }
+        if (capacity == 0) {
             os.writeBytes(CRLF);
         }
     }
