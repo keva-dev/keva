@@ -34,6 +34,7 @@ public class AOFManager {
         try {
             List<Command> commands = aofOperations.read();
             if (commands != null) {
+                log.info("Loading AOF file");
                 for (Command command : commands) {
                     val name = command.getName();
                     val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));

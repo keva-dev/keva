@@ -35,17 +35,28 @@ public class AOFContainer {
         } catch (IOException e) {
             log.error("Error creating AOF file", e);
         }
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(() -> {
-            try {
-                sync();
-            } catch (IOException e) {
-                log.error("Error syncing AOF file", e);
-            }
-        }, kevaConfig.getAofInterval(), kevaConfig.getAofInterval(), TimeUnit.MILLISECONDS);
+
+        if (kevaConfig.getAofInterval() != 0) {
+            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(() -> {
+                try {
+                    sync();
+                } catch (IOException e) {
+                    log.error("Error writing AOF file", e);
+                }
+            }, kevaConfig.getAofInterval(), kevaConfig.getAofInterval(), TimeUnit.MILLISECONDS);
+            log.info("AOF started with interval {} ms", kevaConfig.getAofInterval());
+        } else {
+            log.info("AOF will trigger for every new mutate command");
+        }
     }
 
     public void write(Command command) {
+        if (kevaConfig.getAofInterval() == 0) {
+            syncPerWrite(command);
+            return;
+        }
+
         bufferLock.lock();
         try {
             buffer.add(command);
@@ -67,6 +78,15 @@ public class AOFContainer {
             output.flush();
             buffer.clear();
             bufferLock.unlock();
+        }
+    }
+
+    public void syncPerWrite(Command command) {
+        try {
+            output.writeObject(command);
+            output.flush();
+        } catch (IOException e) {
+            log.error("Error writing AOF file", e);
         }
     }
 
