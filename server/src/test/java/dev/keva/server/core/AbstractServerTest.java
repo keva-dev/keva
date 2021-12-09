@@ -40,6 +40,20 @@ public abstract class AbstractServerTest {
     }
 
     @Test
+    void flush() {
+        try {
+            val setAbc = jedis.set("abc", "123");
+            assertEquals("OK", setAbc);
+            val flush = jedis.flushDB();
+            assertEquals("OK", flush);
+            val getAbc = jedis.get("abc");
+            assertNull(getAbc);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void getSetNull() {
         try {
             val getNull = jedis.get("anotherkey");

@@ -40,6 +40,10 @@ public class KevaConfig {
     @CliProp(name = "dir", type = CliPropType.VAL)
     private String workDirectory;
 
+    @ConfigProp(name = "requirepass", defaultVal = "")
+    @CliProp(name = "pw", type = CliPropType.VAL)
+    private String password;
+
     /**
      * @return KevaConfig with sensible defaults
      */

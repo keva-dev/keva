@@ -5,7 +5,7 @@ import java.util.concurrent.locks.Lock;
 public interface KevaDatabase {
     Lock getLock();
 
-    void clear();
+    void flush();
 
     void put(byte[] key, byte[] val);
 

@@ -48,7 +48,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
-    public void clear() {
+    public void flush() {
         lock.lock();
         try {
             chronicleMap.clear();

@@ -19,7 +19,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
 
     @Override
-    public void clear() {
+    public void flush() {
         map.clear();
     }
 

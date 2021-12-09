@@ -12,6 +12,7 @@ import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.aof.AOFContainer;
+import dev.keva.server.command.impl.connection.manager.AuthManager;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
@@ -39,6 +40,9 @@ public class CommandMapper {
     private TransactionManager txManager;
 
     @Autowired
+    private AuthManager authManager;
+
+    @Autowired
     private KevaDatabase database;
 
     @Autowired
@@ -60,8 +64,17 @@ public class CommandMapper {
                     val paramLengthType = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).type() : null;
                     val instance = context.getBean(aClass);
                     val isMutate = aClass.getAnnotation(Mutate.class) != null;
+                    val password = kevaConfig.getPassword();
+                    val isAuthEnabled = password != null && password.length() > 0;
 
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
+                        if (isAuthEnabled && !Arrays.equals(command.getName(), "auth".getBytes())) {
+                            boolean authenticated = authManager.isAuthenticated(ctx.channel());
+                            if (!authenticated) {
+                                return new ErrorReply("ERR NOAUTH Authentication required.");
+                            }
+                        }
+
                         if (ctx != null) {
                             val txContext = txManager.getTransactions().get(ctx.channel());
                             if (txContext != null && txContext.isQueuing()) {

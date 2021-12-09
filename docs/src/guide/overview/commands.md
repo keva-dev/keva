@@ -5,11 +5,23 @@ Follows [Redis's commands](https://redis.io/commands).
 Implemented commands:
 
 <details>
+    <summary>Server</summary>
+
+- INFO
+- FLUSHDB
+- TIME
+
+</details>
+
+<details>
     <summary>Connection</summary>
 
+- AUTH
 - ECHO
 - PING
 - QUIT
+- CLIENT ID
+- CLIENT INFO
 
 </details>
 

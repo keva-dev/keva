@@ -1,4 +1,4 @@
-package dev.keva.server.command.impl.connection;
+package dev.keva.server.command.impl.server;
 
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;

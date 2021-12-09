@@ -124,6 +124,6 @@ public class KevaServer implements Server {
 
     @Override
     public void clear() {
-        database.clear();
+        database.flush();
     }
 }

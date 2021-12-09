@@ -23,6 +23,7 @@ public class KevaServerTest extends AbstractServerTest {
                 .aof(false)
                 .hostname(host)
                 .port(port)
+                .password("keva-auth")
                 .build();
         server = KevaServer.of(config);
 
@@ -39,7 +40,9 @@ public class KevaServerTest extends AbstractServerTest {
         TimeUnit.SECONDS.sleep(2);
 
         jedis = new Jedis(host, port);
+        jedis.auth("keva-auth");
         subscriber = new Jedis(host, port);
+        subscriber.auth("keva-auth");
     }
 
     @AfterAll

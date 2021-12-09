@@ -30,6 +30,7 @@ Parameters:
     -aof <Boolean>  enable append-only-file (default: false)
     -ai <Integer>   define append-only interval in ms (default: 1000)
     -dir <String>   working directory (default: ./)
+    -pw <String>    authenticate password (default: none - no password)
 
 ## Docker
 
