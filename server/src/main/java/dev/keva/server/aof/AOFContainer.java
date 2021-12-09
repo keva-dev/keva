@@ -53,7 +53,7 @@ public class AOFContainer {
 
     public void write(Command command) {
         if (kevaConfig.getAofInterval() == 0) {
-            syncPerWrite(command);
+            syncPerMutation(command);
             return;
         }
 
@@ -81,7 +81,7 @@ public class AOFContainer {
         }
     }
 
-    public void syncPerWrite(Command command) {
+    public void syncPerMutation(Command command) {
         try {
             output.writeObject(command);
             output.flush();
