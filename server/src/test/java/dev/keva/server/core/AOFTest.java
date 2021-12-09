@@ -14,15 +14,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-public class PersistenceTest {
+public class AOFTest {
     static String host = "localhost";
 
     Server startServer(int port) throws Exception {
         val config = KevaConfig.custom()
                 .hostname(host)
                 .port(port)
-                .persistence(true)
-                .aof(false)
+                .persistence(false)
+                .aof(true)
                 .workDirectory("./")
                 .build();
         val server = KevaServer.of(config);
@@ -45,11 +45,11 @@ public class PersistenceTest {
     }
 
     @Test
-    void save() {
+    void save() throws InterruptedException {
         sync(getAvailablePort());
     }
 
-    void sync(int port) {
+    void sync(int port) throws InterruptedException {
         Server server = null;
         try {
             server = startServer(port);
@@ -68,6 +68,8 @@ public class PersistenceTest {
             fail(e);
         }
         jedis.disconnect();
+        // Wait for the interval to run
+        TimeUnit.SECONDS.sleep(4);
         try {
             stop(server);
         } catch (Exception e) {

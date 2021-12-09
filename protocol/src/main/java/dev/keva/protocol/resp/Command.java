@@ -2,20 +2,21 @@ package dev.keva.protocol.resp;
 
 import io.netty.channel.ChannelHandlerContext;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class Command {
+public class Command implements Serializable {
     private static final byte LOWER_DIFF = 'a' - 'A';
 
     private final Object[] objects;
 
     public Command(Object[] objects, boolean inline) {
         if (inline) {
-            byte[] objs = getBytes(objects[0]);
+            byte[] objs = ByteUtil.getBytes(objects[0]);
             String[] strings = new String(objs, StandardCharsets.UTF_8).trim().split("\\s+");
             objects = new Object[strings.length];
             for (int i = 0; i < strings.length; i++) {
-                objects[i] = getBytes(strings[i]);
+                objects[i] = ByteUtil.getBytes(strings[i]);
             }
         }
         this.objects = objects;
@@ -30,7 +31,7 @@ public class Command {
     }
 
     public byte[] getName() {
-        byte[] name = getBytes(objects[0]);
+        byte[] name = ByteUtil.getBytes(objects[0]);
         // LowerCase bytes
         for (int i = 0; i < name.length; i++) {
             byte b = name[i];
@@ -39,20 +40,6 @@ public class Command {
             }
         }
         return name;
-    }
-
-    private byte[] getBytes(Object object) {
-        byte[] argument;
-        if (object == null) {
-            throw new IllegalArgumentException("Argument cannot be null");
-        } else if (object instanceof byte[]) {
-            argument = (byte[]) object;
-        } else if (object instanceof String) {
-            argument = ((String) object).getBytes(StandardCharsets.UTF_8);
-        } else {
-            throw new IllegalArgumentException("Unsupported type: " + object.getClass());
-        }
-        return argument;
     }
 
     public void toArguments(Object[] arguments, Class<?>[] types, ChannelHandlerContext ctx) {

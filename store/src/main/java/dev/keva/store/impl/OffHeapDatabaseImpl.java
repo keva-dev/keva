@@ -35,8 +35,8 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
 
             boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
-                String snapshotDir = config.getWorkingDirectory();
-                String location = snapshotDir.equals("./") ? "" : snapshotDir + "/";
+                String workingDir = config.getWorkingDirectory();
+                String location = workingDir.equals("./") ? "" : workingDir + "/";
                 File file = new File(location + "dump.kdb");
                 this.chronicleMap = mapBuilder.createPersistedTo(file);
             } else {

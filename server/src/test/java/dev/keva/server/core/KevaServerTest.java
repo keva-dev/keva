@@ -20,6 +20,7 @@ public class KevaServerTest extends AbstractServerTest {
     static void startServer() throws Exception {
         val config = KevaConfig.custom()
                 .persistence(false)
+                .aof(false)
                 .hostname(host)
                 .port(port)
                 .build();

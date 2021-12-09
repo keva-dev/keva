@@ -5,6 +5,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.exception.CommandException;
 import dev.keva.store.KevaDatabase;
@@ -16,6 +17,7 @@ import static dev.keva.server.command.annotation.ParamLength.Type.EXACT;
 @Component
 @CommandImpl("incrby")
 @ParamLength(type = EXACT, value = 2)
+@Mutate
 public class Incrby {
     private final KevaDatabase database;
 

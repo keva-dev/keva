@@ -28,6 +28,14 @@ public class KevaConfig {
     @CliProp(name = "ps", type = CliPropType.FLAG)
     private Boolean persistence;
 
+    @ConfigProp(name = "aof", defaultVal = "false")
+    @CliProp(name = "aof", type = CliPropType.FLAG)
+    private Boolean aof;
+
+    @ConfigProp(name = "aof_interval", defaultVal = "1000")
+    @CliProp(name = "ai", type = CliPropType.VAL)
+    private Integer aofInterval;
+
     @ConfigProp(name = "work_directory", defaultVal = "./")
     @CliProp(name = "dir", type = CliPropType.VAL)
     private String workDirectory;
@@ -42,6 +50,8 @@ public class KevaConfig {
                 .hostname("localhost")
                 .port(6379)
                 .persistence(true)
+                .aof(false)
+                .aofInterval(1000)
                 .build();
     }
 
@@ -55,6 +65,8 @@ public class KevaConfig {
                 .workDirectory("./")
                 .hostname("localhost")
                 .port(6379)
-                .persistence(true);
+                .persistence(true)
+                .aof(false)
+                .aofInterval(1000);
     }
 }

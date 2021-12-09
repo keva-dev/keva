@@ -5,6 +5,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
+import dev.keva.server.aof.AOFManager;
 import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
@@ -32,17 +33,19 @@ public class KevaServer implements Server {
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
+    private final AOFManager aofManager;
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel channel;
 
     @Autowired
-    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper) {
+    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper, AOFManager aofManager) {
         this.database = database;
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
         this.commandMapper = commandMapper;
+        this.aofManager = aofManager;
     }
 
     public static KevaServer ofDefaults() {
@@ -60,14 +63,14 @@ public class KevaServer implements Server {
         return context.getBean(KevaServer.class);
     }
 
-    public ServerBootstrap bootstrapServer() throws NettyNativeLoader.NettyNativeLoaderException {
+    public ServerBootstrap bootstrapServer() throws NettyNativeTransportLoader.NettyNativeLoaderException {
         try {
             commandMapper.init();
-            val executorGroupClazz = NettyNativeLoader.getEventExecutorGroupClazz();
+            val executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
             bossGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(1);
             workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor().newInstance();
             return new ServerBootstrap().group(bossGroup, workerGroup)
-                    .channel(NettyNativeLoader.getServerSocketChannelClazz())
+                    .channel(NettyNativeTransportLoader.getServerSocketChannelClazz())
                     .childHandler(nettyChannelInitializer)
                     .option(ChannelOption.SO_BACKLOG, 100)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
@@ -77,7 +80,8 @@ public class KevaServer implements Server {
                     .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .childOption(ChannelOption.TCP_NODELAY, true);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new NettyNativeLoader.NettyNativeLoaderException("Cannot load Netty classes");
+            log.error(e.getMessage(), e);
+            throw new NettyNativeTransportLoader.NettyNativeLoaderException("Cannot load Netty classes");
         }
     }
 
@@ -95,6 +99,9 @@ public class KevaServer implements Server {
         try {
             stopwatch.start();
             val server = bootstrapServer();
+
+            aofManager.init();
+
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",
                     KEVA_BANNER,

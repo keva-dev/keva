@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class NettyNativeLoader {
+public class NettyNativeTransportLoader {
     @Getter
     private static Class<? extends AbstractEventExecutorGroup> eventExecutorGroupClazz;
     @Getter
@@ -17,7 +17,7 @@ public class NettyNativeLoader {
         boolean result;
         if (os == Platform.WINDOWS || os == Platform.SOLARIS || os == Platform.UNIX || os == Platform.UNKNOWN) {
             result = loadDefault();
-            log.info("Loaded default native library for {}", os);
+            log.info("Loaded default library for {}", os);
         } else if (os == Platform.LINUX) {
             result = loadEpoll();
             log.info("Loaded epoll native library for {}", os);
@@ -26,7 +26,7 @@ public class NettyNativeLoader {
             log.info("Loaded kqueue native library for {}", os);
         }
         if (!result) {
-            log.error("Failed to load native library for Netty");
+            log.error("Failed to load library for Netty");
             System.exit(1);
         }
     }

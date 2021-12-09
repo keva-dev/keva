@@ -5,12 +5,14 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.store.KevaDatabase;
 
 @Component
 @CommandImpl("lset")
 @ParamLength(3)
+@Mutate
 public class LSet {
     private final KevaDatabase database;
 

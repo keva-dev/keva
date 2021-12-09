@@ -8,5 +8,6 @@ testproject/
 run.sh
 
 dump.kdb
+keva.aof
 
 keva.test.properties

@@ -66,6 +66,7 @@ module.exports = {
             '',
             'overview/install',
             'overview/commands',
+            'overview/persistence',
             'overview/security',
             'overview/replication',
             'overview/kql',
