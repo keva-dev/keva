@@ -5,6 +5,9 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
+import dev.keva.protocol.resp.Command;
+import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.server.command.aof.AOFWriter;
 import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -77,6 +81,7 @@ public class KevaServer implements Server {
                     .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .childOption(ChannelOption.TCP_NODELAY, true);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            log.error(e.getMessage(), e);
             throw new NettyNativeLoader.NettyNativeLoaderException("Cannot load Netty classes");
         }
     }
@@ -95,6 +100,18 @@ public class KevaServer implements Server {
         try {
             stopwatch.start();
             val server = bootstrapServer();
+
+            List<Command> commands = AOFWriter.read();
+            if (commands != null) {
+                for (Command command : commands) {
+                    val name = command.getName();
+                    val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
+                    if (commandWrapper != null) {
+                        commandWrapper.execute(null, command);
+                    }
+                }
+            }
+
             val sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, PID: {}, in {} ms",
                     KEVA_BANNER,

@@ -9,11 +9,15 @@ import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
+import dev.keva.server.command.aof.AOFWriter;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
+import dev.keva.store.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -34,6 +38,9 @@ public class CommandMapper {
     @Autowired
     private TransactionManager txManager;
 
+    @Autowired
+    private KevaDatabase database;
+
     public void init() {
         Reflections reflections = new Reflections("dev.keva.server.command.impl");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
@@ -45,18 +52,21 @@ public class CommandMapper {
                     val paramLength = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).value() : -1;
                     val paramLengthType = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).type() : null;
                     val instance = context.getBean(aClass);
+                    val isMutate = aClass.getAnnotation(Mutate.class) != null;
 
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
-                        val txContext = txManager.getTransactions().get(ctx.channel());
-                        if (txContext != null && txContext.isQueuing()) {
-                            if (!Arrays.equals(command.getName(), "exec".getBytes()) && !Arrays.equals(command.getName(), "discard".getBytes())) {
-                                ErrorReply errorReply = CommandValidate.validate(paramLengthType, paramLength, command.getLength(), name);
-                                if (errorReply == null) {
-                                    txContext.getCommandDeque().add(command);
-                                    return new StatusReply("QUEUED");
-                                } else {
-                                    txContext.discard();
-                                    return errorReply;
+                        if (ctx != null) {
+                            val txContext = txManager.getTransactions().get(ctx.channel());
+                            if (txContext != null && txContext.isQueuing()) {
+                                if (!Arrays.equals(command.getName(), "exec".getBytes()) && !Arrays.equals(command.getName(), "discard".getBytes())) {
+                                    ErrorReply errorReply = CommandValidate.validate(paramLengthType, paramLength, command.getLength(), name);
+                                    if (errorReply == null) {
+                                        txContext.getCommandDeque().add(command);
+                                        return new StatusReply("QUEUED");
+                                    } else {
+                                        txContext.discard();
+                                        return errorReply;
+                                    }
                                 }
                             }
                         }
@@ -66,6 +76,17 @@ public class CommandMapper {
                             return errorReply;
                         }
                         try {
+                            if (ctx != null &&  isMutate) {
+                                val lock = database.getLock();
+                                lock.lock();
+                                try {
+                                    AOFWriter.write(command);
+                                } catch (Exception e) {
+                                    log.error("Error writing to AOF", e);
+                                } finally {
+                                    lock.unlock();
+                                }
+                            }
                             Object[] objects = new Object[types.length];
                             command.toArguments(objects, types, ctx);
                             return (Reply<?>) method.invoke(instance, objects);
