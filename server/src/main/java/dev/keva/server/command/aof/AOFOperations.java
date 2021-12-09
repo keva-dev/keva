@@ -41,7 +41,7 @@ public class AOFOperations {
             } catch (IOException e) {
                 log.error("Error syncing AOF file", e);
             }
-        }, 1000, 1000, TimeUnit.MILLISECONDS); // Should be configurable interval
+        }, kevaConfig.getAofInterval(), kevaConfig.getAofInterval(), TimeUnit.MILLISECONDS); // Should be configurable interval
     }
 
     public void write(Command command) {
