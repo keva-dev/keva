@@ -4,10 +4,14 @@ import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.Command;
+import dev.keva.server.command.aof.AOFOperations;
+import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
 
 @Component
 public class ExpirationManager {
@@ -19,10 +23,14 @@ public class ExpirationManager {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     private final KevaDatabase database;
     private final ExecutorService expireExecutor = Executors.newFixedThreadPool(1);
+    private final KevaConfig kevaConfig;
+    private final AOFOperations aof;
 
     @Autowired
-    public ExpirationManager(KevaDatabase database) {
+    public ExpirationManager(KevaDatabase database, KevaConfig kevaConfig, AOFOperations aof) {
         this.database = database;
+        this.kevaConfig = kevaConfig;
+        this.aof = aof;
     }
 
     public void expireAt(byte[] key, long timestampInMillis) {
@@ -58,8 +66,24 @@ public class ExpirationManager {
 
     public void executeExpire(byte[] key) {
         expireExecutor.submit(() -> {
-            database.remove(key);
-            clearExpiration(key);
+            if (kevaConfig.getAof()) {
+                byte[][] data = new byte[2][];
+                data[0] = "delete".getBytes();
+                data[1] = key;
+                Command command = new Command(data, false);
+                Lock lock = database.getLock();
+                lock.lock();
+                try {
+                    aof.write(command);
+                    database.remove(key);
+                    clearExpiration(key);
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                database.remove(key);
+                clearExpiration(key);
+            }
         });
     }
 

@@ -5,6 +5,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.server.command.impl.key.manager.ExpirationManager;
 import dev.keva.store.KevaDatabase;
@@ -14,6 +15,7 @@ import static dev.keva.server.command.annotation.ParamLength.Type.AT_LEAST;
 @Component
 @CommandImpl("del")
 @ParamLength(type = AT_LEAST, value = 1)
+@Mutate
 public class Del {
     private final KevaDatabase database;
     private final ExpirationManager expirationManager;

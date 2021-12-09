@@ -7,6 +7,7 @@ import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.store.KevaDatabase;
 import lombok.val;
@@ -14,6 +15,7 @@ import lombok.val;
 @Component
 @CommandImpl("rpop")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 1)
+@Mutate
 public class RPop {
     private final KevaDatabase database;
 

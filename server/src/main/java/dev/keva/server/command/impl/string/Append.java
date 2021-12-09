@@ -6,6 +6,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
+import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
 import dev.keva.store.KevaDatabase;
 import lombok.val;
@@ -13,6 +14,7 @@ import lombok.val;
 @Component
 @CommandImpl("append")
 @ParamLength(2)
+@Mutate
 public class Append {
     private final KevaDatabase database;
 
