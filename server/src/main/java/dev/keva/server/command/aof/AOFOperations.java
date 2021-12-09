@@ -1,7 +1,9 @@
 package dev.keva.server.command.aof;
 
+import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
+import dev.keva.server.config.KevaConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -19,12 +21,15 @@ public class AOFOperations {
     private List<Command> buffer;
     private ObjectOutputStream output;
 
+    @Autowired
+    private KevaConfig kevaConfig;
+
     public void init() {
         buffer = new ArrayList<>(100);
 
         try {
-            boolean isExists = new File("keva.aof").exists();
-            FileOutputStream fos = new FileOutputStream("keva.aof", true);
+            boolean isExists = new File(getWorkingDir() + "keva.aof").exists();
+            FileOutputStream fos = new FileOutputStream(getWorkingDir() + "keva.aof", true);
             output = isExists ? new AppendOnlyObjectOutputStream(fos) : new ObjectOutputStream(fos);
         } catch (IOException e) {
             log.error("Error creating AOF file", e);
@@ -67,7 +72,7 @@ public class AOFOperations {
     public List<Command> read() throws IOException {
         try {
             List<Command> commands = new ArrayList<>(100);
-            FileInputStream fis = new FileInputStream("keva.aof");
+            FileInputStream fis = new FileInputStream(getWorkingDir() + "keva.aof");
             ObjectInputStream input = new ObjectInputStream(fis);
             while (true) {
                 try {
@@ -84,5 +89,10 @@ public class AOFOperations {
         } catch (FileNotFoundException ignored) {
             throw new FileNotFoundException("AOF file not found");
         }
+    }
+
+    private String getWorkingDir() {
+        String workingDir = kevaConfig.getWorkDirectory();
+        return workingDir.equals("./") ? "" : workingDir + "/";
     }
 }
