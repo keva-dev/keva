@@ -5,7 +5,7 @@ import com.google.common.primitives.Longs;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
-import dev.keva.server.command.aof.AOFOperations;
+import dev.keva.server.aof.AOFContainer;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
 
@@ -24,10 +24,10 @@ public class ExpirationManager {
     private final KevaDatabase database;
     private final ExecutorService expireExecutor = Executors.newFixedThreadPool(1);
     private final KevaConfig kevaConfig;
-    private final AOFOperations aof;
+    private final AOFContainer aof;
 
     @Autowired
-    public ExpirationManager(KevaDatabase database, KevaConfig kevaConfig, AOFOperations aof) {
+    public ExpirationManager(KevaDatabase database, KevaConfig kevaConfig, AOFContainer aof) {
         this.database = database;
         this.kevaConfig = kevaConfig;
         this.aof = aof;

@@ -1,4 +1,4 @@
-package dev.keva.server.command.aof;
+package dev.keva.server.aof;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -17,10 +17,10 @@ import java.util.List;
 public class AOFManager {
     private final KevaConfig kevaConfig;
     private final CommandMapper commandMapper;
-    private final AOFOperations aofOperations;
+    private final AOFContainer aofOperations;
 
     @Autowired
-    public AOFManager(KevaConfig kevaConfig, CommandMapper commandMapper, AOFOperations aofOperations) {
+    public AOFManager(KevaConfig kevaConfig, CommandMapper commandMapper, AOFContainer aofOperations) {
         this.kevaConfig = kevaConfig;
         this.commandMapper = commandMapper;
         this.aofOperations = aofOperations;

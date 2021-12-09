@@ -11,7 +11,7 @@ import dev.keva.server.command.annotation.CommandImpl;
 import dev.keva.server.command.annotation.Execute;
 import dev.keva.server.command.annotation.Mutate;
 import dev.keva.server.command.annotation.ParamLength;
-import dev.keva.server.command.aof.AOFOperations;
+import dev.keva.server.aof.AOFContainer;
 import dev.keva.server.command.impl.transaction.manager.TransactionManager;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
@@ -45,7 +45,7 @@ public class CommandMapper {
     private KevaConfig kevaConfig;
 
     @Autowired
-    private AOFOperations aof;
+    private AOFContainer aof;
 
     public void init() {
         Reflections reflections = new Reflections("dev.keva.server.command.impl");

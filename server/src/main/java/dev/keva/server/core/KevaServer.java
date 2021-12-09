@@ -5,7 +5,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
-import dev.keva.server.command.aof.AOFManager;
+import dev.keva.server.aof.AOFManager;
 import dev.keva.server.command.mapping.CommandMapper;
 import dev.keva.server.config.KevaConfig;
 import dev.keva.store.KevaDatabase;

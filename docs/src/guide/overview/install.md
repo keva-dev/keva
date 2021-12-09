@@ -27,6 +27,8 @@ Parameters:
     -h <String>     host (default: localhost)
     -p <Integer>    port (default: 6379)
     -ps <Boolean>   enable persistence (default: true)
+    -aof <Boolean>  enable append-only-file (default: false)
+    -ai <Integer>   define append-only interval in ms (default: 1000)
     -dir <String>   working directory (default: ./)
 
 ## Docker

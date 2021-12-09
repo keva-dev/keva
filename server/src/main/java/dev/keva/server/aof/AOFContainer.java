@@ -1,4 +1,4 @@
-package dev.keva.server.command.aof;
+package dev.keva.server.aof;
 
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -16,8 +16,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Component
-public class AOFOperations {
-    private final ReentrantLock bufferLock = new ReentrantLock();
+public class AOFContainer {
+    private ReentrantLock bufferLock;
     private List<Command> buffer;
     private ObjectOutputStream output;
 
@@ -25,7 +25,8 @@ public class AOFOperations {
     private KevaConfig kevaConfig;
 
     public void init() {
-        buffer = new ArrayList<>(100);
+        bufferLock = new ReentrantLock();
+        buffer = new ArrayList<>(64);
 
         try {
             boolean isExists = new File(getWorkingDir() + "keva.aof").exists();
@@ -41,7 +42,7 @@ public class AOFOperations {
             } catch (IOException e) {
                 log.error("Error syncing AOF file", e);
             }
-        }, kevaConfig.getAofInterval(), kevaConfig.getAofInterval(), TimeUnit.MILLISECONDS); // Should be configurable interval
+        }, kevaConfig.getAofInterval(), kevaConfig.getAofInterval(), TimeUnit.MILLISECONDS);
     }
 
     public void write(Command command) {
@@ -94,5 +95,16 @@ public class AOFOperations {
     private String getWorkingDir() {
         String workingDir = kevaConfig.getWorkDirectory();
         return workingDir.equals("./") ? "" : workingDir + "/";
+    }
+
+    private static class AppendOnlyObjectOutputStream extends ObjectOutputStream {
+        public AppendOnlyObjectOutputStream(OutputStream out) throws IOException {
+            super(out);
+        }
+
+        @Override
+        protected void writeStreamHeader() throws IOException {
+            reset();
+        }
     }
 }
