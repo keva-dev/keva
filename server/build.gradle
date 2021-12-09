@@ -16,13 +16,15 @@ dependencies {
     implementation project(':store')
     implementation project(':protocol')
 
-    implementation 'ch.qos.logback:logback-classic:1.2.6'
-    implementation 'ch.qos.logback:logback-core:1.2.6'
-    implementation 'io.netty:netty-handler:4.1.69.Final'
-    implementation 'io.netty:netty-buffer:4.1.69.Final'
+    implementation 'ch.qos.logback:logback-classic:1.2.7'
+    implementation 'ch.qos.logback:logback-core:1.2.7'
+    implementation 'io.netty:netty-handler:4.1.70.Final'
+    implementation 'io.netty:netty-buffer:4.1.70.Final'
+    implementation 'io.netty:netty-transport-native-kqueue:4.1.70.Final:osx-x86_64'
+    implementation 'io.netty:netty-transport-native-epoll:4.1.70.Final:linux-x86_64'
 
     implementation 'com.google.guava:guava:31.0.1-jre'
-    implementation 'org.reflections:reflections:0.10.1'
+    implementation 'org.reflections:reflections:0.10.2'
 
     // Experimental
     implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
