@@ -44,7 +44,9 @@ public class AOFManager {
                 log.info("Recovered {} commands from AOF file", commands.size());
             }
         } catch (IOException | InterruptedException e) {
-            log.error("Error while reading AOF file", e);
+            log.error("Cannot read AOF file", e);
         }
+
+        aofOperations.init();
     }
 }

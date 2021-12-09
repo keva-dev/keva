@@ -82,23 +82,26 @@ public class CommandMapper {
                         if (errorReply != null) {
                             return errorReply;
                         }
+
                         try {
-                            if (ctx != null && isAoF && isMutate) {
-                                val lock = database.getLock();
-                                lock.lock();
-                                try {
-                                    aof.write(command);
-                                } catch (Exception e) {
-                                    log.error("Error writing to AOF", e);
-                                } finally {
-                                    lock.unlock();
+                            val lock = database.getLock();
+                            lock.lock();
+                            try {
+                                if (ctx != null && isAoF && isMutate) {
+                                    try {
+                                        aof.write(command);
+                                    } catch (Exception e) {
+                                        log.error("Error writing to AOF", e);
+                                    }
                                 }
+                                Object[] objects = new Object[types.length];
+                                command.toArguments(objects, types, ctx);
+                                return (Reply<?>) method.invoke(instance, objects);
+                            } finally {
+                                lock.unlock();
                             }
-                            Object[] objects = new Object[types.length];
-                            command.toArguments(objects, types, ctx);
-                            return (Reply<?>) method.invoke(instance, objects);
                         } catch (Exception e) {
-                            log.error("", e);
+                            log.error(e.getMessage(), e);
                             if (e instanceof InvocationTargetException) {
                                 if (e.getCause() instanceof ClassCastException) {
                                     return new ErrorReply("ERR WRONGTYPE Operation against a key holding the wrong kind of value");
