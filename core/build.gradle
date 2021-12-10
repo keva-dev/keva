@@ -1,0 +1,85 @@
+plugins {
+    id 'com.adarshr.test-logger' version '2.1.0'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+dependencies {
+    implementation project(':protocol')
+    implementation project(':store')
+    implementation project(':config')
+
+    implementation 'io.netty:netty-handler:4.1.70.Final'
+    implementation 'io.netty:netty-buffer:4.1.70.Final'
+    implementation 'io.netty:netty-transport-native-kqueue:4.1.70.Final:osx-x86_64'
+    implementation 'io.netty:netty-transport-native-epoll:4.1.70.Final:linux-x86_64'
+
+    implementation 'com.google.guava:guava:31.0.1-jre'
+    implementation 'org.reflections:reflections:0.10.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
+
+    testImplementation 'redis.clients:jedis:3.7.0'
+
+    // MTC lib depends on junit 4
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    // noinspection GradlePackageUpdate
+    testRuntimeOnly('org.junit.vintage:junit-vintage-engine:5.7.2')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'core'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Keva Core'
+                description = 'KevaDB Core'
+                url = 'https://keva.dev/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://github.com/keva-dev/keva/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tuhuynh27'
+                        name = 'Tu Huynh'
+                        email = 'huynhminhtufu@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/keva-dev/keva.git'
+                    developerConnection = 'scm:git:ssh://github.com:keva-dev/keva.git'
+                    url = 'https://github.com/keva-dev/keva'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        outputs.upToDateWhen { true }
+        showStandardStreams = true
+    }
+    maxParallelForks = Runtime.runtime.availableProcessors()
+}
