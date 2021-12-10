@@ -18,7 +18,7 @@ public class PersistenceTest {
     static String host = "localhost";
 
     Server startServer(int port) throws Exception {
-        val config = KevaConfig.custom()
+        val config = KevaConfig.builder()
                 .hostname(host)
                 .port(port)
                 .persistence(true)

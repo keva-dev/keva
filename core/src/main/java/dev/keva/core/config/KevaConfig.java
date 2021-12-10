@@ -44,9 +44,6 @@ public class KevaConfig {
     @CliProp(name = "pw", type = CliPropType.VAL)
     private String password;
 
-    /**
-     * @return KevaConfig with sensible defaults
-     */
     @Bean
     public static KevaConfig ofDefaults() {
         return builder()
@@ -57,20 +54,5 @@ public class KevaConfig {
                 .aof(false)
                 .aofInterval(1000)
                 .build();
-    }
-
-    /**
-     * Helper method to build custom config based of the defaults
-     *
-     * @return Builder with some sensible defaults already set
-     */
-    public static KevaConfigBuilder custom() {
-        return builder()
-                .workDirectory("./")
-                .hostname("localhost")
-                .port(6379)
-                .persistence(true)
-                .aof(false)
-                .aofInterval(1000);
     }
 }

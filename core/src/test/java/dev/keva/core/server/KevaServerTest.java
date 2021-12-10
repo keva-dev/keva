@@ -18,7 +18,7 @@ public class KevaServerTest extends AbstractServerTest {
 
     @BeforeAll
     static void startServer() throws Exception {
-        val config = KevaConfig.custom()
+        val config = KevaConfig.builder()
                 .persistence(false)
                 .aof(false)
                 .hostname(host)
