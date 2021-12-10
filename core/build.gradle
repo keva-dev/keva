@@ -2,11 +2,9 @@ plugins {
     id 'com.adarshr.test-logger' version '2.1.0'
 }
 
-group 'dev.keva'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 dependencies {
@@ -31,6 +29,50 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     // noinspection GradlePackageUpdate
     testRuntimeOnly('org.junit.vintage:junit-vintage-engine:5.7.2')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'core'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Keva Core'
+                description = 'KevaDB Core'
+                url = 'https://keva.dev/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://github.com/keva-dev/keva/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tuhuynh27'
+                        name = 'Tu Huynh'
+                        email = 'huynhminhtufu@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/keva-dev/keva.git'
+                    developerConnection = 'scm:git:ssh://github.com:keva-dev/keva.git'
+                    url = 'https://github.com/keva-dev/keva'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
 
 test {

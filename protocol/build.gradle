@@ -8,15 +8,59 @@ java {
 }
 
 dependencies {
-    implementation 'io.netty:netty-handler:4.1.69.Final'
-    implementation 'io.netty:netty-buffer:4.1.69.Final'
+    implementation 'io.netty:netty-handler:4.1.70.Final'
+    implementation 'io.netty:netty-buffer:4.1.70.Final'
     implementation 'com.google.guava:guava:31.0.1-jre'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'protocol-resp'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'Keva RESP Protocol'
+                description = 'Keva RESP Protocol for Netty'
+                url = 'https://keva.dev/'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'https://github.com/keva-dev/keva/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tuhuynh27'
+                        name = 'Tu Huynh'
+                        email = 'huynhminhtufu@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/keva-dev/keva.git'
+                    developerConnection = 'scm:git:ssh://github.com:keva-dev/keva.git'
+                    url = 'https://github.com/keva-dev/keva'
+                }
+            }
+        }
+    }
 }
 
 javadoc {
     if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
     }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
 
 test {
