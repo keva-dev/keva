@@ -48,10 +48,6 @@ public class NettyNativeTransportLoader {
         }
     }
 
-    public enum Platform {
-        LINUX, MAC, WINDOWS, SOLARIS, UNIX, UNKNOWN
-    }
-
     public static boolean loadDefault() {
         try {
             eventExecutorGroupClazz = Class.forName("io.netty.channel.nio.NioEventLoopGroup").asSubclass(AbstractEventExecutorGroup.class);
@@ -63,13 +59,13 @@ public class NettyNativeTransportLoader {
     }
 
     public static boolean loadKqueue() {
-       try {
-           eventExecutorGroupClazz = Class.forName("io.netty.channel.kqueue.KQueueEventLoopGroup").asSubclass(AbstractEventExecutorGroup.class);
-           serverSocketChannelClazz = Class.forName("io.netty.channel.kqueue.KQueueServerSocketChannel").asSubclass(ServerChannel.class);
-           return true;
-       } catch (ClassNotFoundException e) {
-           return false;
-       }
+        try {
+            eventExecutorGroupClazz = Class.forName("io.netty.channel.kqueue.KQueueEventLoopGroup").asSubclass(AbstractEventExecutorGroup.class);
+            serverSocketChannelClazz = Class.forName("io.netty.channel.kqueue.KQueueServerSocketChannel").asSubclass(ServerChannel.class);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 
     public static boolean loadEpoll() {
@@ -80,6 +76,10 @@ public class NettyNativeTransportLoader {
         } catch (ClassNotFoundException e) {
             return false;
         }
+    }
+
+    public enum Platform {
+        LINUX, MAC, WINDOWS, SOLARIS, UNIX, UNKNOWN
     }
 
     public static class NettyNativeLoaderException extends Exception {

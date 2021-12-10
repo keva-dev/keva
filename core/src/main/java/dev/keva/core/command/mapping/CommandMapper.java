@@ -1,5 +1,13 @@
 package dev.keva.core.command.mapping;
 
+import dev.keva.core.aof.AOFContainer;
+import dev.keva.core.command.annotation.CommandImpl;
+import dev.keva.core.command.annotation.Execute;
+import dev.keva.core.command.annotation.Mutate;
+import dev.keva.core.command.annotation.ParamLength;
+import dev.keva.core.command.impl.connection.manager.AuthManager;
+import dev.keva.core.command.impl.transaction.manager.TransactionManager;
+import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -7,14 +15,6 @@ import dev.keva.protocol.resp.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.core.command.annotation.CommandImpl;
-import dev.keva.core.command.annotation.Execute;
-import dev.keva.core.command.annotation.Mutate;
-import dev.keva.core.command.annotation.ParamLength;
-import dev.keva.core.aof.AOFContainer;
-import dev.keva.core.command.impl.connection.manager.AuthManager;
-import dev.keva.core.command.impl.transaction.manager.TransactionManager;
-import dev.keva.core.config.KevaConfig;
 import dev.keva.store.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -52,8 +51,8 @@ public class CommandMapper {
     private AOFContainer aof;
 
     public void init() {
-        Reflections reflections = new Reflections("dev.keva.core.command.impl");
-        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
+        val reflections = new Reflections("dev.keva.core.command.impl");
+        val annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
         val isAoF = kevaConfig.getAof();
         for (Class<?> aClass : annotated) {
             for (val method : aClass.getMethods()) {

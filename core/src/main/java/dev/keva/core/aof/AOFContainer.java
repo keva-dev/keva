@@ -1,9 +1,9 @@
 package dev.keva.core.aof;
 
+import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
-import dev.keva.core.config.KevaConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;

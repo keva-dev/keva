@@ -1,10 +1,10 @@
 package dev.keva.core.command.impl.server;
 
-import dev.keva.ioc.annotation.Component;
-import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.ParamLength;
+import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.BulkReply;
 import lombok.val;
 
 import java.lang.management.ManagementFactory;

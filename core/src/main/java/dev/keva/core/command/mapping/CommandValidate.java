@@ -1,7 +1,7 @@
 package dev.keva.core.command.mapping;
 
-import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.core.command.annotation.ParamLength;
+import dev.keva.protocol.resp.reply.ErrorReply;
 
 public class CommandValidate {
     public static ErrorReply validate(ParamLength.Type paramLengthType, int paramLength, int commandLength, String commandName) {
