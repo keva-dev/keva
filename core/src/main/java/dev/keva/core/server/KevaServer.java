@@ -59,7 +59,7 @@ public class KevaServer implements Server {
     }
 
     public static KevaServer ofCustomBeans(Object... beans) {
-        KevaIoC context = KevaIoC.initBeans(KevaServer.class, beans);
+        val context = KevaIoC.initBeans(KevaServer.class, beans);
         return context.getBean(KevaServer.class);
     }
 
