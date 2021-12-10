@@ -1,4 +1,4 @@
 #!/bin/sh
-./gradlew clean :server:build -x test
-cat ./compile.sh ./server/build/libs/server-1.0-SNAPSHOT-all.jar > ./binaries/unix/keva-server
+./gradlew clean :app:build -x test
+cat ./compile.sh ./app/build/libs/app-1.0-SNAPSHOT-all.jar > ./dist/unix/keva-server
 echo "Done"

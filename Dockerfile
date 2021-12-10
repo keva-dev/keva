@@ -5,18 +5,18 @@ WORKDIR /root/src/keva
 
 COPY gradle ./gradle
 COPY build.gradle gradlew settings.gradle ./
-COPY ./server/build.gradle ./server/keva.properties ./server/
+COPY ./app/build.gradle ./app/keva.properties ./app/
 RUN ./gradlew dependencies
 
 COPY . .
-RUN ./gradlew :server:build -x test
+RUN ./gradlew :app:build -x test
 
 FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine
 
 RUN mkdir -p /root/binary/keva
 WORKDIR /root/binary/keva
 
-COPY --from=builder /root/src/keva/server/build/libs/server-1.0-SNAPSHOT-all.jar /root/binary/keva/keva.jar
+COPY --from=builder /root/src/keva/app/build/libs/app-1.0-SNAPSHOT-all.jar /root/binary/keva/keva.jar
 
 EXPOSE 6379
 
