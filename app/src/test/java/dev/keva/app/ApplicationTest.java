@@ -1,5 +1,6 @@
-package dev.keva.server;
+package dev.keva.app;
 
+import dev.keva.server.Application;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;
@@ -17,7 +18,7 @@ class ApplicationTest {
         new Thread(() -> Application.main(ARGS)).start();
         TimeUnit.SECONDS.sleep(5);
 
-        Jedis jedis = new Jedis("localhost", 6379);
+        val jedis = new Jedis("localhost", 6379);
         val pong = jedis.ping();
         assertEquals("PONG", pong);
     }

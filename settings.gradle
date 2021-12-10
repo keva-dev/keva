@@ -1,5 +1,6 @@
 rootProject.name = 'keva'
 
+include 'app'
 include 'server'
 include 'store'
 include 'protocol'

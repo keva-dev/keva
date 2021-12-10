@@ -1,4 +1,4 @@
-package dev.keva.server;
+package dev.keva.app;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
