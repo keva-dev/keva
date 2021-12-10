@@ -43,13 +43,13 @@ cd keva
 Run:
 
 ```
-./gradlew :server:run
+./gradlew :app:run
 ```
 
 Build:
 
 ```
-./gradlew :build:server
+./gradlew :app:build
 ```
 
 ## License
