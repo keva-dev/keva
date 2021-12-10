@@ -8,9 +8,9 @@ java {
 }
 
 dependencies {
-    implementation project(':protocol')
+    implementation project(':util')
     implementation 'net.openhft:chronicle-map:3.21.86'
-    implementation 'org.apache.commons:commons-lang3:3.0'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
 }
 
 javadoc {

@@ -1,7 +1,8 @@
 rootProject.name = 'keva'
 
-include 'app'
-include 'core'
-include 'store'
-include 'protocol'
+include 'util'
 include 'config'
+include 'protocol'
+include 'store'
+include 'core'
+include 'app'

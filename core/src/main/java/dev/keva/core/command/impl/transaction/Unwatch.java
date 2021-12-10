@@ -5,7 +5,7 @@ import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.StatusReply;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.val;

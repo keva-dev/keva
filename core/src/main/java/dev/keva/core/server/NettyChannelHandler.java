@@ -4,7 +4,7 @@ import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
-import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.ChannelHandler.Sharable;

@@ -2,8 +2,8 @@ package dev.keva.core.command.impl.transaction.manager;
 
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.protocol.resp.Command;
-import dev.keva.protocol.resp.hashbytes.BytesKey;
-import dev.keva.protocol.resp.hashbytes.BytesValue;
+import dev.keva.util.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;

@@ -8,9 +8,7 @@ java {
 }
 
 dependencies {
-    implementation project(':util')
-    implementation 'io.netty:netty-handler:4.1.70.Final'
-    implementation 'io.netty:netty-buffer:4.1.70.Final'
+    implementation 'com.google.guava:guava:31.0.1-jre'
 }
 
 javadoc {

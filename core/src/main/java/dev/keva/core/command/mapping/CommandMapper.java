@@ -11,7 +11,7 @@ import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.protocol.resp.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;

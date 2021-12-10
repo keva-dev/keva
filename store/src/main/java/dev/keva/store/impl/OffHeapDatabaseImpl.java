@@ -1,7 +1,7 @@
 package dev.keva.store.impl;
 
-import dev.keva.protocol.resp.hashbytes.BytesKey;
-import dev.keva.protocol.resp.hashbytes.BytesValue;
+import dev.keva.util.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;

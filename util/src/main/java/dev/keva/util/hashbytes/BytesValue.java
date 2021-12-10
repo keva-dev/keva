@@ -1,4 +1,4 @@
-package dev.keva.protocol.resp.hashbytes;
+package dev.keva.util.hashbytes;
 
 import java.io.Serializable;
 

@@ -2,15 +2,18 @@ plugins {
     id 'com.adarshr.test-logger' version '2.1.0'
 }
 
+evaluationDependsOn(':util')
+
 java {
     withJavadocJar()
     withSourcesJar()
 }
 
 dependencies {
+    implementation project(':util')
+    implementation project(':config')
     implementation project(':protocol')
     implementation project(':store')
-    implementation project(':config')
 
     implementation 'io.netty:netty-handler:4.1.70.Final'
     implementation 'io.netty:netty-buffer:4.1.70.Final'
@@ -24,17 +27,23 @@ dependencies {
     implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
 
     testImplementation 'redis.clients:jedis:3.7.0'
+}
 
-    // MTC lib depends on junit 4
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
-    // noinspection GradlePackageUpdate
-    testRuntimeOnly('org.junit.vintage:junit-vintage-engine:5.7.2')
+jar {
+    dependsOn(':util:build')
+    dependsOn(':config:build')
+    dependsOn(':protocol:build')
+    dependsOn(':store:build')
+    project.configurations.implementation.canBeResolved = true
+    from {
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'core'
+            artifactId = 'kevadb'
             from components.java
             versionMapping {
                 usage('java-api') {
@@ -45,8 +54,8 @@ publishing {
                 }
             }
             pom {
-                name = 'Keva Core'
-                description = 'KevaDB Core'
+                name = 'KevaDB'
+                description = 'KevaDB - Low-latency in-memory key-value store, Redis drop-in alternative'
                 url = 'https://keva.dev/'
                 licenses {
                     license {
