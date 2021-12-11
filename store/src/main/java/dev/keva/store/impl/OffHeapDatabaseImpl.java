@@ -31,7 +31,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                     .name("keva-chronicle-map")
                     .averageKey("SampleSampleSampleKey".getBytes())
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
-                    .entries(100);
+                    .entries(1_000_000);
 
             boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
