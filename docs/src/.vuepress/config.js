@@ -56,6 +56,10 @@ module.exports = {
         text: 'Keva Web',
         link: 'https://github.com/keva-dev/keva-web',
       },
+      {
+        text: 'Slack',
+        link: 'https://join.slack.com/t/kevadev/shared_invite/zt-103vkwyki-pwum_qmcJgaOq6FIy3k2GQ',
+      },
     ],
     sidebar: {
       '/guide/': [

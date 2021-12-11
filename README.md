@@ -29,6 +29,8 @@ Want to file a bug, contribute some code, or improve documentation? Excellent!
 
 First, [see Developer Guide](https://keva.dev/guide/developer-guide.html).
 
+Join [our Slack workspace](https://join.slack.com/t/kevadev/shared_invite/zt-103vkwyki-pwum_qmcJgaOq6FIy3k2GQ) to chat with us.
+
 Pull requests are encouraged and always welcome. [Pick an issue](https://github.com/keva-dev/keva/issues) and help
 us out!
 
