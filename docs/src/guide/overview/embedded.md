@@ -21,6 +21,8 @@ dependencies {
 }
 ```
 
+(please use `./gradlew build --refresh-dependencies` to force reload the snapshot dependencies)
+
 or:
 
 `pom.xml`
