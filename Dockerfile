@@ -20,7 +20,7 @@ COPY --from=builder /root/src/keva/app/build/libs/app-1.0-SNAPSHOT-all.jar /root
 
 EXPOSE 6379
 
-ENTRYPOINT ["java","-jar","keva.jar"]
+ENTRYPOINT ["java","-jar","-Xms24m","-Xmx256m","keva.jar"]
 
 # docker build -t keva-server .
 # docker run -d --name keva-server --network=host -p 6767:6379 keva-server:latest
