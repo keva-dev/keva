@@ -2,8 +2,6 @@ plugins {
     id 'com.adarshr.test-logger' version '2.1.0'
 }
 
-evaluationDependsOn(':util')
-
 java {
     withJavadocJar()
     withSourcesJar()
@@ -12,7 +10,7 @@ java {
 dependencies {
     implementation project(':util')
     implementation project(':config')
-    implementation project(':protocol')
+    implementation project(':resp-protocol')
     implementation project(':store')
 
     implementation 'io.netty:netty-handler:4.1.70.Final'
@@ -27,17 +25,6 @@ dependencies {
     implementation files('libs/keva-ioc-0.1.0-SNAPSHOT.jar')
 
     testImplementation 'redis.clients:jedis:3.7.0'
-}
-
-jar {
-    dependsOn(':util:build')
-    dependsOn(':config:build')
-    dependsOn(':protocol:build')
-    dependsOn(':store:build')
-    project.configurations.implementation.canBeResolved = true
-    from {
-        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
-    }
 }
 
 publishing {

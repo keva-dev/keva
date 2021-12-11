@@ -9,8 +9,8 @@ java {
 
 dependencies {
     implementation project(':util')
-    implementation 'net.openhft:chronicle-map:3.21.86'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'io.netty:netty-handler:4.1.70.Final'
+    implementation 'io.netty:netty-buffer:4.1.70.Final'
 }
 
 javadoc {
@@ -22,7 +22,7 @@ javadoc {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = 'store'
+            artifactId = 'resp-protocol'
             from components.java
             versionMapping {
                 usage('java-api') {
@@ -33,7 +33,7 @@ publishing {
                 }
             }
             pom {
-                name = 'KevaDB Store'
+                name = 'KevaDB RESP Codec for Netty'
                 description = 'KevaDB - Low-latency in-memory key-value store, Redis drop-in alternative'
                 url = 'https://keva.dev/'
                 licenses {
