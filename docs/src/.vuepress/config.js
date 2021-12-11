@@ -73,6 +73,7 @@ module.exports = {
             'overview/persistence',
             'overview/security',
             'overview/replication',
+            'overview/embedded',
             'overview/kql',
           ]
         },
