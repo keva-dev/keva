@@ -33,7 +33,16 @@ public class AOFContainer {
             FileOutputStream fos = new FileOutputStream(getWorkingDir() + "keva.aof", true);
             output = isExists ? new AppendOnlyObjectOutputStream(fos) : new ObjectOutputStream(fos);
         } catch (IOException e) {
-            log.error("Error creating AOF file", e);
+            if (e instanceof FileNotFoundException) {
+                log.info("AOF file not found, creating new file...");
+                if (e.getMessage().contains("Permission denied")) {
+                    log.error("Permission denied to access AOF file, please check your file permissions");
+                    System.exit(1);
+                }
+            } else {
+                log.error("Error writing to AOF file", e);
+                System.exit(1);
+            }
         }
 
         if (kevaConfig.getAofInterval() != 0) {
