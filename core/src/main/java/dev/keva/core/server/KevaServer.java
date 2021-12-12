@@ -103,10 +103,9 @@ public class KevaServer implements Server {
             aofManager.init();
 
             val sync = server.bind(config.getPort()).sync();
-            log.info("{} server started at {}:{}, PID: {}, in {} ms",
+            log.info("{} server started at {}:{}, in {} ms",
                     KEVA_BANNER,
                     config.getHostname(), config.getPort(),
-                    ProcessHandle.current().pid(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
 

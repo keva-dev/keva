@@ -10,6 +10,7 @@ import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.val;
+import lombok.var;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;

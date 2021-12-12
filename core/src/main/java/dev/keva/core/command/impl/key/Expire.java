@@ -10,6 +10,8 @@ import dev.keva.protocol.resp.reply.IntegerReply;
 
 import java.nio.charset.StandardCharsets;
 
+import lombok.val;
+
 @Component
 @CommandImpl("expire")
 @ParamLength(2)
@@ -24,7 +26,7 @@ public class Expire {
     @Execute
     public IntegerReply execute(byte[] key, byte[] after) {
         try {
-            var afterInMillis = Long.parseLong(new String(after, StandardCharsets.UTF_8));
+            val afterInMillis = Long.parseLong(new String(after, StandardCharsets.UTF_8));
             expirationManager.expireAfter(key, afterInMillis);
             return new IntegerReply(1);
         } catch (Exception ignore) {

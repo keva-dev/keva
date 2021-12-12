@@ -15,7 +15,7 @@ public final class ConfigLoader {
     public static final String DEFAULT_FILE_PATH = Paths.get(".", "keva.properties").toString();
 
     public static <T> T loadConfig(String[] args, Class<T> clazz) throws IOException {
-        var returnConf = ConfigLoaderUtil.fromProperties(new Properties(), clazz);
+        T returnConf = ConfigLoaderUtil.fromProperties(new Properties(), clazz);
         val config = ArgsParser.parse(args);
         val overrider = ConfigLoaderUtil.fromArgs(config, clazz);
 

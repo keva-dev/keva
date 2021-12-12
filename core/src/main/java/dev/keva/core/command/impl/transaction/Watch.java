@@ -14,6 +14,7 @@ import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.val;
+import lombok.var;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 

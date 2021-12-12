@@ -3,7 +3,7 @@
 ## Requirements
 
 - Linux/macOS environment
-- Java 11 (JDK/JRE 11) or higher
+- Java 8 (JDK/JRE 8) or higher
 
 ## Download
 

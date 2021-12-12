@@ -12,6 +12,8 @@ import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
+import lombok.var;
+
 @Component
 @CommandImpl("multi")
 @ParamLength(0)

@@ -10,6 +10,8 @@ import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
+import lombok.val;
+
 import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;
 
 @Component
@@ -27,7 +29,7 @@ public class Exec {
 
     @Execute
     public Reply<?> execute(ChannelHandlerContext ctx) throws InterruptedException {
-        var txContext = manager.getTransactions().get(ctx.channel());
+        val txContext = manager.getTransactions().get(ctx.channel());
         if (txContext == null) {
             return NIL_REPLY;
         }

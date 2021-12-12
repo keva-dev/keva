@@ -12,6 +12,7 @@ import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import lombok.val;
+import lombok.var;
 
 import java.util.Set;
 

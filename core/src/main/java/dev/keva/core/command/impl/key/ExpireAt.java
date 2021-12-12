@@ -10,6 +10,8 @@ import dev.keva.protocol.resp.reply.IntegerReply;
 
 import java.nio.charset.StandardCharsets;
 
+import lombok.val;
+
 @Component
 @CommandImpl("expireat")
 @ParamLength(2)
@@ -24,7 +26,7 @@ public class ExpireAt {
     @Execute
     public IntegerReply execute(byte[] key, byte[] at) {
         try {
-            var atInMillis = Long.parseLong(new String(at, StandardCharsets.UTF_8));
+            val atInMillis = Long.parseLong(new String(at, StandardCharsets.UTF_8));
             expirationManager.expireAt(key, atInMillis);
             return new IntegerReply(1);
         } catch (Exception ignore) {

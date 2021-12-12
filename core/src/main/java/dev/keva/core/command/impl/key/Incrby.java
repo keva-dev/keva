@@ -12,6 +12,8 @@ import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 
+import lombok.var;
+
 import static dev.keva.core.command.annotation.ParamLength.Type.EXACT;
 
 @Component
