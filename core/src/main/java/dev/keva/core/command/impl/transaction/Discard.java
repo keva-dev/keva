@@ -9,6 +9,8 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
 import io.netty.channel.ChannelHandlerContext;
 
+import lombok.val;
+
 @Component
 @CommandImpl("discard")
 @ParamLength(0)
@@ -22,7 +24,7 @@ public class Discard {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx) {
-        var txContext = manager.getTransactions().get(ctx.channel());
+        val txContext = manager.getTransactions().get(ctx.channel());
         if (txContext != null) {
             txContext.discard();
         }

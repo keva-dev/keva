@@ -2,7 +2,7 @@
 
 ## Build requirements
 
-- [OpenJDK 11](https://openjdk.java.net/projects/jdk/11/)
+- [JDK 8](https://openjdk.java.net/install/)
 - Consider using [Jabba](https://github.com/shyiko/jabba) for convenient installation of JDK.
 
 ## How to build

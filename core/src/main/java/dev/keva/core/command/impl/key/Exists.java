@@ -9,6 +9,8 @@ import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
 
+import lombok.var;
+
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
 @Component

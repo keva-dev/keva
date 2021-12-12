@@ -22,7 +22,7 @@ public class Unwatch {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx, byte[]... keys) {
-        var txContext = manager.getTransactions().get(ctx.channel());
+        val txContext = manager.getTransactions().get(ctx.channel());
         if (txContext != null) {
             if (keys.length == 0) {
                 txContext.getWatchMap().clear();

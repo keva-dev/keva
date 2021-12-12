@@ -8,8 +8,11 @@ import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import lombok.var;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -245,7 +248,7 @@ public abstract class AbstractServerTest {
     void getSetLongString() {
         try {
             final int aKB = 1024;
-            String testStr = "a".repeat(Math.max(0, aKB));
+            String testStr = String.join("", Collections.nCopies(aKB, "a"));
             String setAbc = jedis.set("abc", testStr);
             String getAbc = jedis.get("abc");
             assertEquals("OK", setAbc);
@@ -260,7 +263,7 @@ public abstract class AbstractServerTest {
     void getSetLongKeyString() {
         try {
             final int aKB = 1026;
-            final String testStr = "a".repeat(Math.max(0, aKB));
+            final String testStr = String.join("", Collections.nCopies(aKB, "a"));
             final String setAbc = jedis.set(testStr, "123");
             final String getAbc = jedis.get(testStr);
             assertEquals("OK", setAbc);
