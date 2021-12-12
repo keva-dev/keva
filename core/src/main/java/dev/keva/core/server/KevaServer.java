@@ -9,7 +9,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
 import dev.keva.store.KevaDatabase;
-import dev.keva.util.process.ProcessUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -104,10 +103,9 @@ public class KevaServer implements Server {
             aofManager.init();
 
             val sync = server.bind(config.getPort()).sync();
-            log.info("{} server started at {}:{}, PID: {}, in {} ms",
+            log.info("{} server started at {}:{}, in {} ms",
                     KEVA_BANNER,
                     config.getHostname(), config.getPort(),
-                    ProcessUtil.getProcessId(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
 
