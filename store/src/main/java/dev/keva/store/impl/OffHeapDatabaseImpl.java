@@ -8,6 +8,7 @@ import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import lombok.var;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;

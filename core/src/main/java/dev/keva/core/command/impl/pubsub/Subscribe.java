@@ -13,6 +13,7 @@ import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.val;
+import lombok.var;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

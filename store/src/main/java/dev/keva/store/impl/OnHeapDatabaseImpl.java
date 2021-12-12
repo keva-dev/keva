@@ -6,6 +6,7 @@ import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.val;
+import lombok.var;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
