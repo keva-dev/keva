@@ -81,10 +81,13 @@ public class AOFContainer {
         bufferLock.lock();
         try {
             for (Command command : buffer) {
-                output.writeObject(command);
+                output.writeObject(command.getObjects());
             }
         } finally {
             output.flush();
+            for (Command command : buffer) {
+                command.recycle();
+            }
             buffer.clear();
             bufferLock.unlock();
         }
@@ -92,10 +95,12 @@ public class AOFContainer {
 
     public void syncPerMutation(Command command) {
         try {
-            output.writeObject(command);
+            output.writeObject(command.getObjects());
             output.flush();
         } catch (IOException e) {
             log.error("Error writing AOF file", e);
+        } finally {
+            command.recycle();
         }
     }
 
@@ -106,8 +111,8 @@ public class AOFContainer {
             ObjectInputStream input = new ObjectInputStream(fis);
             while (true) {
                 try {
-                    Command command = (Command) input.readObject();
-                    commands.add(command);
+                    byte[][] objects = (byte[][]) input.readObject();
+                    commands.add(Command.newInstance(objects, false));
                 } catch (EOFException e) {
                     fis.close();
                     return commands;
