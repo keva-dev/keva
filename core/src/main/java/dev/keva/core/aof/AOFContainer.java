@@ -114,6 +114,7 @@ public class AOFContainer {
                     byte[][] objects = (byte[][]) input.readObject();
                     commands.add(Command.newInstance(objects, false));
                 } catch (EOFException e) {
+                    log.error("Error while reading AOF command", e);
                     fis.close();
                     return commands;
                 } catch (ClassNotFoundException e) {
