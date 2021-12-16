@@ -34,7 +34,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
                 }
             }
             try {
-                out.add(new Command(bytes, false));
+                out.add(Command.newInstance(bytes, false));
             } finally {
                 bytes = null;
                 arguments = 0;
@@ -60,7 +60,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             b[0] = new byte[buf.readableBytes()];
             buf.getBytes(0, b[0]);
             in.skipBytes(isCRLF ? 2 : 1);
-            out.add(new Command(b, true));
+            out.add(Command.newInstance(b, true));
         }
     }
 }

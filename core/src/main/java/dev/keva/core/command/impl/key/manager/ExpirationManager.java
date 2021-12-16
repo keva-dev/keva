@@ -70,7 +70,7 @@ public class ExpirationManager {
                 byte[][] data = new byte[2][];
                 data[0] = "delete".getBytes();
                 data[1] = key;
-                Command command = new Command(data, false);
+                Command command = Command.newInstance(data, false);
                 Lock lock = database.getLock();
                 lock.lock();
                 try {
