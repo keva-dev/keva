@@ -12,6 +12,7 @@ with TCP sockets and a [RESP](https://redis.io/topics/protocol) protocol.
 ![Lines of code](https://img.shields.io/tokei/lines/github/keva-dev/keva?style=flat-square)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/keva-dev/keva?style=flat-square)
 ![GitHub](https://img.shields.io/github/license/keva-dev/keva?style=flat-square)
+![Maven Central](https://img.shields.io/maven-central/v/dev.keva/kevadb?style=flat-square)
 
 Major dependencies: [Netty](https://github.com/netty/netty), [ChronicleMap](https://github.com/OpenHFT/Chronicle-Map)
 

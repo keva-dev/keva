@@ -67,4 +67,19 @@ Keva project is built by a team of enthusiastic and passionate engineers formed 
             </p>
         </td>
     </tr>
+    <tr style="background: #fff">
+        <td><img src="https://avatars.githubusercontent.com/u/18006732?v=4" style="max-width: 100px;"></td>
+        <td>
+            <h3>An Nguyen</h3>
+            <p>Core Focus</p>
+            <p>
+                <img src="https://image.flaticon.com/icons/png/512/25/25231.png" style="max-width: 12.5px; margin-right: 2.5px;"/>
+                <a href="https://github.com/yampml" target="_blank">yampml</a>
+            </p>
+            <p>
+                <img src="https://i.imgur.com/dKTwo4A.jpg" style="max-width: 12.5px; margin-right: 2.5px;"/>
+                <a href="mailto:an@keva.dev" target="_blank">an@keva.dev</a>
+            </p>
+        </td>
+    </tr>
 </table>
