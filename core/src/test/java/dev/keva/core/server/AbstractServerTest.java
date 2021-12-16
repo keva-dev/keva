@@ -107,6 +107,39 @@ public abstract class AbstractServerTest {
     }
 
     @Test
+    void wrongTypeSet() {
+        try {
+            val setAbc = jedis.set("abc", "123");
+            assertEquals("OK", setAbc);
+            jedis.lpush("abc", "123");
+        } catch (Exception e) {
+            assertEquals(JedisDataException.class, e.getClass());
+        }
+    }
+
+    @Test
+    void wrongTypeSet2() {
+        try {
+            val setAbc = jedis.lpush("abc", "123");
+            assertEquals(1, setAbc);
+            jedis.hset("abc", "key", "val");
+        } catch (Exception e) {
+            assertEquals(JedisDataException.class, e.getClass());
+        }
+    }
+
+    @Test
+    void wrongTypeSet3() {
+        try {
+            val setAbc = jedis.hset("abc", "key", "val");
+            assertEquals(1, setAbc);
+            jedis.lpush("abc", "123");
+        } catch (Exception e) {
+            assertEquals(JedisDataException.class, e.getClass());
+        }
+    }
+
+    @Test
     void transaction() {
         try {
             val transaction = jedis.multi();

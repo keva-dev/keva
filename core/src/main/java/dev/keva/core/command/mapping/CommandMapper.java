@@ -19,6 +19,7 @@ import dev.keva.store.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.SerializationException;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
@@ -120,7 +121,7 @@ public class CommandMapper {
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);
                             if (e instanceof InvocationTargetException) {
-                                if (e.getCause() instanceof ClassCastException) {
+                                if (e.getCause() instanceof SerializationException || e.getCause() instanceof ClassCastException) {
                                     return new ErrorReply("ERR WRONGTYPE Operation against a key holding the wrong kind of value");
                                 }
                                 return new ErrorReply("ERR " + e.getCause().getMessage());
