@@ -1,10 +1,10 @@
 # Benchmark
 
 :::warning WIP
-Because we're in early development stage, a more detailed test will be provided later (when Keva is more mature and stable)
+Because we're in early development stage, a more detailed benchmark will be provided later (when Keva is more mature and stable)
 :::
 
-Keva's performance is on par with the Redis 6.2.6
+Keva's throughput and latency (`GET`/`SET`) is on par with the Redis 6.2.6
 
 Redis 6.2.6:
 

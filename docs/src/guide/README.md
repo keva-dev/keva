@@ -8,7 +8,7 @@ with TCP sockets and a [RESP](https://redis.io/topics/protocol) protocol.
 
 ## Features
 
-- High performance and low latency in-memory key-value database
+- Low latency in-memory key-value database
 - Compatible with Redis protocol
 - Multithreading engine helps to maximize the use of system's resources
 - Persistence in-memory data to disk
