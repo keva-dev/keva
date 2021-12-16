@@ -942,6 +942,38 @@ public abstract class AbstractServerTest {
     }
 
     @Test
+    void decr() {
+        try {
+            String set1 = jedis.set("mykey", "10");
+            assertEquals(set1, "OK");
+            Long decr1 = jedis.decr("mykey");
+            assertEquals(decr1, 9);
+            String set2 = jedis.set("errKey", "foobar");
+            assertThrows(JedisDataException.class, () -> jedis.decr("errKey"));
+
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void decrBy() {
+        try {
+            String set1 = jedis.set("mykey", "10");
+            assertEquals(set1, "OK");
+            Long decrby1 = jedis.decrBy("mykey", 5);
+            assertEquals(decrby1, 5);
+            Long decrby2 = jedis.decrBy("mykey", 10);
+            assertEquals(decrby2, -5);
+            String set2 = jedis.set("mykey2", "abc123");
+
+            assertThrows(JedisDataException.class, () -> jedis.decrBy("mykey2", 10));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
     void type() {
         try {
             val set1 = jedis.set("key1", "Hello World");
@@ -954,6 +986,62 @@ public abstract class AbstractServerTest {
             assertEquals(1, hashSet.intValue());
             val type3 = jedis.type("key3");
             assertEquals("hash", type3);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void getRange() {
+        try {
+            String set1 = jedis.set("mykey", "This is a string");
+            String getrange1 = jedis.getrange("mykey", 0, 3);
+            assertEquals("This", getrange1);
+            String getrange2 = jedis.getrange("mykey", -3, -1);
+            assertEquals("ing", getrange2);
+            String getrange3 = jedis.getrange("mykey", 0, -1);
+            assertEquals("This is a string", getrange3);
+            String getrange4 = jedis.getrange("mykey", 10, 100);
+            assertEquals("string", getrange4);
+            String getrange5 = jedis.getrange("mykey", 10, 5);
+            assertEquals("", getrange5);
+            String getrange6 = jedis.getrange("mykey", -10, 10);
+            assertEquals("s a s", getrange6);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void incrByFloat() {
+        try {
+            String set1 = jedis.set("mykey", "10.50");
+            assertEquals(set1, "OK");
+            Double incrbyfloat1 = jedis.incrByFloat("mykey", 0.1);
+            assertEquals(incrbyfloat1, 10.6);
+            Double incrbyfloat2 = jedis.incrByFloat("mykey", -5);
+            assertEquals(incrbyfloat2, 5.6);
+            String set2 = jedis.set("mykey", "5.0e3");
+            assertEquals(set2, "OK");
+            Double incrbyfloat3 = jedis.incrByFloat("mykey", 2.0e2);
+            assertEquals(incrbyfloat3, 5200);
+            String set3 = jedis.set("mykey3", "abc");
+            assertEquals(set3, "OK");
+            assertThrows(JedisDataException.class, () -> jedis.incrByFloat("mykey3", 123));
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void mset() {
+        try {
+            String mset1 = jedis.mset("key1", "Hello", "key2", "World");
+            assertEquals("OK", mset1);
+            String get1 = jedis.get("key1");
+            assertEquals("Hello", get1);
+            String get2 = jedis.get("key2");
+            assertEquals("World", get2);
         } catch (Exception e) {
             fail(e);
         }
