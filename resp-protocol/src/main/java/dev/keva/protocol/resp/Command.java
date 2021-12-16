@@ -1,6 +1,8 @@
 package dev.keva.protocol.resp;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.Recycler;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
@@ -8,18 +10,47 @@ import java.nio.charset.StandardCharsets;
 public class Command implements Serializable {
     private static final byte LOWER_DIFF = 'a' - 'A';
 
-    private final Object[] objects;
+    private static final Recycler<Command> RECYCLER = new Recycler<Command>() {
+        protected Command newObject(Recycler.Handle<Command> handle) {
+            return new Command(handle);
+        }
+    };
 
-    public Command(Object[] objects, boolean inline) {
+    private final Recycler.Handle<Command> handle;
+
+    @Getter
+    private byte[][] objects;
+
+    private Command(Recycler.Handle<Command> handle) {
+        this.handle = handle;
+    }
+
+    public static Command newInstance(byte[][] objects, boolean inline) {
+        if (objects == null) {
+            throw new IllegalArgumentException("objects must not be null");
+        }
+        if (objects.length == 0) {
+            throw new IllegalArgumentException("objects must not be empty");
+        }
+
+        Command command = RECYCLER.get();
         if (inline) {
-            byte[] objs = ByteUtil.getBytes(objects[0]);
+            byte[] objs = objects[0];
             String[] strings = new String(objs, StandardCharsets.UTF_8).trim().split("\\s+");
-            objects = new Object[strings.length];
+            objects = new byte[strings.length][];
             for (int i = 0; i < strings.length; i++) {
                 objects[i] = ByteUtil.getBytes(strings[i]);
             }
         }
-        this.objects = objects;
+        command.objects = objects;
+        // LowerCase bytes
+        for (int i = 0; i < objects[0].length; i++) {
+            byte b = objects[0][i];
+            if (b >= 'A' && b <= 'Z') {
+                objects[0][i] = (byte) (b + LOWER_DIFF);
+            }
+        }
+        return command;
     }
 
     public int getLength() {
@@ -31,15 +62,7 @@ public class Command implements Serializable {
     }
 
     public byte[] getName() {
-        byte[] name = ByteUtil.getBytes(objects[0]);
-        // LowerCase bytes
-        for (int i = 0; i < name.length; i++) {
-            byte b = name[i];
-            if (b >= 'A' && b <= 'Z') {
-                name[i] = (byte) (b + LOWER_DIFF);
-            }
-        }
-        return name;
+        return objects[0];
     }
 
     public void toArguments(Object[] arguments, Class<?>[] types, ChannelHandlerContext ctx) {
@@ -60,11 +83,16 @@ public class Command implements Serializable {
                 int left = isFirstVararg ? (objects.length - position - 1) : (objects.length - 1);
                 byte[][] lastArgument = new byte[left][];
                 for (int i = 0; i < left; i++) {
-                    lastArgument[i] = isFirstVararg ? (byte[]) (objects[i + position + 1]) : (byte[]) (objects[i + position]);
+                    lastArgument[i] = isFirstVararg ? objects[i + position + 1] : objects[i + position];
                 }
                 arguments[position] = lastArgument;
             }
             position++;
         }
+    }
+
+    public void recycle() {
+        objects = null;
+        handle.recycle(this);
     }
 }
