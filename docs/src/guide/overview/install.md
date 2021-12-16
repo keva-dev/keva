@@ -34,7 +34,7 @@ Parameters:
 
 ## Docker
 
-Available in [Docker Hub](https://hub.docker.com/r/kevadev/keva-server)
+Available at [Docker Hub](https://hub.docker.com/r/kevadev/keva-server)
 
 Pull image:
 
