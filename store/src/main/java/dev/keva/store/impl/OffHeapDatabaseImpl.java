@@ -1,11 +1,13 @@
 package dev.keva.store.impl;
 
+import dev.keva.store.type.ZSet;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
@@ -16,8 +18,21 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
+
+import static dev.keva.util.Constants.FLAG_CH;
+import static dev.keva.util.Constants.FLAG_GT;
+import static dev.keva.util.Constants.FLAG_LT;
+import static dev.keva.util.Constants.FLAG_NX;
+import static dev.keva.util.Constants.FLAG_XX;
 
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
@@ -712,6 +727,102 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                 result[i] = got;
             }
             return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int zadd(final byte[] key, @NonNull final AbstractMap.SimpleEntry<Double, BytesKey>[] members, final int flags) {
+        boolean xx = (flags & FLAG_XX) != 0;
+        boolean nx = (flags & FLAG_NX) != 0;
+        boolean lt = (flags & FLAG_LT) != 0;
+        boolean gt = (flags & FLAG_GT) != 0;
+        boolean ch = (flags & FLAG_CH) != 0;
+
+        // Track both to eliminate conditional branch
+        int added = 0, changed = 0;
+
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            ZSet zSet;
+            zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
+            for (AbstractMap.SimpleEntry<Double, BytesKey> member : members) {
+                Double currScore = zSet.getScore(member.getValue());
+                if (currScore == null) {
+                    if (xx) {
+                        continue;
+                    }
+                    currScore = member.getKey();
+                    zSet.add(new AbstractMap.SimpleEntry<>(currScore, member.getValue()));
+                    ++added;
+                    ++changed;
+                    continue;
+                }
+                Double newScore = member.getKey();
+                if(nx || (lt && newScore >= currScore) || (gt && newScore <= currScore)) {
+                    continue;
+                }
+                if (!newScore.equals(currScore)) {
+                    zSet.removeByKey(member.getValue());
+                    zSet.add(member);
+                    ++changed;
+                }
+            }
+            chronicleMap.put(key, SerializationUtils.serialize(zSet));
+            return ch ? changed : added;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public Double zincrby(byte[] key, Double incr, BytesKey e, int flags) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            ZSet zSet;
+            zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
+            Double currentScore = zSet.getScore(e);
+            if (currentScore == null) {
+                if ((flags & FLAG_XX) != 0) {
+                    return null;
+                }
+                currentScore = incr;
+                zSet.add(new AbstractMap.SimpleEntry<>(currentScore, e));
+                chronicleMap.put(key, SerializationUtils.serialize(zSet));
+                return currentScore;
+            }
+            if ((flags & FLAG_NX) != 0) {
+                return null;
+            }
+            if ((flags & FLAG_LT) != 0 && (incr >= 0 || currentScore.isInfinite())) {
+                return null;
+            }
+            if ((flags & FLAG_GT) != 0 && (incr <= 0 || currentScore.isInfinite())) {
+                return null;
+            }
+            zSet.remove(new AbstractMap.SimpleEntry<>(currentScore, e));
+            currentScore += incr;
+            zSet.add(new AbstractMap.SimpleEntry<>(currentScore, e));
+            chronicleMap.put(key, SerializationUtils.serialize(zSet));
+            return currentScore;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public Double zscore(byte[] key, byte[] member) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            if (value == null) {
+                return null;
+            }
+            ZSet zset = (ZSet) SerializationUtils.deserialize(value);
+            return zset.getScore(new BytesKey(member));
         } finally {
             lock.unlock();
         }

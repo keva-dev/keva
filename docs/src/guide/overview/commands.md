@@ -100,6 +100,14 @@ Implemented commands:
 </details>
 
 <details>
+    <summary>SortedSet</summary>
+
+- ZADD
+- ZSCORE
+
+</details>
+
+<details>
     <summary>Pub/Sub</summary>
 
 - SUBSCRIBE
