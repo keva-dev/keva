@@ -9,10 +9,13 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import lombok.var;
+import redis.clients.jedis.params.ZAddParams;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -825,6 +828,101 @@ public abstract class AbstractServerTest {
         } catch (Exception e) {
             fail(e);
         }
+    }
+
+    @Test
+    void zaddWithXXAndNXErrs() {
+        assertThrows(JedisDataException.class, () -> {
+            jedis.zadd("zset", 1.0, "val", new ZAddParams().xx().nx());
+        });
+    }
+
+    @Test
+    void zaddSingleWithNxAndGtErrs() {
+        assertThrows(JedisDataException.class, () -> {
+            jedis.zadd("zset", 1.0, "val", new ZAddParams().gt().nx());
+        });
+    }
+
+    @Test
+    void zaddSingleWithNxAndLtErrs() {
+        assertThrows(JedisDataException.class, () -> {
+            jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().nx());
+        });
+    }
+
+    @Test
+    void zaddSingleWithGtAndLtErrs() {
+        assertThrows(JedisDataException.class, () -> {
+            jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().gt());
+        });
+    }
+
+    @Test
+    void zaddSingleWithoutOptions() {
+        try {
+            var result = jedis.zadd("zset", 1.0, "val");
+            assertEquals(1, result);
+
+            result = jedis.zadd("zset", 1.0, "val");
+            assertEquals(0, result);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void zaddMultipleWithoutOptions() {
+        try {
+            Map<String, Double> members = new HashMap<>();
+            int numMembers = 100;
+            for(int i=0; i<numMembers; ++i) {
+                members.put(Integer.toString(i), (double) i);
+            }
+            var result = jedis.zadd("zset", members);
+            assertEquals(numMembers, result);
+
+            result = jedis.zadd("zset", members);
+            assertEquals(0, result);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void zaddCh() {
+        try {
+            var result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
+            assertEquals(1, result);
+
+            result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
+            assertEquals(0, result);
+
+            result = jedis.zadd("zset", 2.0, "mem", new ZAddParams().ch());
+            assertEquals(1, result);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void zscoreNonExistingKey() {
+        val result = jedis.zscore("key", "mem");
+        assertNull(result);
+    }
+
+    @Test
+    void zscoreNonExistingMember() {
+        jedis.zadd("zset", 1.0, "mem");
+        val result = jedis.zscore("zset", "foo");
+        assertNull(result);
+    }
+
+    @Test
+    void zscoreExistingMember() {
+        jedis.zadd("zset", 1.0, "mem");
+        val result = jedis.zscore("zset", "mem");
+        assertEquals(result, 1.0);
     }
 
     @Test

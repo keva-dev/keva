@@ -11,6 +11,8 @@ import static dev.keva.protocol.resp.Encoding.numToBytes;
 
 public class BulkReply implements Reply<ByteBuf> {
     public static final BulkReply NIL_REPLY = new BulkReply();
+    public static final BulkReply POSITIVE_INFINITY_REPLY = new BulkReply("inf");
+    public static final BulkReply NEGATIVE_INFINITY_REPLY = new BulkReply("-inf");
 
     public static final char MARKER = '$';
     private final ByteBuf bytes;
@@ -22,11 +24,7 @@ public class BulkReply implements Reply<ByteBuf> {
     }
 
     public BulkReply(byte[] bytes) {
-        if (bytes.length == 0) {
-            this.bytes = Unpooled.EMPTY_BUFFER;
-        } else {
-            this.bytes = Unpooled.wrappedBuffer(bytes);
-        }
+        this.bytes = Unpooled.wrappedBuffer(bytes);
         capacity = bytes.length;
     }
 
@@ -59,7 +57,7 @@ public class BulkReply implements Reply<ByteBuf> {
         os.writeByte(MARKER);
         os.writeBytes(numToBytes(capacity, true));
         if (capacity > 0) {
-            os.writeBytes(bytes);
+            os.writeBytes(bytes.array());
             os.writeBytes(CRLF);
         }
         if (capacity == 0) {

@@ -1,5 +1,8 @@
 package dev.keva.store;
 
+import dev.keva.util.hashbytes.BytesKey;
+
+import java.util.AbstractMap;
 import java.util.concurrent.locks.Lock;
 
 public interface KevaDatabase {
@@ -69,4 +72,9 @@ public interface KevaDatabase {
 
     byte[][] mget(byte[]... keys);
 
+    int zadd(byte[] key, AbstractMap.SimpleEntry<Double, BytesKey>[] members, int flags);
+
+    Double zincrby(byte[] key, Double score, BytesKey e, int flags);
+
+    Double zscore(byte[] key, byte[] member);
 }

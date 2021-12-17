@@ -24,7 +24,7 @@ public class AOFTest {
                 .persistence(false)
                 .aof(true)
                 .aofInterval(1000)
-                .workDirectory("./")
+                .workDirectory(System.getProperty("java.io.tmpdir"))
                 .build();
         val server = KevaServer.of(config);
         new Thread(() -> {
