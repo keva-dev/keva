@@ -8,6 +8,7 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
 import dev.keva.store.KevaDatabase;
+import dev.keva.store.lock.SpinLock;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,14 +72,14 @@ public class ExpirationManager {
                 data[0] = "delete".getBytes();
                 data[1] = key;
                 Command command = Command.newInstance(data, false);
-                Lock lock = database.getLock();
-                lock.lock();
+                SpinLock lock = database.getLock();
+                lock.exclusiveLock();
                 try {
                     aof.write(command);
                     database.remove(key);
                     clearExpiration(key);
                 } finally {
-                    lock.unlock();
+                    lock.exclusiveUnlock();
                 }
             } else {
                 database.remove(key);

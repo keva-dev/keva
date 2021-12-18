@@ -2,6 +2,7 @@ package dev.keva.core.command.impl.transaction.manager;
 
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.protocol.resp.Command;
+import dev.keva.store.lock.SpinLock;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
@@ -42,8 +43,8 @@ public class TransactionContext {
         isQueuing = false;
     }
 
-    public Reply<?> exec(ChannelHandlerContext ctx, Lock txLock) throws InterruptedException {
-        txLock.lock();
+    public Reply<?> exec(ChannelHandlerContext ctx, SpinLock txLock) throws InterruptedException {
+        txLock.exclusiveLock();
         try {
             for (val watch : watchMap.entrySet()) {
                 val key = watch.getKey();
@@ -74,7 +75,7 @@ public class TransactionContext {
 
             return new MultiBulkReply(replies);
         } finally {
-            txLock.unlock();
+            txLock.exclusiveUnlock();
         }
     }
 }

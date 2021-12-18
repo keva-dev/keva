@@ -1,12 +1,13 @@
 package dev.keva.store;
 
+import dev.keva.store.lock.SpinLock;
 import dev.keva.util.hashbytes.BytesKey;
 
 import java.util.AbstractMap;
 import java.util.concurrent.locks.Lock;
 
 public interface KevaDatabase {
-    Lock getLock();
+    SpinLock getLock();
 
     void flush();
 
