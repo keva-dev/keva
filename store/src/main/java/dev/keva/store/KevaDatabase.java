@@ -77,4 +77,13 @@ public interface KevaDatabase {
     Double zincrby(byte[] key, Double score, BytesKey e, int flags);
 
     Double zscore(byte[] key, byte[] member);
+
+    byte[] decrby(byte[] key, long amount);
+
+    byte[] getrange(byte[] key, byte[] start, byte[] end);
+
+    byte[] incrbyfloat(byte[] key, double amount);
+
+    void mset(byte[]... key);
+
 }
