@@ -1,7 +1,7 @@
 ---
 home: true
 heroImage: https://i.imgur.com/z0c9bV7.png
-tagline: High performance key-value store, used as Redis replacement
+tagline: Low latency in-memory key-value store, used as Redis replacement
 actionText: Quick Start →
 actionLink: /guide/
 features:
