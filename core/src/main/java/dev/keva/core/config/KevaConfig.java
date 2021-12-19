@@ -24,24 +24,24 @@ public class KevaConfig {
     @CliProp(name = "p", type = CliPropType.VAL)
     private Integer port;
 
-    @ConfigProp(name = "persistence", defaultVal = "true")
-    @CliProp(name = "ps", type = CliPropType.FLAG)
+    @ConfigProp(name = "save", defaultVal = "true")
+    @CliProp(name = "save", type = CliPropType.FLAG)
     private Boolean persistence;
 
-    @ConfigProp(name = "aof", defaultVal = "false")
-    @CliProp(name = "aof", type = CliPropType.FLAG)
+    @ConfigProp(name = "appendonly", defaultVal = "false")
+    @CliProp(name = "appendonly", type = CliPropType.FLAG)
     private Boolean aof;
 
-    @ConfigProp(name = "aof_interval", defaultVal = "1000")
-    @CliProp(name = "ai", type = CliPropType.VAL)
+    @ConfigProp(name = "appendfsync", defaultVal = "1000")
+    @CliProp(name = "appendfsync", type = CliPropType.VAL)
     private Integer aofInterval;
 
-    @ConfigProp(name = "work_directory", defaultVal = "./")
+    @ConfigProp(name = "dir", defaultVal = "./")
     @CliProp(name = "dir", type = CliPropType.VAL)
     private String workDirectory;
 
     @ConfigProp(name = "requirepass", defaultVal = "")
-    @CliProp(name = "pw", type = CliPropType.VAL)
+    @CliProp(name = "requirepass", type = CliPropType.VAL)
     private String password;
 
     @Bean
