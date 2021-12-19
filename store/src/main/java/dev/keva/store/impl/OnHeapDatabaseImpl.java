@@ -7,7 +7,6 @@ import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.val;
-import lombok.var;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -650,7 +649,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int setrange(byte[] key, byte[] offset, byte[] val) {
         lock.lock();
         try {
-            var offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
+            int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
             byte[] oldVal = map.get(new BytesKey(key)).getBytes();
             int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
             byte[] newVal = new byte[newValLength];
@@ -780,6 +779,80 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             ZSet zset = (ZSet) SerializationUtils.deserialize(value);
             return zset.getScore(new BytesKey(member));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public byte[] getrange(byte[] key, byte[] start, byte[] end) {
+        lock.lock();
+        try {
+            byte[] value = map.get (new BytesKey (key)).getBytes ();
+            int startInt = Integer.parseInt (new String (start, StandardCharsets.UTF_8));
+            int endInt = Integer.parseInt (new String (end, StandardCharsets.UTF_8));
+
+            // convert negative indexes to positive ones
+            if (startInt < 0 && endInt < 0 && startInt > endInt) {
+                return null;
+            }
+            if (startInt < 0) startInt = value.length + startInt;
+            if (endInt < 0) endInt = value.length + endInt;
+            if (startInt < 0) startInt = 0;
+            if (endInt < 0) endInt = 0;
+            if (endInt >= value.length) endInt = value.length - 1;
+
+            byte[] result;
+            if (startInt > endInt || value.length == 0) {
+                result = new String ("").getBytes ();
+            } else {
+                result = Arrays.copyOfRange(value, startInt, endInt + 1);
+            }
+            return result;
+        } finally {
+            lock.unlock ();
+        }
+    }
+
+    @Override
+    public byte[] incrbyfloat(byte[] key, double amount) {
+        lock.lock();
+        try {
+            return map.compute(new BytesKey(key), (k, oldVal) -> {
+                double curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Double.parseDouble(oldVal.toString());
+                }
+                curVal = curVal + amount;
+                return new BytesValue(Double.toString(curVal).getBytes(StandardCharsets.UTF_8));
+            }).getBytes();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void mset(byte[]... keys) {
+        lock.lock();
+        try {
+            for (int i = 0; i < keys.length; i += 2) {
+                map.put(new BytesKey(keys[i]), new BytesValue(keys[i + 1]));
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public byte[] decrby(byte[] key, long amount) {
+        lock.lock();
+        try {
+            return map.compute(new BytesKey(key), (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(oldVal.toString());
+                }
+                curVal = curVal - amount;
+                return new BytesValue(Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
+            }).getBytes();
         } finally {
             lock.unlock();
         }

@@ -51,6 +51,11 @@ Implemented commands:
 - MGET
 - STRLEN
 - SETRANGE
+- DECR
+- DECRBY
+- GETRANGE
+- MSET
+- INCRBYFLOAT
 
 </details>
 

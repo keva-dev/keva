@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import lombok.var;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;
@@ -696,7 +695,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int setrange(byte[] key, byte[] offset, byte[] val) {
         lock.lock();
         try {
-            var offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
+            int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
             byte[] oldVal = chronicleMap.get(key);
             int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
             byte[] newVal = new byte[newValLength];
@@ -723,7 +722,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             byte[][] result = new byte[keys.length][];
             for (int i = 0; i < keys.length; i++) {
                 byte[] key = keys[i];
-                val got = chronicleMap.get(key);
+                byte[] got = chronicleMap.get(key);
                 result[i] = got;
             }
             return result;
@@ -823,6 +822,80 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             ZSet zset = (ZSet) SerializationUtils.deserialize(value);
             return zset.getScore(new BytesKey(member));
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public byte[] getrange(byte[] key, byte[] start, byte[] end) {
+        lock.lock();
+        try {
+            byte[] value = chronicleMap.get(key);
+            int startInt = Integer.parseInt(new String(start, StandardCharsets.UTF_8));
+            int endInt = Integer.parseInt(new String(end, StandardCharsets.UTF_8));
+
+            // convert negative indexes to positive ones
+            if (startInt < 0 && endInt < 0 && startInt > endInt) {
+                return null;
+            }
+            if (startInt < 0) startInt = value.length + startInt;
+            if (endInt < 0) endInt = value.length + endInt;
+            if (startInt < 0) startInt = 0;
+            if (endInt < 0) endInt = 0;
+            if (endInt >= value.length) endInt = value.length - 1;
+
+            byte[] result;
+            if (startInt > endInt || value.length == 0) {
+                result = new String("").getBytes();
+            } else {
+                result = Arrays.copyOfRange(value, startInt, endInt + 1);
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public byte[] incrbyfloat(byte[] key, double amount) {
+        lock.lock();
+        try {
+            return chronicleMap.compute(key, (k, oldVal) -> {
+                double curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Double.parseDouble(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal + amount;
+                return Double.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void mset(byte[]... keys) {
+        lock.lock();
+        try {
+            for (int i = 0; i < keys.length; i += 2) {
+                chronicleMap.put(keys[i], keys[i + 1]);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public byte[] decrby(byte[] key, long amount) {
+        lock.lock();
+        try {
+            return chronicleMap.compute(key, (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal - amount;
+                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
         } finally {
             lock.unlock();
         }

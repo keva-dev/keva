@@ -1,4 +1,4 @@
-package dev.keva.core.command.impl.key;
+package dev.keva.core.command.impl.string;
 
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
@@ -12,28 +12,25 @@ import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 
-import lombok.var;
-
 import static dev.keva.core.command.annotation.ParamLength.Type.EXACT;
 
 @Component
-@CommandImpl("incrby")
-@ParamLength(type = EXACT, value = 2)
+@CommandImpl("incr")
+@ParamLength(type = EXACT, value = 1)
 @Mutate
-public class Incrby {
+public class Incr {
     private final KevaDatabase database;
 
     @Autowired
-    public Incrby(KevaDatabase database) {
+    public Incr(KevaDatabase database) {
         this.database = database;
     }
 
     @Execute
-    public IntegerReply execute(byte[] key, byte[] incrBy) {
-        var amount = Long.parseLong(new String(incrBy, StandardCharsets.UTF_8));
+    public IntegerReply execute(byte[] key) {
         byte[] newVal;
         try {
-            newVal = database.incrBy(key, amount);
+            newVal = database.incrBy(key, 1L);
         } catch (NumberFormatException ex) {
             throw new CommandException("Failed to parse integer from value stored");
         }
