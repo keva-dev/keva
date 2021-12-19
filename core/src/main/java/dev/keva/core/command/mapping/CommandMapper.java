@@ -25,11 +25,17 @@ import org.reflections.Reflections;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
 public class CommandMapper {
+
+    private static final Set<String> EXCLUSIVE_COMMANDS = new HashSet<>(Arrays.asList(
+            "exec", "expire", "expireat", "restore", "flushdb"));
+
     @Getter
     private final Map<BytesKey, CommandWrapper> methods = new HashMap<>();
 
@@ -98,17 +104,26 @@ public class CommandMapper {
 
                         try {
                             val lock = database.getLock();
-                            lock.lock();
+                            boolean locked = false, exclusive = false, writeToAOF = isAoF && isMutate;
                             try {
-                                if (ctx != null && isAoF && isMutate) {
-                                    try {
-                                        aof.write(command);
-                                    } catch (Exception e) {
-                                        log.error("Error writing to AOF", e);
-                                    }
-                                }
                                 Object[] objects = new Object[types.length];
                                 command.toArguments(objects, types, ctx);
+                                if (ctx != null) {
+                                    locked = true;
+                                    if (isMutate || EXCLUSIVE_COMMANDS.contains(name)) {
+                                        lock.exclusiveLock();
+                                        exclusive = true;
+                                        if (writeToAOF) {
+                                            try {
+                                                aof.write(command);
+                                            } catch (Exception e) {
+                                                log.error("Error writing to AOF", e);
+                                            }
+                                        }
+                                    } else {
+                                        lock.sharedLock();
+                                    }
+                                }
                                 // If not in AOF mode, then recycle(),
                                 // else, the command will be recycled in the AOF dump
                                 if (!kevaConfig.getAof()) {
@@ -116,7 +131,13 @@ public class CommandMapper {
                                 }
                                 return (Reply<?>) method.invoke(instance, objects);
                             } finally {
-                                lock.unlock();
+                                if (locked) {
+                                    if (exclusive) {
+                                        lock.exclusiveUnlock();
+                                    } else {
+                                        lock.sharedUnlock();
+                                    }
+                                }
                             }
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);

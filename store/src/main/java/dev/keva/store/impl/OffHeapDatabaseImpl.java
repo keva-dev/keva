@@ -26,6 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static dev.keva.util.Constants.FLAG_CH;
 import static dev.keva.util.Constants.FLAG_GT;
@@ -36,7 +38,7 @@ import static dev.keva.util.Constants.FLAG_XX;
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
     @Getter
-    private final Lock lock = new SpinLock();
+    private final SpinLock lock = new SpinLock();
 
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
@@ -64,47 +66,47 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
 
     @Override
     public void flush() {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             chronicleMap.clear();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[] get(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             return chronicleMap.get(key);
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     public void put(byte[] key, byte[] val) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             chronicleMap.put(key, val);
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public boolean remove(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             return chronicleMap.remove(key) != null;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[] incrBy(byte[] key, long amount) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             return chronicleMap.compute(key, (k, oldVal) -> {
                 long curVal = 0L;
@@ -115,14 +117,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                 return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
             });
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] hget(byte[] key, byte[] field) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -132,14 +134,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             BytesValue got = map.get(new BytesKey(field));
             return got == null ? null : got.getBytes();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hgetAll(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -154,14 +156,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hkeys(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -175,14 +177,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hvals(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -196,14 +198,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void hset(byte[] key, byte[] field, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             chronicleMap.compute(key, (k, oldVal) -> {
                 HashMap<BytesKey, BytesValue> map;
@@ -216,14 +218,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                 return SerializationUtils.serialize(map);
             });
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean hdel(byte[] key, byte[] field) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -236,14 +238,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int lpush(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             LinkedList<BytesValue> list;
@@ -254,14 +256,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(list));
             return list.size();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int rpush(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             LinkedList<BytesValue> list;
@@ -272,14 +274,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(list));
             return list.size();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] lpop(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -293,14 +295,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(list));
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] rpop(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -314,14 +316,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(list));
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int llen(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -330,14 +332,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             LinkedList<BytesValue> list = (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             return list.size();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] lrange(byte[] key, int start, int end) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -371,14 +373,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result.toArray(new byte[0][0]);
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] lindex(byte[] key, int index) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -393,14 +395,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return list.get(index).getBytes();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void lset(byte[] key, int index, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value1 = chronicleMap.get(key);
             if (value1 == null) {
@@ -416,14 +418,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             list.set(index, new BytesValue(value));
             chronicleMap.put(key, SerializationUtils.serialize(list));
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int lrem(byte[] key, int count, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value1 = chronicleMap.get(key);
             if (value1 == null) {
@@ -466,14 +468,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(list));
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int sadd(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             HashSet<BytesKey> set;
@@ -488,14 +490,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(set));
             return count;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] smembers(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -509,14 +511,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean sismember(byte[] key, byte[] value) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] got = chronicleMap.get(key);
             if (got == null) {
@@ -525,14 +527,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(got);
             return set.contains(new BytesKey(value));
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int scard(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -541,14 +543,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
             return set.size();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sdiff(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -567,14 +569,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sinter(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -593,14 +595,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sunion(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -617,14 +619,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int smove(byte[] source, byte[] destination, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] sourceValue = chronicleMap.get(source);
             if (sourceValue == null) {
@@ -646,14 +648,14 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return 0;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int srem(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -673,13 +675,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public int strlen(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -687,13 +689,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return new String(value, StandardCharsets.UTF_8).length();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     public int setrange(byte[] key, byte[] offset, byte[] val) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
             byte[] oldVal = chronicleMap.get(key);
@@ -711,13 +713,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, newVal);
             return newValLength;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[][] mget(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[][] result = new byte[keys.length][];
             for (int i = 0; i < keys.length; i++) {
@@ -727,7 +729,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
@@ -742,7 +744,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         // Track both to eliminate conditional branch
         int added = 0, changed = 0;
 
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             ZSet zSet;
@@ -772,13 +774,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(zSet));
             return ch ? changed : added;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public Double zincrby(byte[] key, Double incr, BytesKey e, int flags) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = chronicleMap.get(key);
             ZSet zSet;
@@ -808,13 +810,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             chronicleMap.put(key, SerializationUtils.serialize(zSet));
             return currentScore;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public Double zscore(byte[] key, byte[] member) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = chronicleMap.get(key);
             if (value == null) {
@@ -823,7 +825,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             ZSet zset = (ZSet) SerializationUtils.deserialize(value);
             return zset.getScore(new BytesKey(member));
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 

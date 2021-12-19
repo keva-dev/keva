@@ -25,7 +25,7 @@ import static dev.keva.util.Constants.FLAG_GT;
 
 public class OnHeapDatabaseImpl implements KevaDatabase {
     @Getter
-    private final Lock lock = new SpinLock();
+    private final SpinLock lock = new SpinLock();
 
     private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
 
@@ -36,39 +36,39 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
 
     @Override
     public void put(byte[] key, byte[] val) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             map.put(new BytesKey(key), new BytesValue(val));
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[] get(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             BytesValue got = map.get(new BytesKey(key));
             return got != null ? got.getBytes() : null;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     public boolean remove(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             BytesValue removed = map.remove(new BytesKey(key));
             return removed != null;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[] incrBy(byte[] key, long amount) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             return map.compute(new BytesKey(key), (k, oldVal) -> {
                 long curVal = 0L;
@@ -79,14 +79,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
                 return new BytesValue(Long.toString(curVal).getBytes(StandardCharsets.UTF_8));
             }).getBytes();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] hget(byte[] key, byte[] field) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -96,14 +96,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             BytesValue got = map.get(new BytesKey(field));
             return got != null ? got.getBytes() : null;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hgetAll(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             BytesValue value = map.get(new BytesKey(key));
             if (value == null) {
@@ -118,14 +118,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hkeys(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -139,14 +139,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] hvals(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -160,14 +160,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void hset(byte[] key, byte[] field, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             map.compute(new BytesKey(key), (k, oldVal) -> {
                 HashMap<BytesKey, BytesValue> map;
@@ -180,14 +180,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
                 return new BytesValue(SerializationUtils.serialize(map));
             });
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean hdel(byte[] key, byte[] field) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             BytesValue value = map.get(new BytesKey(key));
             if (value == null) {
@@ -200,14 +200,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return removed;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int lpush(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -218,14 +218,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
             return list.size();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int rpush(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -236,14 +236,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
             return list.size();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] lpop(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -255,14 +255,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
             return v.getBytes();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] rpop(byte[] key) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -274,28 +274,28 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
             return v.getBytes();
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int llen(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             return list.size();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] lrange(byte[] key, int start, int end) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -329,14 +329,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result.toArray(new byte[0][0]);
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[] lindex(byte[] key, int index) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -349,14 +349,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return list.get(index).getBytes();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void lset(byte[] key, int index, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] v = map.get(new BytesKey(key)).getBytes();
             LinkedList<BytesValue> list;
@@ -370,14 +370,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             list.set(index, new BytesValue(value));
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int lrem(byte[] key, int count, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value1 = map.get(new BytesKey(key)).getBytes();
             if (value1 == null) {
@@ -420,14 +420,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(list)));
             return result;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int sadd(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             HashSet<BytesKey> set;
@@ -442,14 +442,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(set)));
             return count;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] smembers(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -463,14 +463,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean sismember(byte[] key, byte[] value) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] got = map.get(new BytesKey(key)).getBytes();
             if (got == null) {
@@ -479,14 +479,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(got);
             return set.contains(new BytesKey(value));
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int scard(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -495,14 +495,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
             return set.size();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sdiff(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -521,14 +521,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sinter(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -547,14 +547,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public byte[][] sunion(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
@@ -571,14 +571,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int smove(byte[] source, byte[] destination, byte[] value) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] sourceValue = map.get(new BytesKey(source)).getBytes();
             if (sourceValue == null) {
@@ -600,14 +600,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return 0;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int srem(byte[] key, byte[]... values) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -627,13 +627,13 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return count;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public int strlen(byte[] key) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -641,13 +641,13 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return new String(value, StandardCharsets.UTF_8).length();
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
     @Override
     public int setrange(byte[] key, byte[] offset, byte[] val) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
             byte[] oldVal = map.get(new BytesKey(key)).getBytes();
@@ -665,13 +665,13 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(new BytesKey(key), new BytesValue(newVal));
             return newValLength;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public byte[][] mget(byte[]... keys) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[][] result = new byte[keys.length][];
             for (int i = 0; i < keys.length; i++) {
@@ -681,7 +681,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             }
             return result;
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
@@ -696,7 +696,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         // Track both to eliminate conditional branch
         int added = 0, changed = 0;
 
-        lock.lock();
+        lock.exclusiveLock();
         try {
             final BytesKey mapKey = new BytesKey(key);
             byte[] value = map.get(mapKey).getBytes();
@@ -727,13 +727,13 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(mapKey, new BytesValue(SerializationUtils.serialize(zSet)));
             return ch ? changed : added;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
     }
 
     @Override
     public Double zincrby(byte[] key, Double incr, BytesKey e, int flags) {
-        lock.lock();
+        lock.exclusiveLock();
         try {
             final BytesKey mapKey = new BytesKey(key);
             byte[] value = map.get(mapKey).getBytes();
@@ -764,14 +764,14 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             map.put(mapKey, new BytesValue(SerializationUtils.serialize(zSet)));
             return currentScore;
         } finally {
-            lock.unlock();
+            lock.exclusiveUnlock();
         }
 
     }
 
     @Override
     public Double zscore(byte[] key, byte[] member) {
-        lock.lock();
+        lock.sharedLock();
         try {
             byte[] value = map.get(new BytesKey(key)).getBytes();
             if (value == null) {
@@ -780,7 +780,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             ZSet zset = (ZSet) SerializationUtils.deserialize(value);
             return zset.getScore(new BytesKey(member));
         } finally {
-            lock.unlock();
+            lock.sharedUnlock();
         }
     }
 
