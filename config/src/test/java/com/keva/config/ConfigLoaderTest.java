@@ -21,7 +21,7 @@ class ConfigLoaderTest {
         val def = KevaConfig.ofDefaults();
         assertEquals(def, configDef);
         args = new String[]{
-                "-p", "123123"
+                "--p", "123123"
         };
         KevaConfig configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123123, configOverridden.getPort());
@@ -47,7 +47,7 @@ class ConfigLoaderTest {
         }
 
         final String[] args = {
-                "-f", testPropPath
+                "--f", testPropPath
         };
         val configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123123, configOverridden.getPort());
@@ -73,7 +73,7 @@ class ConfigLoaderTest {
         }
 
         final String[] args = {
-                "-f", testPropPath, "-p", "123"
+                "--f", testPropPath, "--p", "123"
         };
         final KevaConfig configOverridden = ConfigLoader.loadConfig(args, KevaConfig.class);
         assertEquals(123, configOverridden.getPort());

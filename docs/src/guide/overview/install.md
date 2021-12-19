@@ -22,15 +22,14 @@ $ keva-server
 
 Parameters:
 
-    Option          Description
-    ------          -----------
-    -h <String>     host (default: localhost)
-    -p <Integer>    port (default: 6379)
-    -ps <Boolean>   enable persistence (default: true)
-    -aof <Boolean>  enable append-only-file (default: false)
-    -ai <Integer>   define append-only interval in ms (default: 1000)
-    -dir <String>   working directory (default: ./)
-    -pw <String>    authenticate password (default: none - no password)
+    Option                          Description
+    ------                          -----------
+    --port <Integer>                Accept connections on the specified port (default: 6379)
+    --save <Boolean>                Enable save the DB to disk (default: true)
+    --appendonly <Boolean>          Enable append-only-file (default: false)
+    --appendfsync <Integer>         Define append-only fsync in ms (default: 1000)
+    --dir <String>                  Define working directory (default: './')
+    --requirepass <String>          Authenticate password (default: '' - no password)
 
 ## Docker
 
