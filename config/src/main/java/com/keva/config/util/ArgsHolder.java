@@ -19,7 +19,7 @@ public class ArgsHolder {
     @SuppressWarnings("ReturnOfNull")
     public String getFlag(String name) {
         if (values.containsKey(name)) {
-            return "true".equalsIgnoreCase(name) ? "true" : "false";
+            return "true".equalsIgnoreCase(values.get(name)) ? "true" : "false";
         }
         if (flags.contains(name)) {
             return "true";
