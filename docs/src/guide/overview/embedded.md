@@ -4,49 +4,23 @@ You can use KevaDB as an embedded database in your Java/Kotlin/Scala project, th
 
 ## Install
 
-Currently, only Sonatype's snapshot repository is supported.
-
 `build.gradle`
 
 ```groovy
-repositories {
-    // Load snapshot repository
-    maven {
-        url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-    }
-}
-
 dependencies {
-    implementation 'dev.keva:kevadb:0.1.0-SNAPSHOT'
+    implementation 'dev.keva:kevadb:0.1.3'
 }
 ```
-
-(please use `./gradlew build --refresh-dependencies` to force reload the snapshot dependencies)
 
 or:
 
 `pom.xml`
 
 ```xml
-<repositories>
-    <repository>
-        <id>s01.oss.sonatype.org-snapshot</id>
-        <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        <releases>
-            <enabled>false</enabled>
-        </releases>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
-```
-
-```xml
 <dependency>
     <groupId>dev.keva</groupId>
     <artifactId>kevadb</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
