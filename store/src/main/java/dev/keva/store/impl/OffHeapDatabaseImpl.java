@@ -155,7 +155,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         }
     }
 
-    public byte[] compute(byte[] key, BinaryOperator<byte[]> fn) {
+    private byte[] compute(byte[] key, BinaryOperator<byte[]> fn) {
         if (isExpired(key)) {
             chronicleMap.remove(key);
         }
@@ -184,7 +184,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] hget(byte[] key, byte[] field) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -201,7 +201,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hgetAll(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -223,7 +223,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hkeys(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -244,7 +244,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hvals(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -285,7 +285,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public boolean hdel(byte[] key, byte[] field) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return false;
             }
@@ -305,7 +305,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int lpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
@@ -323,13 +323,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int rpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
                 list.addLast(new BytesValue(v));
             }
-            chronicleMap.put(key, SerializationUtils.serialize(list));
+            this.put(key, SerializationUtils.serialize(list));
             return list.size();
         } finally {
             lock.unlock();
@@ -341,7 +341,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] lpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -362,7 +362,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] rpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -399,7 +399,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[][] lrange(byte[] key, int start, int end) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -440,7 +440,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] lindex(byte[] key, int index) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -462,7 +462,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public void lset(byte[] key, int index, byte[] value) {
         lock.lock();
         try {
-            byte[] value1 = chronicleMap.get(key);
+            byte[] value1 = this.get(key);
             if (value1 == null) {
                 return;
             }
@@ -485,7 +485,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int lrem(byte[] key, int count, byte[] value) {
         lock.lock();
         try {
-            byte[] value1 = chronicleMap.get(key);
+            byte[] value1 = this.get(key);
             if (value1 == null) {
                 return 0;
             }
@@ -535,7 +535,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int sadd(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             HashSet<BytesKey> set;
             set = value == null ? new HashSet<>() : (HashSet<BytesKey>) SerializationUtils.deserialize(value);
             int count = 0;
@@ -557,7 +557,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[][] smembers(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -578,7 +578,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public boolean sismember(byte[] key, byte[] value) {
         lock.lock();
         try {
-            byte[] got = chronicleMap.get(key);
+            byte[] got = this.get(key);
             if (got == null) {
                 return false;
             }
@@ -594,7 +594,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int scard(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -612,7 +612,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = chronicleMap.get(key);
+                byte[] value = this.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -638,7 +638,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = chronicleMap.get(key);
+                byte[] value = this.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -664,7 +664,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = chronicleMap.get(key);
+                byte[] value = this.get(key);
                 if (value != null) {
                     HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
                     set.addAll(set1);
@@ -686,13 +686,13 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int smove(byte[] source, byte[] destination, byte[] value) {
         lock.lock();
         try {
-            byte[] sourceValue = chronicleMap.get(source);
+            byte[] sourceValue = this.get(source);
             if (sourceValue == null) {
                 return 0;
             }
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(sourceValue);
             if (set.remove(new BytesKey(value))) {
-                byte[] destinationValue = chronicleMap.get(destination);
+                byte[] destinationValue = this.get(destination);
                 HashSet<BytesKey> set1;
                 if (destinationValue == null) {
                     set1 = new HashSet<>();
@@ -715,7 +715,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int srem(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -741,7 +741,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public int strlen(byte[] key) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -756,7 +756,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
-            byte[] oldVal = chronicleMap.get(key);
+            byte[] oldVal = this.get(key);
             int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
             byte[] newVal = new byte[newValLength];
             for (int i = 0; i < newValLength; i++) {
@@ -782,7 +782,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             byte[][] result = new byte[keys.length][];
             for (int i = 0; i < keys.length; i++) {
                 byte[] key = keys[i];
-                byte[] got = chronicleMap.get(key);
+                byte[] got = this.get(key);
                 result[i] = got;
             }
             return result;
@@ -804,7 +804,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
 
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             ZSet zSet;
             zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
             for (AbstractMap.SimpleEntry<Double, BytesKey> member : members) {
@@ -840,7 +840,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public Double zincrby(byte[] key, Double incr, BytesKey e, int flags) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             ZSet zSet;
             zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
             Double currentScore = zSet.getScore(e);
@@ -876,7 +876,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public Double zscore(byte[] key, byte[] member) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -890,7 +890,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] getrange(byte[] key, byte[] start, byte[] end) {
         lock.lock();
         try {
-            byte[] value = chronicleMap.get(key);
+            byte[] value = this.get(key);
             int startInt = Integer.parseInt(new String(start, StandardCharsets.UTF_8));
             int endInt = Integer.parseInt(new String(end, StandardCharsets.UTF_8));
 
@@ -938,7 +938,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             for (int i = 0; i < keys.length; i += 2) {
-                chronicleMap.put(keys[i], keys[i + 1]);
+                this.put(keys[i], keys[i + 1]);
             }
         } finally {
             lock.unlock();
