@@ -1,5 +1,7 @@
 package dev.keva.store.impl;
 
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 import dev.keva.store.type.ZSet;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
@@ -9,7 +11,6 @@ import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;
@@ -26,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BinaryOperator;
 
 import static dev.keva.util.Constants.FLAG_CH;
 import static dev.keva.util.Constants.FLAG_GT;
@@ -35,9 +37,9 @@ import static dev.keva.util.Constants.FLAG_XX;
 
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
+    private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new SpinLock();
-
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
     public OffHeapDatabaseImpl(DatabaseConfig config) {
@@ -72,10 +74,59 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         }
     }
 
+    private byte[] getExpireKey(byte[] key) {
+        return Bytes.concat(key, EXP_POSTFIX);
+    }
+
+    private boolean isExpired(byte[] key) {
+        byte[] longInBytes = chronicleMap.get(getExpireKey(key));
+        if (longInBytes == null) {
+            return false;
+        } else {
+            return Longs.fromByteArray(longInBytes) <= System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void expireAt(byte[] key, long timestampInMillis) {
+        byte[] expireKey = getExpireKey(key);
+        byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
+        if (timestampInMillis <= System.currentTimeMillis()) {
+            chronicleMap.remove(expireKey);
+        } else {
+            chronicleMap.put(expireKey, timestampBytes);
+        }
+    }
+
+    @Override
+    public boolean rename(byte[] key, byte[] newKey) {
+        lock.lock();
+        try {
+            byte[] moveValue = chronicleMap.get(key);
+            if (moveValue == null) {
+                return false;
+            }
+            chronicleMap.put(newKey, moveValue);
+            chronicleMap.remove(key);
+            byte[] oldExpireKey = getExpireKey(key);
+            byte[] timestampBytes = chronicleMap.get(oldExpireKey);
+            if (timestampBytes != null) {
+                chronicleMap.put(getExpireKey(newKey), timestampBytes);
+                chronicleMap.remove(oldExpireKey);
+            }
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
     @Override
     public byte[] get(byte[] key) {
         lock.lock();
         try {
+            if (isExpired(key)) {
+                chronicleMap.remove(key);
+            }
             return chronicleMap.get(key);
         } finally {
             lock.unlock();
@@ -87,6 +138,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             chronicleMap.put(key, val);
+            chronicleMap.remove(getExpireKey(key));
         } finally {
             lock.unlock();
         }
@@ -96,17 +148,25 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public boolean remove(byte[] key) {
         lock.lock();
         try {
+            chronicleMap.remove(getExpireKey(key));
             return chronicleMap.remove(key) != null;
         } finally {
             lock.unlock();
         }
     }
 
+    public byte[] compute(byte[] key, BinaryOperator<byte[]> fn) {
+        if (isExpired(key)) {
+            chronicleMap.remove(key);
+        }
+        return chronicleMap.compute(key, fn);
+    }
+
     @Override
     public byte[] incrBy(byte[] key, long amount) {
         lock.lock();
         try {
-            return chronicleMap.compute(key, (k, oldVal) -> {
+            return this.compute(key, (k, oldVal) -> {
                 long curVal = 0L;
                 if (oldVal != null) {
                     curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
@@ -205,7 +265,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public void hset(byte[] key, byte[] field, byte[] value) {
         lock.lock();
         try {
-            chronicleMap.compute(key, (k, oldVal) -> {
+            this.compute(key, (k, oldVal) -> {
                 HashMap<BytesKey, BytesValue> map;
                 if (oldVal == null) {
                     map = new HashMap<>();
@@ -760,7 +820,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                     continue;
                 }
                 Double newScore = member.getKey();
-                if(nx || (lt && newScore >= currScore) || (gt && newScore <= currScore)) {
+                if (nx || (lt && newScore >= currScore) || (gt && newScore <= currScore)) {
                     continue;
                 }
                 if (!newScore.equals(currScore)) {
@@ -860,7 +920,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] incrbyfloat(byte[] key, double amount) {
         lock.lock();
         try {
-            return chronicleMap.compute(key, (k, oldVal) -> {
+            return this.compute(key, (k, oldVal) -> {
                 double curVal = 0L;
                 if (oldVal != null) {
                     curVal = Double.parseDouble(new String(oldVal, StandardCharsets.UTF_8));
@@ -888,7 +948,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     public byte[] decrby(byte[] key, long amount) {
         lock.lock();
         try {
-            return chronicleMap.compute(key, (k, oldVal) -> {
+            return this.compute(key, (k, oldVal) -> {
                 long curVal = 0L;
                 if (oldVal != null) {
                     curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));

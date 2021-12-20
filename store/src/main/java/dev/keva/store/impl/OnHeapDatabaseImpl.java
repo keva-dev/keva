@@ -45,6 +45,16 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
+    public void expireAt(byte[] key, long timestampInMillis) {
+        // unsupported
+    }
+
+    @Override
+    public boolean rename(byte[] key, byte[] newKey) {
+        return true;
+    }
+
+    @Override
     public byte[] get(byte[] key) {
         lock.lock();
         try {
