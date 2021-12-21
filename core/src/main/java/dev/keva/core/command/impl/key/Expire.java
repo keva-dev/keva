@@ -3,31 +3,29 @@ package dev.keva.core.command.impl.key;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.ParamLength;
-import dev.keva.core.command.impl.key.manager.ExpirationManager;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
+import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
-
-import lombok.val;
 
 @Component
 @CommandImpl("expire")
 @ParamLength(2)
 public class Expire {
-    private final ExpirationManager expirationManager;
+    private final KevaDatabase database;
 
     @Autowired
-    public Expire(ExpirationManager expirationManager) {
-        this.expirationManager = expirationManager;
+    public Expire(KevaDatabase database) {
+        this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] after) {
         try {
-            val afterInMillis = Long.parseLong(new String(after, StandardCharsets.UTF_8));
-            expirationManager.expireAfter(key, afterInMillis);
+            long afterInSeconds = Long.parseLong(new String(after, StandardCharsets.UTF_8));
+            database.expireAt(key, System.currentTimeMillis() + afterInSeconds * 1000);
             return new IntegerReply(1);
         } catch (Exception ignore) {
             return new IntegerReply(0);

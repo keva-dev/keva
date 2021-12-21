@@ -3,7 +3,6 @@ package dev.keva.core.command.impl.key;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.ParamLength;
-import dev.keva.core.command.impl.key.manager.ExpirationManager;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.ErrorReply;
@@ -20,12 +19,10 @@ import java.util.Base64;
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 3)
 public class Restore {
     private final KevaDatabase database;
-    private final ExpirationManager expirationManager;
 
     @Autowired
-    public Restore(KevaDatabase database, ExpirationManager expirationManager) {
+    public Restore(KevaDatabase database) {
         this.database = database;
-        this.expirationManager = expirationManager;
     }
 
     @Execute
@@ -39,7 +36,7 @@ public class Restore {
         database.put(key, value);
         long expireTime = new BigInteger(ttl).longValue();
         if (expireTime > 0) {
-            expirationManager.expireAfter(key, expireTime);
+            database.expireAt(key, System.currentTimeMillis() + expireTime * 1000);
         }
         return StatusReply.OK;
     }

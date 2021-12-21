@@ -932,7 +932,7 @@ public abstract class AbstractServerTest {
             assertEquals("OK", set1);
             val dump1 = jedis.dump("key1");
             assertNotNull(dump1);
-            val restore1 = jedis.restore("key2", 0, dump1);
+            val restore1 = jedis.restore("key2", 0L, dump1);
             assertEquals("OK", restore1);
             val key2 = jedis.get("key2");
             assertEquals("Hello World", key2);
