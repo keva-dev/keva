@@ -18,20 +18,21 @@ import java.util.concurrent.locks.ReentrantLock;
 @Component
 public class AOFContainer {
     private ReentrantLock bufferLock;
-    private List<Command> buffer;
     private ObjectOutputStream output;
+    private FileDescriptor fd;
+    private boolean alwaysFlush;
 
     @Autowired
     private KevaConfig kevaConfig;
 
     public void init() {
+        alwaysFlush = kevaConfig.getAofInterval() == 0;
         bufferLock = new ReentrantLock();
-        buffer = new ArrayList<>(64);
 
         try {
-            boolean isExists = new File(getWorkingDir() + "keva.aof").exists();
             FileOutputStream fos = new FileOutputStream(getWorkingDir() + "keva.aof", true);
-            output = isExists ? new AppendOnlyObjectOutputStream(fos) : new ObjectOutputStream(fos);
+            fd = fos.getFD();
+            output = new ObjectOutputStream(fos);
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
                 log.info("AOF file not found, creating new file...");
@@ -45,11 +46,11 @@ public class AOFContainer {
             }
         }
 
-        if (kevaConfig.getAofInterval() != 0) {
+        if (!alwaysFlush) {
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(() -> {
                 try {
-                    sync();
+                    flush();
                 } catch (IOException e) {
                     log.error("Error writing AOF file", e);
                 }
@@ -61,51 +62,28 @@ public class AOFContainer {
     }
 
     public void write(Command command) {
-        if (kevaConfig.getAofInterval() == 0) {
-            syncPerMutation(command);
-            return;
-        }
-
         bufferLock.lock();
-        try {
-            buffer.add(command);
-        } finally {
-            bufferLock.unlock();
-        }
-    }
-
-    public void sync() throws IOException {
-        if (buffer.isEmpty()) {
-            return;
-        }
-        bufferLock.lock();
-        try {
-            for (Command command : buffer) {
-                output.writeObject(command.getObjects());
-            }
-        } finally {
-            output.flush();
-            for (Command command : buffer) {
-                command.recycle();
-            }
-            buffer.clear();
-            bufferLock.unlock();
-        }
-    }
-
-    public void syncPerMutation(Command command) {
         try {
             output.writeObject(command.getObjects());
-            output.flush();
+            if (alwaysFlush) {
+                flush();
+            }
         } catch (IOException e) {
             log.error("Error writing AOF file", e);
+        } finally {
+            bufferLock.unlock();
         }
+    }
+
+    private void flush() throws IOException {
+        fd.sync();
     }
 
     public List<Command> read() throws IOException {
         try {
             List<Command> commands = new ArrayList<>(100);
             FileInputStream fis = new FileInputStream(getWorkingDir() + "keva.aof");
+            log.info("AOF size is: {}", fis.getChannel().size());
             ObjectInputStream input = new ObjectInputStream(fis);
             while (true) {
                 try {
@@ -128,16 +106,5 @@ public class AOFContainer {
     private String getWorkingDir() {
         String workingDir = kevaConfig.getWorkDirectory();
         return workingDir.equals("./") ? "" : workingDir + "/";
-    }
-
-    private static class AppendOnlyObjectOutputStream extends ObjectOutputStream {
-        public AppendOnlyObjectOutputStream(OutputStream out) throws IOException {
-            super(out);
-        }
-
-        @Override
-        protected void writeStreamHeader() throws IOException {
-            reset();
-        }
     }
 }

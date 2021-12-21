@@ -109,11 +109,7 @@ public class CommandMapper {
                                 }
                                 Object[] objects = new Object[types.length];
                                 command.toArguments(objects, types, ctx);
-                                // If not in AOF mode, then recycle(),
-                                // else, the command will be recycled in the AOF dump
-                                if (!kevaConfig.getAof() || kevaConfig.getAofInterval() == 0) {
-                                    command.recycle();
-                                }
+                                command.recycle();
                                 return (Reply<?>) method.invoke(instance, objects);
                             } finally {
                                 lock.unlock();
