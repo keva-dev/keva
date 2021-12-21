@@ -1,5 +1,7 @@
 package dev.keva.store.impl;
 
+import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 import dev.keva.store.type.ZSet;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
@@ -19,11 +21,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import static dev.keva.util.Constants.*;
 import static dev.keva.util.Constants.FLAG_GT;
 
 public class OnHeapDatabaseImpl implements KevaDatabase {
+    private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new SpinLock();
 
@@ -34,11 +39,60 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         map.clear();
     }
 
+    private BytesKey getExpireKey(byte[] key) {
+        return new BytesKey(Bytes.concat(key, EXP_POSTFIX));
+    }
+
+    private boolean isExpired(byte[] key) {
+        BytesValue longInBytes = map.get(getExpireKey(key));
+        if (longInBytes == null) {
+            return false;
+        } else {
+            return Longs.fromByteArray(longInBytes.getBytes()) <= System.currentTimeMillis();
+        }
+    }
+
+    @Override
+    public void expireAt(byte[] key, long timestampInMillis) {
+        BytesKey expireKey = getExpireKey(key);
+        byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
+        if (timestampInMillis <= System.currentTimeMillis()) {
+            map.remove(expireKey);
+        } else {
+            map.put(expireKey, new BytesValue(timestampBytes));
+        }
+    }
+
+    @Override
+    public boolean rename(byte[] key, byte[] newKey) {
+        lock.lock();
+        try {
+            BytesKey bytesKey = new BytesKey(key);
+            BytesKey newBytesKey = new BytesKey(newKey);
+            BytesValue moveValue = map.get(bytesKey);
+            if (moveValue == null) {
+                return false;
+            }
+            map.put(newBytesKey, moveValue);
+            map.remove(bytesKey);
+            BytesKey oldExpireKey = getExpireKey(key);
+            BytesValue timestampBytes = map.get(oldExpireKey);
+            if (timestampBytes != null) {
+                map.put(getExpireKey(newKey), timestampBytes);
+                map.remove(oldExpireKey);
+            }
+            return true;
+        } finally {
+            lock.unlock();
+        }
+    }
+
     @Override
     public void put(byte[] key, byte[] val) {
         lock.lock();
         try {
             map.put(new BytesKey(key), new BytesValue(val));
+            map.remove(getExpireKey(key));
         } finally {
             lock.unlock();
         }
@@ -48,7 +102,11 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] get(byte[] key) {
         lock.lock();
         try {
-            BytesValue got = map.get(new BytesKey(key));
+            BytesKey bytesKey = new BytesKey(key);
+            if (isExpired(key)) {
+                map.remove(bytesKey);
+            }
+            BytesValue got = map.get(bytesKey);
             return got != null ? got.getBytes() : null;
         } finally {
             lock.unlock();
@@ -59,6 +117,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public boolean remove(byte[] key) {
         lock.lock();
         try {
+            map.remove(getExpireKey(key));
             BytesValue removed = map.remove(new BytesKey(key));
             return removed != null;
         } finally {
@@ -66,11 +125,18 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         }
     }
 
+    private BytesValue compute(BytesKey key, BiFunction<BytesKey, BytesValue, BytesValue> fn) {
+        if (isExpired(key.getBytes())) {
+            map.remove(key);
+        }
+        return map.compute(key, fn);
+    }
+
     @Override
     public byte[] incrBy(byte[] key, long amount) {
         lock.lock();
         try {
-            return map.compute(new BytesKey(key), (k, oldVal) -> {
+            return this.compute(new BytesKey(key), (k, oldVal) -> {
                 long curVal = 0L;
                 if (oldVal != null) {
                     curVal = Long.parseLong(oldVal.toString());
@@ -88,7 +154,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] hget(byte[] key, byte[] field) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -105,11 +171,11 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hgetAll(byte[] key) {
         lock.lock();
         try {
-            BytesValue value = map.get(new BytesKey(key));
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
-            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value.getBytes());
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
             byte[][] result = new byte[map.size() * 2][];
             int i = 0;
             for (Map.Entry<BytesKey, BytesValue> entry : map.entrySet()) {
@@ -127,7 +193,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hkeys(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -148,7 +214,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[][] hvals(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -169,7 +235,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public void hset(byte[] key, byte[] field, byte[] value) {
         lock.lock();
         try {
-            map.compute(new BytesKey(key), (k, oldVal) -> {
+            this.compute(new BytesKey(key), (k, oldVal) -> {
                 HashMap<BytesKey, BytesValue> map;
                 if (oldVal == null) {
                     map = new HashMap<>();
@@ -189,11 +255,11 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public boolean hdel(byte[] key, byte[] field) {
         lock.lock();
         try {
-            BytesValue value = map.get(new BytesKey(key));
+            byte[] value = this.get(key);
             if (value == null) {
                 return false;
             }
-            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value.getBytes());
+            HashMap<BytesKey, BytesValue> map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(value);
             boolean removed = map.remove(new BytesKey(field)) != null;
             if (removed) {
                 map.put(new BytesKey(key), new BytesValue(SerializationUtils.serialize(map)));
@@ -209,7 +275,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int lpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
@@ -227,7 +293,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int rpush(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             for (byte[] v : values) {
@@ -245,7 +311,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] lpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (list.isEmpty()) {
@@ -264,7 +330,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] rpop(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (list.isEmpty()) {
@@ -283,7 +349,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int llen(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             return list.size();
@@ -297,7 +363,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[][] lrange(byte[] key, int start, int end) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -338,7 +404,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] lindex(byte[] key, int index) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             LinkedList<BytesValue> list;
             list = value == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(value);
             if (index < 0) {
@@ -358,7 +424,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public void lset(byte[] key, int index, byte[] value) {
         lock.lock();
         try {
-            byte[] v = map.get(new BytesKey(key)).getBytes();
+            byte[] v = this.get(key);
             LinkedList<BytesValue> list;
             list = v == null ? new LinkedList<>() : (LinkedList<BytesValue>) SerializationUtils.deserialize(v);
             if (index < 0) {
@@ -379,7 +445,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int lrem(byte[] key, int count, byte[] value) {
         lock.lock();
         try {
-            byte[] value1 = map.get(new BytesKey(key)).getBytes();
+            byte[] value1 = this.get(key);
             if (value1 == null) {
                 return 0;
             }
@@ -429,7 +495,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int sadd(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             HashSet<BytesKey> set;
             set = value == null ? new HashSet<>() : (HashSet<BytesKey>) SerializationUtils.deserialize(value);
             int count = 0;
@@ -451,7 +517,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[][] smembers(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -472,7 +538,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public boolean sismember(byte[] key, byte[] value) {
         lock.lock();
         try {
-            byte[] got = map.get(new BytesKey(key)).getBytes();
+            byte[] got = this.get(key);
             if (got == null) {
                 return false;
             }
@@ -488,7 +554,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int scard(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -506,7 +572,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = this.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -532,7 +598,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = this.get(key);
                 if (set.isEmpty() && value != null) {
                     set.addAll((HashSet<BytesKey>) SerializationUtils.deserialize(value));
                 } else if (value != null) {
@@ -558,7 +624,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         try {
             HashSet<BytesKey> set = new HashSet<>();
             for (byte[] key : keys) {
-                byte[] value = map.get(new BytesKey(key)).getBytes();
+                byte[] value = this.get(key);
                 if (value != null) {
                     HashSet<BytesKey> set1 = (HashSet<BytesKey>) SerializationUtils.deserialize(value);
                     set.addAll(set1);
@@ -580,13 +646,13 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int smove(byte[] source, byte[] destination, byte[] value) {
         lock.lock();
         try {
-            byte[] sourceValue = map.get(new BytesKey(source)).getBytes();
+            byte[] sourceValue = this.get(source);
             if (sourceValue == null) {
                 return 0;
             }
             HashSet<BytesKey> set = (HashSet<BytesKey>) SerializationUtils.deserialize(sourceValue);
             if (set.remove(new BytesKey(value))) {
-                byte[] destinationValue = map.get(new BytesKey(destination)).getBytes();
+                byte[] destinationValue = this.get(destination);
                 HashSet<BytesKey> set1;
                 if (destinationValue == null) {
                     set1 = new HashSet<>();
@@ -609,7 +675,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int srem(byte[] key, byte[]... values) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -635,7 +701,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public int strlen(byte[] key) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return 0;
             }
@@ -650,7 +716,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             int offsetPosition = Integer.parseInt(new String(offset, StandardCharsets.UTF_8));
-            byte[] oldVal = map.get(new BytesKey(key)).getBytes();
+            byte[] oldVal = this.get(key);
             int newValLength = oldVal == null ? offsetPosition + val.length : Math.max(offsetPosition + val.length, oldVal.length);
             byte[] newVal = new byte[newValLength];
             for (int i = 0; i < newValLength; i++) {
@@ -676,7 +742,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
             byte[][] result = new byte[keys.length][];
             for (int i = 0; i < keys.length; i++) {
                 byte[] key = keys[i];
-                val got = map.get(new BytesKey(key)).getBytes();
+                byte[] got = this.get(key);
                 result[i] = got;
             }
             return result;
@@ -699,7 +765,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             final BytesKey mapKey = new BytesKey(key);
-            byte[] value = map.get(mapKey).getBytes();
+            byte[] value = this.get(key);
             ZSet zSet;
             zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
             for (AbstractMap.SimpleEntry<Double, BytesKey> member : members) {
@@ -736,7 +802,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             final BytesKey mapKey = new BytesKey(key);
-            byte[] value = map.get(mapKey).getBytes();
+            byte[] value = this.get(key);
             ZSet zSet;
             zSet = value == null ? new ZSet() : (ZSet) SerializationUtils.deserialize(value);
             Double currentScore = zSet.getScore(e);
@@ -773,7 +839,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public Double zscore(byte[] key, byte[] member) {
         lock.lock();
         try {
-            byte[] value = map.get(new BytesKey(key)).getBytes();
+            byte[] value = this.get(key);
             if (value == null) {
                 return null;
             }
@@ -787,7 +853,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] getrange(byte[] key, byte[] start, byte[] end) {
         lock.lock();
         try {
-            byte[] value = map.get (new BytesKey (key)).getBytes ();
+            byte[] value = this.get(key);
             int startInt = Integer.parseInt (new String (start, StandardCharsets.UTF_8));
             int endInt = Integer.parseInt (new String (end, StandardCharsets.UTF_8));
 
@@ -817,7 +883,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] incrbyfloat(byte[] key, double amount) {
         lock.lock();
         try {
-            return map.compute(new BytesKey(key), (k, oldVal) -> {
+            return this.compute(new BytesKey(key), (k, oldVal) -> {
                 double curVal = 0L;
                 if (oldVal != null) {
                     curVal = Double.parseDouble(oldVal.toString());
@@ -835,7 +901,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         lock.lock();
         try {
             for (int i = 0; i < keys.length; i += 2) {
-                map.put(new BytesKey(keys[i]), new BytesValue(keys[i + 1]));
+                this.put(keys[i], keys[i + 1]);
             }
         } finally {
             lock.unlock();
@@ -845,7 +911,7 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     public byte[] decrby(byte[] key, long amount) {
         lock.lock();
         try {
-            return map.compute(new BytesKey(key), (k, oldVal) -> {
+            return this.compute(new BytesKey(key), (k, oldVal) -> {
                 long curVal = 0L;
                 if (oldVal != null) {
                     curVal = Long.parseLong(oldVal.toString());

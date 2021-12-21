@@ -9,8 +9,6 @@ import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
 
-import lombok.var;
-
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
 @Component
@@ -26,7 +24,7 @@ public class Exists {
 
     @Execute
     public Reply<?> execute(byte[]... keys) {
-        var exists = 0;
+        long exists = 0;
         for (byte[] key : keys) {
             if (database.get(key) != null) {
                 exists++;
