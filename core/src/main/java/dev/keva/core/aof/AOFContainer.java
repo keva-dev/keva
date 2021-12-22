@@ -99,8 +99,6 @@ public class AOFContainer {
             output.flush();
         } catch (IOException e) {
             log.error("Error writing AOF file", e);
-        } finally {
-            command.recycle();
         }
     }
 
