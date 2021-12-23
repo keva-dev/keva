@@ -9,7 +9,6 @@ import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("lrange")
@@ -24,7 +23,7 @@ public class LRange {
 
     @Execute
     public Reply<?> execute(byte[] key, byte[] start, byte[] stop) {
-        val got = database.lrange(key, Integer.parseInt(new String(start)), Integer.parseInt(new String(stop)));
+        byte[][] got = database.lrange(key, Integer.parseInt(new String(start)), Integer.parseInt(new String(stop)));
         if (got == null) {
             return MultiBulkReply.EMPTY;
         }

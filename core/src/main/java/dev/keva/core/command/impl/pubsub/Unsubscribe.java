@@ -11,9 +11,8 @@ import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import lombok.val;
-import lombok.var;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,7 +27,7 @@ public class Unsubscribe {
     }
 
     public void remove(ChannelHandlerContext ctx, Set<String> track, String topic) {
-        val topics = manager.getTopics();
+        Map<String, Set<Channel>> topics = manager.getTopics();
         Set<Channel> list = topics.get(topic);
         if (list != null) {
             list.remove(ctx.channel());
@@ -43,15 +42,15 @@ public class Unsubscribe {
 
     @Execute
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {
-        val tracks = manager.getTracks();
+        Map<Channel, Set<String>> tracks = manager.getTracks();
 
-        var track = tracks.get(ctx.channel());
+        Set<String> track = tracks.get(ctx.channel());
         if (track == null) {
             track = ConcurrentHashMap.newKeySet();
         }
 
         if (topicBytes.length == 0) {
-            for (val topic : track) {
+            for (String topic : track) {
                 remove(ctx, track, topic);
             }
             return;
@@ -62,7 +61,7 @@ public class Unsubscribe {
             topicsToUnsubscribe[i] = new String(topicBytes[i]);
         }
 
-        for (val topic : topicsToUnsubscribe) {
+        for (String topic : topicsToUnsubscribe) {
             remove(ctx, track, topic);
         }
     }

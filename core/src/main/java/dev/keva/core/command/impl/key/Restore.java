@@ -9,7 +9,6 @@ import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 import java.math.BigInteger;
 import java.util.Base64;
@@ -27,7 +26,7 @@ public class Restore {
 
     @Execute
     public Reply<?> execute(byte[] key, byte[] ttl, byte[] dump, byte[] replace) {
-        val old = database.get(key);
+        byte[] old = database.get(key);
         boolean isReplace = replace != null && new String(replace).equalsIgnoreCase("REPLACE");
         if (old != null && !isReplace) {
             return new ErrorReply("ERR Target key name is busy");

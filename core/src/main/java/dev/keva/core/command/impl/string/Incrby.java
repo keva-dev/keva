@@ -12,8 +12,6 @@ import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 
-import lombok.var;
-
 import static dev.keva.core.command.annotation.ParamLength.Type.EXACT;
 
 @Component
@@ -30,7 +28,7 @@ public class Incrby {
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] incrBy) {
-        var amount = Long.parseLong(new String(incrBy, StandardCharsets.UTF_8));
+        long amount = Long.parseLong(new String(incrBy, StandardCharsets.UTF_8));
         byte[] newVal;
         try {
             newVal = database.incrBy(key, amount);

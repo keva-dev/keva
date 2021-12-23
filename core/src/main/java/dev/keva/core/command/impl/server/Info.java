@@ -5,7 +5,6 @@ import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
-import lombok.val;
 
 import java.lang.management.ManagementFactory;
 
@@ -15,7 +14,7 @@ import java.lang.management.ManagementFactory;
 public class Info {
     @Execute
     public BulkReply execute() {
-        val threads = ManagementFactory.getThreadMXBean().getThreadCount();
+        int threads = ManagementFactory.getThreadMXBean().getThreadCount();
         String infoStr = "# Server\r\n" +
                 "keva_version: 1.0.0\r\n"
                 + "io_threads_active: " + threads + "\r\n";

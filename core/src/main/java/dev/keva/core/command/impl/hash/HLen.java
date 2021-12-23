@@ -7,7 +7,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("hlen")
@@ -22,7 +21,7 @@ public class HLen {
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        val got = database.hgetAll(key);
+        byte[][] got = database.hgetAll(key);
         return got == null ? new IntegerReply(0) : new IntegerReply(got.length / 2);
     }
 }

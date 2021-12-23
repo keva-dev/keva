@@ -17,12 +17,7 @@ import dev.keva.util.hashbytes.BytesKey;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap.SimpleEntry;
 
-import static dev.keva.util.Constants.FLAG_CH;
-import static dev.keva.util.Constants.FLAG_GT;
-import static dev.keva.util.Constants.FLAG_INCR;
-import static dev.keva.util.Constants.FLAG_LT;
-import static dev.keva.util.Constants.FLAG_NX;
-import static dev.keva.util.Constants.FLAG_XX;
+import static dev.keva.util.Constants.*;
 
 @Component
 @CommandImpl("zadd")

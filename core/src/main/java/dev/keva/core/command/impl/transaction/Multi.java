@@ -12,8 +12,6 @@ import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
-import lombok.var;
-
 @Component
 @CommandImpl("multi")
 @ParamLength(0)
@@ -31,7 +29,7 @@ public class Multi {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx) {
-        var txContext = manager.getTransactions().get(ctx.channel());
+        TransactionContext txContext = manager.getTransactions().get(ctx.channel());
         if (txContext == null) {
             txContext = new TransactionContext(database, commandMapper);
             manager.getTransactions().put(ctx.channel(), txContext);

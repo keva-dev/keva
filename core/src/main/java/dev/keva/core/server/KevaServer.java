@@ -12,10 +12,11 @@ import dev.keva.store.KevaDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.AbstractEventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
@@ -59,14 +60,14 @@ public class KevaServer implements Server {
     }
 
     public static KevaServer ofCustomBeans(Object... beans) {
-        val context = KevaIoC.initBeans(KevaServer.class, beans);
+        KevaIoC context = KevaIoC.initBeans(KevaServer.class, beans);
         return context.getBean(KevaServer.class);
     }
 
     public ServerBootstrap bootstrapServer() throws NettyNativeTransportLoader.NettyNativeLoaderException {
         try {
             commandMapper.init();
-            val executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
+            Class<? extends AbstractEventExecutorGroup> executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
             bossGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(1);
             workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor().newInstance();
             return new ServerBootstrap().group(bossGroup, workerGroup)
@@ -98,11 +99,11 @@ public class KevaServer implements Server {
     public void run() {
         try {
             stopwatch.start();
-            val server = bootstrapServer();
+            ServerBootstrap server = bootstrapServer();
 
             aofManager.init();
 
-            val sync = server.bind(config.getPort()).sync();
+            ChannelFuture sync = server.bind(config.getPort()).sync();
             log.info("{} server started at {}:{}, in {} ms",
                     KEVA_BANNER,
                     config.getHostname(), config.getPort(),

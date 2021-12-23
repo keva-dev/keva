@@ -8,7 +8,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("hdel")
@@ -25,8 +24,8 @@ public class HDel {
     @Execute
     public IntegerReply execute(byte[] key, byte[]... fields) {
         int deleted = 0;
-        for (val field : fields) {
-            val result = database.hdel(key, field);
+        for (byte[] field : fields) {
+            boolean result = database.hdel(key, field);
             if (result) {
                 deleted++;
             }

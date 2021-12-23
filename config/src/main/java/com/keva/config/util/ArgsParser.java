@@ -1,14 +1,12 @@
 package com.keva.config.util;
 
-import lombok.val;
-
 public final class ArgsParser {
     public static ArgsHolder parse(String[] args) {
-        val holder = new ArgsHolder();
+        ArgsHolder holder = new ArgsHolder();
         for (int i = 0; i < args.length; i++) {
-            val token = args[i];
+            String token = args[i];
             if (token.startsWith("--")) {
-                val name = token.substring(2);
+                String name = token.substring(2);
                 if (i >= args.length - 1) {
                     holder.addFlag(name);
                 } else if (args[i + 1].startsWith("--")) {
