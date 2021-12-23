@@ -20,6 +20,8 @@ import lombok.val;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
+import static dev.keva.util.Constants.NUM_WORKERS;
+
 @Slf4j
 @Component
 @ComponentScan("dev.keva.core")
@@ -68,7 +70,7 @@ public class KevaServer implements Server {
             commandMapper.init();
             val executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
             bossGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(1);
-            workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor().newInstance();
+            workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(NUM_WORKERS);
             return new ServerBootstrap().group(bossGroup, workerGroup)
                     .channel(NettyNativeTransportLoader.getServerSocketChannelClazz())
                     .childHandler(nettyChannelInitializer)

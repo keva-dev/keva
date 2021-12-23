@@ -11,6 +11,7 @@ import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.store.lock.SpinLock;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
@@ -26,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 @Component
 @Slf4j
@@ -97,7 +99,15 @@ public class CommandMapper {
                         }
 
                         try {
-                            val lock = database.getLock();
+                            Object[] objects = new Object[types.length];
+                            command.toArguments(objects, types, ctx);
+                            Lock lock;
+                            // TODO: use key annotation on methods
+                            if (command.getObjects().length > 1) {
+                                lock = database.getLockForKey(command.getObjects()[1]);
+                            } else {
+                                lock = database.getLock();
+                            }
                             lock.lock();
                             try {
                                 if (ctx != null && isAoF && isMutate) {
@@ -107,11 +117,9 @@ public class CommandMapper {
                                         log.error("Error writing to AOF", e);
                                     }
                                 }
-                                Object[] objects = new Object[types.length];
-                                command.toArguments(objects, types, ctx);
-                                command.recycle();
                                 return (Reply<?>) method.invoke(instance, objects);
                             } finally {
+                                command.recycle();
                                 lock.unlock();
                             }
                         } catch (Exception e) {

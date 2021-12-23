@@ -9,6 +9,8 @@ public final class Constants {
     public static final int FLAG_INCR = 1 << 4;
     public static final int FLAG_CH = 1 << 5;
 
+    public static final int NUM_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
+
     private Constants() {
     }
 }

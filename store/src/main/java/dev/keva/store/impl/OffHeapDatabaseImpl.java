@@ -11,6 +11,9 @@ import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.openhft.chronicle.algo.hashing.LongHashFunction;
+import net.openhft.chronicle.core.Maths;
+import net.openhft.chronicle.hash.serialization.impl.ByteArrayDataAccess;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
 import org.apache.commons.lang3.SerializationUtils;
@@ -21,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,12 +38,14 @@ import static dev.keva.util.Constants.FLAG_GT;
 import static dev.keva.util.Constants.FLAG_LT;
 import static dev.keva.util.Constants.FLAG_NX;
 import static dev.keva.util.Constants.FLAG_XX;
+import static dev.keva.util.Constants.NUM_WORKERS;
 
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new SpinLock();
+    private final ArrayList<SpinLock> keyLocks = new ArrayList<>(Collections.nCopies(NUM_WORKERS, new SpinLock()));
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
     public OffHeapDatabaseImpl(DatabaseConfig config) {
@@ -48,6 +54,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                     .name("keva-chronicle-map")
                     .averageKey("SampleSampleSampleKey".getBytes())
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
+                    .actualSegments(NUM_WORKERS)
                     .entries(1_000_000);
 
             boolean shouldPersist = config.getIsPersistence();
@@ -62,6 +69,19 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         } catch (IOException e) {
             log.error("Failed to create ChronicleMap: ", e);
         }
+    }
+
+    @Override
+    public Lock getLockForKey(final byte[] key) {
+        long keyHash = new ByteArrayDataAccess().getData(key).hash(LongHashFunction.xx_r39());
+        int index = 0;
+        if (Maths.isPowerOf2(NUM_WORKERS)) {
+            index = ((int) keyHash) & (NUM_WORKERS - 1);
+        } else {
+            index = (int) (keyHash >>> 31);
+        }
+        log.info("Segment is {} for key {}", index, new String(key, StandardCharsets.UTF_8));
+        return keyLocks.get(index);
     }
 
     @Override

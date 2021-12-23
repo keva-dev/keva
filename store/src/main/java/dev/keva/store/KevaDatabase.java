@@ -8,6 +8,10 @@ import java.util.concurrent.locks.Lock;
 public interface KevaDatabase {
     Lock getLock();
 
+    default Lock getLockForKey(byte[] key) {
+        return getLock();
+    }
+
     void flush();
 
     void put(byte[] key, byte[] val);
