@@ -5,8 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.io.TempDir;
 import redis.clients.jedis.Jedis;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static dev.keva.core.utils.PortUtil.getAvailablePort;
@@ -17,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class AOFTest {
     static String host = "localhost";
 
+    @TempDir
+    static Path tempDir;
+
     Server startServer(int port) throws Exception {
         val config = KevaConfig.builder()
                 .hostname(host)
@@ -24,7 +30,7 @@ public class AOFTest {
                 .persistence(false)
                 .aof(true)
                 .aofInterval(1000)
-                .workDirectory(System.getProperty("java.io.tmpdir"))
+                .workDirectory(tempDir.toString())
                 .build();
         val server = KevaServer.of(config);
         new Thread(() -> {
