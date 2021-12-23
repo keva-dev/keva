@@ -8,7 +8,6 @@ import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
-import lombok.val;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 
 import static dev.keva.util.Constants.*;
 import static dev.keva.util.Constants.FLAG_GT;
