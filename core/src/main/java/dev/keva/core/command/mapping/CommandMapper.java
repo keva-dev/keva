@@ -6,6 +6,7 @@ import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.Mutate;
 import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.core.command.impl.connection.manager.AuthManager;
+import dev.keva.core.command.impl.transaction.manager.TransactionContext;
 import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.KevaIoC;
@@ -18,14 +19,16 @@ import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.apache.commons.lang3.SerializationException;
 import org.reflections.Reflections;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 @Component
 @Slf4j
@@ -52,20 +55,20 @@ public class CommandMapper {
     private AOFContainer aof;
 
     public void init() {
-        val reflections = new Reflections("dev.keva.core.command.impl");
-        val annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
-        val isAoF = kevaConfig.getAof();
+        Reflections reflections = new Reflections("dev.keva.core.command.impl");
+        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(CommandImpl.class);
+        boolean isAoF = kevaConfig.getAof();
         for (Class<?> aClass : annotated) {
-            for (val method : aClass.getMethods()) {
+            for (Method method : aClass.getMethods()) {
                 if (method.isAnnotationPresent(Execute.class)) {
-                    val types = method.getParameterTypes();
-                    val name = aClass.getAnnotation(CommandImpl.class).value();
-                    val paramLength = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).value() : -1;
-                    val paramLengthType = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).type() : null;
-                    val instance = context.getBean(aClass);
-                    val isMutate = aClass.getAnnotation(Mutate.class) != null;
-                    val password = kevaConfig.getPassword();
-                    val isAuthEnabled = password != null && password.length() > 0;
+                    Class<?>[] types = method.getParameterTypes();
+                    String name = aClass.getAnnotation(CommandImpl.class).value();
+                    int paramLength = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).value() : -1;
+                    ParamLength.Type paramLengthType = aClass.getAnnotation(ParamLength.class) != null ? aClass.getAnnotation(ParamLength.class).type() : null;
+                    Object instance = context.getBean(aClass);
+                    boolean isMutate = aClass.getAnnotation(Mutate.class) != null;
+                    String password = kevaConfig.getPassword();
+                    boolean isAuthEnabled = password != null && password.length() > 0;
 
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
                         if (isAuthEnabled && !Arrays.equals(command.getName(), "auth".getBytes())) {
@@ -76,7 +79,7 @@ public class CommandMapper {
                         }
 
                         if (ctx != null) {
-                            val txContext = txManager.getTransactions().get(ctx.channel());
+                            TransactionContext txContext = txManager.getTransactions().get(ctx.channel());
                             if (txContext != null && txContext.isQueuing()) {
                                 if (!Arrays.equals(command.getName(), "exec".getBytes()) && !Arrays.equals(command.getName(), "discard".getBytes())) {
                                     ErrorReply errorReply = CommandValidate.validate(paramLengthType, paramLength, command.getLength(), name);
@@ -97,7 +100,7 @@ public class CommandMapper {
                         }
 
                         try {
-                            val lock = database.getLock();
+                            Lock lock = database.getLock();
                             lock.lock();
                             try {
                                 if (ctx != null && isAoF && isMutate) {
