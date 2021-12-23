@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import lombok.var;
 import redis.clients.jedis.params.ZAddParams;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,7 +95,7 @@ public abstract class AbstractServerTest {
     @Test
     void del() {
         try {
-            var setAbc = jedis.set("abc", "123");
+            String setAbc = jedis.set("abc", "123");
             val getAbc = jedis.get("abc");
             val delAbc = jedis.del("abc");
             val getAbcNull = jedis.get("abc");
@@ -187,7 +186,7 @@ public abstract class AbstractServerTest {
     void getSetExpire() {
         try {
             val setAbc = jedis.set("abc", "123");
-            var getAbc = jedis.get("abc");
+            String getAbc = jedis.get("abc");
             val expireAbc = jedis.expire("abc", 1L);
 
             assertEquals("OK", setAbc);
@@ -208,8 +207,8 @@ public abstract class AbstractServerTest {
     void updateExpire() {
         try {
             val setAbc = jedis.set("abc", "123");
-            var getAbc = jedis.get("abc");
-            var expireAbc = jedis.expire("abc", 1L);
+            String getAbc = jedis.get("abc");
+            Long expireAbc = jedis.expire("abc", 1L);
 
             assertEquals("OK", setAbc);
             assertEquals("123", getAbc);
@@ -237,7 +236,7 @@ public abstract class AbstractServerTest {
     void getSetExpireAt() {
         try {
             val setAbc = jedis.set("abc", "123");
-            var getAbc = jedis.get("abc");
+            String getAbc = jedis.get("abc");
             val oneSecondLaterTime = System.currentTimeMillis() + 1000;
             val expireAbc = jedis.expireAt("abc", oneSecondLaterTime);
 
@@ -258,8 +257,8 @@ public abstract class AbstractServerTest {
     @Test
     void setAfterExpireAt() {
         try {
-            var setAbc = jedis.set("abc", "123");
-            var getAbc = jedis.get("abc");
+            String setAbc = jedis.set("abc", "123");
+            String getAbc = jedis.get("abc");
             val oneSecondLaterTime = System.currentTimeMillis() + 1000;
             val expireAbc = jedis.expireAt("abc", oneSecondLaterTime);
 
@@ -313,19 +312,17 @@ public abstract class AbstractServerTest {
     @Timeout(30)
     void pubsub() throws ExecutionException, InterruptedException {
         CompletableFuture<String> future = new CompletableFuture<>();
-        new Thread(() -> {
-            subscriber.subscribe(new JedisPubSub() {
-                @Override
-                public void onMessage(String channel, String message) {
-                    future.complete(message);
-                }
+        new Thread(() -> subscriber.subscribe(new JedisPubSub() {
+            @Override
+            public void onMessage(String channel, String message) {
+                future.complete(message);
+            }
 
-                @Override
-                public void onSubscribe(String channel, int subscribedChannels) {
-                    jedis.publish("test", "Test message");
-                }
-            }, "test");
-        }).start();
+            @Override
+            public void onSubscribe(String channel, int subscribedChannels) {
+                jedis.publish("test", "Test message");
+            }
+        }, "test")).start();
         val message = future.get();
         assertEquals("Test message", message);
     }
@@ -832,36 +829,32 @@ public abstract class AbstractServerTest {
 
     @Test
     void zaddWithXXAndNXErrs() {
-        assertThrows(JedisDataException.class, () -> {
-            jedis.zadd("zset", 1.0, "val", new ZAddParams().xx().nx());
-        });
+        assertThrows(JedisDataException.class, () ->
+                jedis.zadd("zset", 1.0, "val", new ZAddParams().xx().nx()));
     }
 
     @Test
     void zaddSingleWithNxAndGtErrs() {
-        assertThrows(JedisDataException.class, () -> {
-            jedis.zadd("zset", 1.0, "val", new ZAddParams().gt().nx());
-        });
+        assertThrows(JedisDataException.class, () ->
+                jedis.zadd("zset", 1.0, "val", new ZAddParams().gt().nx()));
     }
 
     @Test
     void zaddSingleWithNxAndLtErrs() {
-        assertThrows(JedisDataException.class, () -> {
-            jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().nx());
-        });
+        assertThrows(JedisDataException.class, () ->
+                jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().nx()));
     }
 
     @Test
     void zaddSingleWithGtAndLtErrs() {
-        assertThrows(JedisDataException.class, () -> {
-            jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().gt());
-        });
+        assertThrows(JedisDataException.class, () ->
+                jedis.zadd("zset", 1.0, "val", new ZAddParams().lt().gt()));
     }
 
     @Test
     void zaddSingleWithoutOptions() {
         try {
-            var result = jedis.zadd("zset", 1.0, "val");
+            Long result = jedis.zadd("zset", 1.0, "val");
             assertEquals(1, result);
 
             result = jedis.zadd("zset", 1.0, "val");
@@ -879,7 +872,7 @@ public abstract class AbstractServerTest {
             for(int i=0; i<numMembers; ++i) {
                 members.put(Integer.toString(i), (double) i);
             }
-            var result = jedis.zadd("zset", members);
+            Long result = jedis.zadd("zset", members);
             assertEquals(numMembers, result);
 
             result = jedis.zadd("zset", members);
@@ -892,7 +885,7 @@ public abstract class AbstractServerTest {
     @Test
     void zaddCh() {
         try {
-            var result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
+            Long result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
             assertEquals(1, result);
 
             result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());

@@ -231,3 +231,13 @@ public void a() { ... }
                         // <-- Remove this extra line.
 public void b() { ... }
 ```
+
+## Git flow
+
+Follow the [Git flow](https://git-scm.com/book/en/v2/Git-Branching-and-Merging)
+
+For feature PR (to develop) use squash merge, for release PR (to master) use rebase merge,
+commit message merged to master/develop branch should be lowercase first word
+(e.g. "fix: some bug").
+
+All pull requests must be passed to the code review and passed all the tests.

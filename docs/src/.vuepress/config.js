@@ -82,7 +82,8 @@ module.exports = {
           collapsable: false,
           children: [
             'insight/design',
-            'insight/benchmark'
+            'insight/benchmark',
+            'insight/release-notes',
           ]
         },
         'roadmap',

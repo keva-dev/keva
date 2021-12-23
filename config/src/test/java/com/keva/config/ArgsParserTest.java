@@ -1,12 +1,11 @@
 package com.keva.config;
 
+import com.keva.config.util.ArgsHolder;
 import com.keva.config.util.ArgsParser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import lombok.var;
 
 class ArgsParserTest {
 
@@ -15,7 +14,7 @@ class ArgsParserTest {
         String[] args = {
                 "--p", "123123", "--a", "--b"
         };
-        var parse = ArgsParser.parse(args);
+        ArgsHolder parse = ArgsParser.parse(args);
         assertEquals("true", parse.getFlag("a"));
         assertEquals("true", parse.getFlag("b"));
         assertEquals("123123", parse.getArgVal("p"));
