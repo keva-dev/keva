@@ -56,7 +56,7 @@ public class TransactionContext {
 
             isQueuing = false;
             Reply<?>[] replies = new Reply[commandDeque.size()];
-            var i = 0;
+            int i = 0;
             while (commandDeque.size() > 0) {
                 Command command = commandDeque.removeFirst();
                 CommandWrapper commandWrapper = commandMapper.getMethods().get(new BytesKey(command.getName()));

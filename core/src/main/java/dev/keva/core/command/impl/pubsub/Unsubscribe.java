@@ -44,7 +44,7 @@ public class Unsubscribe {
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {
         Map<Channel, Set<String>> tracks = manager.getTracks();
 
-        var track = tracks.get(ctx.channel());
+        Set<String> track = tracks.get(ctx.channel());
         if (track == null) {
             track = ConcurrentHashMap.newKeySet();
         }
