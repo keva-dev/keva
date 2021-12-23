@@ -80,7 +80,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         } else {
             index = (int) (keyHash >>> 31);
         }
-        log.info("Segment is {} for key {}", index, new String(key, StandardCharsets.UTF_8));
+        //log.info("Segment is {} for key {}", index, new String(key, StandardCharsets.UTF_8));
         return keyLocks.get(index);
     }
 
