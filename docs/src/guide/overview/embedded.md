@@ -8,7 +8,7 @@ You can use KevaDB as an embedded database in your Java/Kotlin/Scala project, th
 
 ```groovy
 dependencies {
-    implementation 'dev.keva:kevadb:0.1.3'
+    implementation 'dev.keva:kevadb:0.1.4'
 }
 ```
 
@@ -20,7 +20,7 @@ or:
 <dependency>
     <groupId>dev.keva</groupId>
     <artifactId>kevadb</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4</version>
 </dependency>
 ```
 

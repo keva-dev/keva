@@ -8,7 +8,7 @@
 ## Download
 
 ```
-curl -L -o /usr/local/bin/keva-server https://github.com/keva-dev/keva/releases/download/v0.1.3-alpha/keva-server
+curl -L -o /usr/local/bin/keva-server https://github.com/keva-dev/keva/releases/download/v0.1.4-alpha/keva-server
 chmod +x /usr/local/bin/keva-server
 ```
 
