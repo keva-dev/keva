@@ -7,7 +7,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 import org.apache.commons.lang3.SerializationException;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -28,7 +27,7 @@ public class Type {
 
     @Execute
     public StatusReply execute(byte[] key) {
-        val got = database.get(key);
+        byte[] got = database.get(key);
         if (got == null) {
             return new StatusReply("none");
         }

@@ -21,8 +21,8 @@ public final class ZScore {
 
     @Execute
     public BulkReply execute(byte[] key, byte[] member) {
-        final Double result = database.zscore(key, member);
-        if(result == null){
+        Double result = database.zscore(key, member);
+        if (result == null) {
             return BulkReply.NIL_REPLY;
         }
         if (result.equals(Double.POSITIVE_INFINITY)) {

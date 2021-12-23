@@ -8,7 +8,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.EXACT;
 
@@ -26,7 +25,7 @@ public class GetSet {
 
     @Execute
     public BulkReply execute(byte[] key, byte[] val) {
-        val got = database.get(key);
+        byte[] got = database.get(key);
         database.put(key, val);
         return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
     }

@@ -1,16 +1,15 @@
 package dev.keva.core.command.impl.transaction.manager;
 
 import dev.keva.core.command.mapping.CommandMapper;
+import dev.keva.core.command.mapping.CommandWrapper;
 import dev.keva.protocol.resp.Command;
-import dev.keva.util.hashbytes.BytesKey;
-import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
+import dev.keva.util.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesValue;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
-import lombok.val;
-import lombok.var;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -45,10 +44,10 @@ public class TransactionContext {
     public Reply<?> exec(ChannelHandlerContext ctx, Lock txLock) throws InterruptedException {
         txLock.lock();
         try {
-            for (val watch : watchMap.entrySet()) {
-                val key = watch.getKey();
-                val value = watch.getValue().getBytes();
-                val actualValue = database.get(key.getBytes());
+            for (Map.Entry<BytesKey, BytesValue> watch : watchMap.entrySet()) {
+                BytesKey key = watch.getKey();
+                byte[] value = watch.getValue().getBytes();
+                byte[] actualValue = database.get(key.getBytes());
                 if (!Arrays.equals(actualValue, value)) {
                     discard();
                     return NIL_REPLY;
@@ -56,15 +55,15 @@ public class TransactionContext {
             }
 
             isQueuing = false;
-            val replies = new Reply[commandDeque.size()];
+            Reply<?>[] replies = new Reply[commandDeque.size()];
             var i = 0;
             while (commandDeque.size() > 0) {
-                val command = commandDeque.removeFirst();
-                val commandWrapper = commandMapper.getMethods().get(new BytesKey(command.getName()));
+                Command command = commandDeque.removeFirst();
+                CommandWrapper commandWrapper = commandMapper.getMethods().get(new BytesKey(command.getName()));
                 if (commandWrapper == null) {
                     return NIL_REPLY;
                 } else {
-                    val result = commandWrapper.execute(ctx, command);
+                    Reply<?> result = commandWrapper.execute(ctx, command);
                     replies[i] = result;
                 }
                 i++;

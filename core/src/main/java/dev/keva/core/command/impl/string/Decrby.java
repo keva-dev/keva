@@ -8,7 +8,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.store.KevaDatabase;
-import lombok.var;
 
 import java.nio.charset.StandardCharsets;
 
@@ -27,7 +26,7 @@ public class Decrby {
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] decrBy) {
-        var amount = Long.parseLong(new String(decrBy, StandardCharsets.UTF_8));
+        long amount = Long.parseLong(new String(decrBy, StandardCharsets.UTF_8));
         byte[] newVal;
         try {
             newVal = database.decrby(key, amount);

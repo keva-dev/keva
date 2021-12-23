@@ -12,9 +12,8 @@ import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import lombok.val;
-import lombok.var;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,8 +32,8 @@ public class Subscribe {
 
     @Execute
     public void execute(ChannelHandlerContext ctx, byte[]... topicBytes) {
-        val topics = manager.getTopics();
-        val tracks = manager.getTracks();
+        Map<String, Set<Channel>> topics = manager.getTopics();
+        Map<Channel, Set<String>> tracks = manager.getTracks();
 
         var track = tracks.get(ctx.channel());
         if (track == null) {
@@ -46,7 +45,7 @@ public class Subscribe {
             topicsToSubscribe[i] = new String(topicBytes[i]);
         }
 
-        for (val topic : topicsToSubscribe) {
+        for (String topic : topicsToSubscribe) {
             Set<Channel> list = topics.get(topic);
             if (list == null) {
                 list = ConcurrentHashMap.newKeySet();

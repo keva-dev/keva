@@ -8,7 +8,6 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 import java.util.Base64;
 
@@ -25,7 +24,7 @@ public class Dump {
 
     @Execute
     public Reply<?> execute(byte[] key) {
-        val got = database.get(key);
+        byte[] got = database.get(key);
         if (got == null) {
             return BulkReply.NIL_REPLY;
         }
