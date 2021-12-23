@@ -9,7 +9,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("append")
@@ -25,7 +24,7 @@ public class Append {
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] val) {
-        val currentValue = database.get(key);
+        byte[] currentValue = database.get(key);
         long length = 0;
         if (currentValue == null) {
             database.put(key, val);

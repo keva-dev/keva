@@ -8,7 +8,6 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("hkeys")
@@ -23,7 +22,7 @@ public class HKeys {
 
     @Execute
     public MultiBulkReply execute(byte[] key) {
-        val got = database.hkeys(key);
+        byte[][] got = database.hkeys(key);
         BulkReply[] replies = new BulkReply[got.length];
         for (int i = 0; i < got.length; i++) {
             replies[i] = new BulkReply(got[i]);

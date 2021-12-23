@@ -10,7 +10,6 @@ import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("rpop")
@@ -27,14 +26,14 @@ public class RPop {
     @Execute
     public Reply<?> execute(byte[] key, byte[] count) {
         if (count == null) {
-            val got = database.rpop(key);
+            byte[] got = database.rpop(key);
             return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
         }
 
         int countInt = Integer.parseInt(new String(count));
         Reply<?>[] replies = new Reply[countInt];
         for (int i = 0; i < countInt; i++) {
-            val got = database.rpop(key);
+            byte[] got = database.rpop(key);
             replies[i] = got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
         }
         return new MultiBulkReply(replies);

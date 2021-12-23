@@ -7,7 +7,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("hstrlen")
@@ -22,7 +21,7 @@ public class HStrLen {
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] field) {
-        val got = database.hget(key, field);
+        byte[] got = database.hget(key, field);
         return got == null ? new IntegerReply(0) : new IntegerReply(got.length);
     }
 }

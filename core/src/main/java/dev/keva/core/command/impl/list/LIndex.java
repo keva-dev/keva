@@ -7,7 +7,6 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.store.KevaDatabase;
-import lombok.val;
 
 @Component
 @CommandImpl("lindex")
@@ -22,7 +21,7 @@ public class LIndex {
 
     @Execute
     public BulkReply execute(byte[] key, byte[] index) {
-        val got = database.lindex(key, Integer.parseInt(new String(index)));
+        byte[] got = database.lindex(key, Integer.parseInt(new String(index)));
         return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
     }
 }

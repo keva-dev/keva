@@ -11,8 +11,6 @@ import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
 import io.netty.channel.Channel;
-import lombok.val;
-import lombok.var;
 
 import java.util.Set;
 
@@ -29,8 +27,8 @@ public class Publish {
 
     @Execute
     public IntegerReply execute(byte[] topicBytes, byte[] message) {
-        var count = 0;
-        val topic = new String(topicBytes).toLowerCase();
+        int count = 0;
+        String topic = new String(topicBytes).toLowerCase();
         Set<Channel> set = manager.getTopics().get(topic);
         if (set != null) {
             for (Channel channel : set) {

@@ -6,10 +6,9 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
+import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
-
-import dev.keva.store.KevaDatabase;
 
 @Component
 @CommandImpl("expireat")

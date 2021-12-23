@@ -1,13 +1,13 @@
 package dev.keva.core.aof;
 
 import dev.keva.core.command.mapping.CommandMapper;
+import dev.keva.core.command.mapping.CommandWrapper;
 import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
 import dev.keva.util.hashbytes.BytesKey;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,8 +36,8 @@ public class AOFManager {
             if (commands != null) {
                 log.info("Processing {} commands from AOF file", commands.size());
                 for (Command command : commands) {
-                    val name = command.getName();
-                    val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
+                    byte[] name = command.getName();
+                    CommandWrapper commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
                     if (commandWrapper != null) {
                         commandWrapper.execute(null, command);
                     }

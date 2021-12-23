@@ -8,13 +8,11 @@ import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.util.hashbytes.BytesKey;
-import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
+import dev.keva.util.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesValue;
 import io.netty.channel.ChannelHandlerContext;
-import lombok.val;
-import lombok.var;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
@@ -35,13 +33,13 @@ public class Watch {
 
     @Execute
     public StatusReply execute(ChannelHandlerContext ctx, byte[]... keys) {
-        var txContext = manager.getTransactions().get(ctx.channel());
+        TransactionContext txContext = manager.getTransactions().get(ctx.channel());
         if (txContext == null) {
             txContext = new TransactionContext(database, commandMapper);
             manager.getTransactions().put(ctx.channel(), txContext);
         }
-        for (val key : keys) {
-            val value = database.get(key);
+        for (byte[] key : keys) {
+            byte[] value = database.get(key);
             txContext.getWatchMap().put(new BytesKey(key), new BytesValue(value));
         }
         return StatusReply.OK;

@@ -1,9 +1,9 @@
 package com.keva.config;
 
+import com.keva.config.util.ArgsHolder;
 import com.keva.config.util.ArgsParser;
 import com.keva.config.util.ConfigLoaderUtil;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,10 +16,10 @@ public final class ConfigLoader {
 
     public static <T> T loadConfig(String[] args, Class<T> clazz) throws IOException {
         T returnConf = ConfigLoaderUtil.fromProperties(new Properties(), clazz);
-        val config = ArgsParser.parse(args);
-        val overrider = ConfigLoaderUtil.fromArgs(config, clazz);
+        ArgsHolder config = ArgsParser.parse(args);
+        T overrider = ConfigLoaderUtil.fromArgs(config, clazz);
 
-        val configFilePath = config.getArgVal("f");
+        String configFilePath = config.getArgVal("f");
         if (configFilePath != null) {
             returnConf = loadConfigFromFile(configFilePath, clazz);
         }
@@ -33,8 +33,8 @@ public final class ConfigLoader {
         if (filePath.isEmpty()) {
             filePath = DEFAULT_FILE_PATH;
         }
-        val props = new Properties();
-        try (val file = new FileInputStream(filePath)) {
+        Properties props = new Properties();
+        try (FileInputStream file = new FileInputStream(filePath)) {
             props.load(file);
         }
 
