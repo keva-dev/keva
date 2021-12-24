@@ -1,6 +1,7 @@
 package dev.keva.core.aof;
 
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.exception.StartupException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
@@ -80,26 +81,20 @@ public class AOFContainer {
     }
 
     public List<Command> read() throws IOException {
-        try {
-            List<Command> commands = new ArrayList<>(100);
-            FileInputStream fis = new FileInputStream(getWorkingDir() + "keva.aof");
+        final List<Command> commands = new ArrayList<>(100);
+        try (FileInputStream fis = new FileInputStream(getWorkingDir() + "keva.aof");
+             ObjectInputStream input = new ObjectInputStream(fis)) {
             log.info("AOF size is: {}", fis.getChannel().size());
-            ObjectInputStream input = new ObjectInputStream(fis);
             while (true) {
-                try {
-                    byte[][] objects = (byte[][]) input.readObject();
-                    commands.add(Command.newInstance(objects, false));
-                } catch (EOFException e) {
-                    log.error("Error while reading AOF command", e);
-                    fis.close();
-                    return commands;
-                } catch (ClassNotFoundException e) {
-                    log.error("Error reading AOF file", e);
-                    return commands;
-                }
+                byte[][] objects = (byte[][]) input.readObject();
+                commands.add(Command.newInstance(objects, false));
             }
-        } catch (FileNotFoundException ignored) {
-            throw new FileNotFoundException("AOF file not found");
+        } catch (final FileNotFoundException | EOFException ignored) {
+            return commands;
+        } catch (final ClassNotFoundException e) {
+            final String msg = "Error reading AOF file";
+            log.error(msg, e);
+            throw new StartupException(msg, e);
         }
     }
 
