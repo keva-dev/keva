@@ -74,6 +74,16 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         }
     }
 
+    @Override
+    public void close() {
+        lock.lock();
+        try {
+            chronicleMap.close();
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private byte[] getExpireKey(byte[] key) {
         return Bytes.concat(key, EXP_POSTFIX);
     }

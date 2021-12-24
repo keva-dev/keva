@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractServerTest {
     static Jedis jedis;
-    static Server server;
+    static volatile Server server;
     static Jedis subscriber;
 
     @Test

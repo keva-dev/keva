@@ -2,13 +2,17 @@ package dev.keva.store;
 
 import dev.keva.util.hashbytes.BytesKey;
 
+import java.io.Closeable;
 import java.util.AbstractMap;
 import java.util.concurrent.locks.Lock;
 
-public interface KevaDatabase {
+public interface KevaDatabase extends Closeable {
     Lock getLock();
 
     void flush();
+
+    @Override
+    default void close() {}
 
     void put(byte[] key, byte[] val);
 
