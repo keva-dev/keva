@@ -26,14 +26,26 @@ public class AOFContainer {
     @Autowired
     private KevaConfig kevaConfig;
 
+    private static class AppendOnlyObjectOutputStream extends ObjectOutputStream {
+        public AppendOnlyObjectOutputStream(OutputStream out) throws IOException {
+            super(out);
+        }
+
+        @Override
+        protected void writeStreamHeader() throws IOException {
+            reset();
+        }
+    }
+
     public void init() {
         alwaysFlush = kevaConfig.getAofInterval() == 0;
         bufferLock = new ReentrantLock();
 
         try {
+            boolean isExists = new File(getWorkingDir() + "keva.aof").exists();
             FileOutputStream fos = new FileOutputStream(getWorkingDir() + "keva.aof", true);
             fd = fos.getFD();
-            output = new ObjectOutputStream(fos);
+            output = isExists ? new AppendOnlyObjectOutputStream(fos) : new ObjectOutputStream(fos);
         } catch (IOException e) {
             if (e instanceof FileNotFoundException) {
                 log.info("AOF file not found, creating new file...");
