@@ -50,4 +50,8 @@ public class AOFManager {
 
         aof.init();
     }
+
+    public void stop() throws IOException {
+        aof.close();
+    }
 }

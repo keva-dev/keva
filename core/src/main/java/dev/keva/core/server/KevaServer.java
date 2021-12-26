@@ -30,6 +30,12 @@ public class KevaServer implements Server {
             " | |/ / | __| \\ \\ / /   /_\\  \n" +
             " | ' <  | _|   \\ V /   / _ \\ \n" +
             " |_|\\_\\ |___|   \\_/   /_/ \\_\\";
+    private static final int SHUTDOWN_TIMEOUT_MS = 1000;
+    private enum State {
+        CREATED, CREATING, RUNNING, TERMINATING, TERMINATED
+    }
+
+    private volatile State state;
     private final KevaDatabase database;
     private final KevaConfig config;
     private final NettyChannelInitializer nettyChannelInitializer;
@@ -47,6 +53,7 @@ public class KevaServer implements Server {
         this.nettyChannelInitializer = nettyChannelInitializer;
         this.commandMapper = commandMapper;
         this.aofManager = aofManager;
+        this.state = State.CREATED;
     }
 
     public static KevaServer ofDefaults() {
@@ -64,7 +71,102 @@ public class KevaServer implements Server {
         return context.getBean(KevaServer.class);
     }
 
-    public ServerBootstrap bootstrapServer() throws NettyNativeTransportLoader.NettyNativeLoaderException {
+    @Override
+    public void shutdown() {
+        switch (state) {
+            case CREATED:
+            case CREATING:
+                throw new RuntimeException("Attempt to shutdown a non-started server!");
+            case RUNNING:
+                boolean set = updateState(State.TERMINATING);
+                if (!set) {
+                    // The state was concurrently modified, so re-check the condition.
+                    shutdown();
+                    return;
+                }
+                try {
+                    bossGroup.shutdownGracefully(0, SHUTDOWN_TIMEOUT_MS, TimeUnit.MILLISECONDS).sync();
+                    workerGroup.shutdownGracefully(0, SHUTDOWN_TIMEOUT_MS, TimeUnit.MILLISECONDS).sync();
+                    channel.close();
+                    database.close();
+                    aofManager.stop();
+                } catch (Exception e) {
+                    log.warn("Encountered error while shutting down server, ignoring", e);
+                }
+                state = State.TERMINATED;
+                log.info("Keva server at {} stopped", config.getPort());
+                log.info("Bye bye!");
+                return;
+            default:
+        }
+    }
+
+    @Override
+    public void run() {
+        switch (state) {
+            case CREATING:
+            case RUNNING:
+                return;
+            case CREATED:
+                // take create lock and call run again
+                boolean set = updateState(State.CREATING);
+                if (!set) {
+                    // The state was concurrently modified, so re-check the condition.
+                    run();
+                    return;
+                }
+                try {
+                    stopwatch.start();
+                    ServerBootstrap server = bootstrapServer();
+
+                    aofManager.init();
+
+                    ChannelFuture sync = server.bind(config.getPort()).sync();
+                    log.info("{} server started at {}:{}, in {} ms",
+                            KEVA_BANNER,
+                            config.getHostname(), config.getPort(),
+                            stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                    log.info("Ready to accept connections");
+                    state = State.RUNNING;
+                    System.out.println("Set state to running");
+                    channel = sync.channel();
+                    channel.closeFuture().sync(); //block
+                } catch (InterruptedException e) {
+                    log.error("Failed to start server: ", e);
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    log.error("Failed to start server: ", e);
+                } finally {
+                    stopwatch.stop();
+                }
+                return;
+            default:
+                throw new RuntimeException("Attempt to run a stopped server");
+        }
+    }
+
+    @Override
+    public void clear() {
+        switch (state) {
+            case RUNNING:
+                database.flush();
+                return;
+            default:
+                throw new RuntimeException("Attempt to clear a non-running server");
+        }
+
+    }
+
+    // Do a CAS on state
+    private synchronized boolean updateState(State state) {
+        if (this.state.equals(state)) {
+            return false;
+        }
+        this.state = state;
+        return true;
+    }
+
+    private ServerBootstrap bootstrapServer() throws NettyNativeTransportLoader.NettyNativeLoaderException {
         try {
             commandMapper.init();
             Class<? extends AbstractEventExecutorGroup> executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
@@ -84,46 +186,5 @@ public class KevaServer implements Server {
             log.error(e.getMessage(), e);
             throw new NettyNativeTransportLoader.NettyNativeLoaderException("Cannot load Netty classes");
         }
-    }
-
-    @Override
-    public void shutdown() {
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        channel.close();
-        log.info("Keva server at {} stopped", config.getPort());
-        log.info("Bye bye!");
-    }
-
-    @Override
-    public void run() {
-        try {
-            stopwatch.start();
-            ServerBootstrap server = bootstrapServer();
-
-            aofManager.init();
-
-            ChannelFuture sync = server.bind(config.getPort()).sync();
-            log.info("{} server started at {}:{}, in {} ms",
-                    KEVA_BANNER,
-                    config.getHostname(), config.getPort(),
-                    stopwatch.elapsed(TimeUnit.MILLISECONDS));
-            log.info("Ready to accept connections");
-
-            channel = sync.channel();
-            channel.closeFuture().sync();
-        } catch (InterruptedException e) {
-            log.error("Failed to start server: ", e);
-            Thread.currentThread().interrupt();
-        } catch (Exception e) {
-            log.error("Failed to start server: ", e);
-        } finally {
-            stopwatch.stop();
-        }
-    }
-
-    @Override
-    public void clear() {
-        database.flush();
     }
 }

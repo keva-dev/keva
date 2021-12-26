@@ -17,11 +17,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Component
-public class AOFContainer {
+public class AOFContainer implements Closeable {
     private ReentrantLock bufferLock;
     private ObjectOutputStream output;
     private FileDescriptor fd;
     private boolean alwaysFlush;
+    private ScheduledExecutorService executorService;
+    private volatile boolean isOpen;
 
     @Autowired
     private KevaConfig kevaConfig;
@@ -60,7 +62,7 @@ public class AOFContainer {
         }
 
         if (!alwaysFlush) {
-            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(() -> {
                 try {
                     flush();
@@ -72,10 +74,15 @@ public class AOFContainer {
         } else {
             log.info("AOF will trigger for every new mutate command");
         }
+        isOpen = true;
     }
 
     public void write(Command command) {
         bufferLock.lock();
+        if (!isOpen) {
+            log.warn("Dropping write to AOF as it is closed!");
+            return;
+        }
         try {
             output.writeObject(command.getObjects());
             if (alwaysFlush) {
@@ -86,10 +93,6 @@ public class AOFContainer {
         } finally {
             bufferLock.unlock();
         }
-    }
-
-    private void flush() throws IOException {
-        fd.sync();
     }
 
     public List<Command> read() throws IOException {
@@ -108,6 +111,26 @@ public class AOFContainer {
             log.error(msg, e);
             throw new StartupException(msg, e);
         }
+    }
+
+    public void close() throws IOException {
+        bufferLock.lock();
+        isOpen = false;
+        log.info("Closing AOF log.");
+        try {
+            if (executorService != null) {
+                executorService.shutdown();
+            }
+            // Closing the stream should flush it, but still doing it explicitly!
+            flush();
+            output.close();
+        } finally {
+            bufferLock.unlock();
+        }
+    }
+
+    private void flush() throws IOException {
+        fd.sync();
     }
 
     private String getWorkingDir() {
