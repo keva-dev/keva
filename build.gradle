@@ -10,7 +10,7 @@ subprojects {
     apply plugin: 'jacoco'
 
     group 'dev.keva'
-    version '0.1.4'
+    version '1.0.0-rc0'
 
     repositories {
         mavenCentral()
