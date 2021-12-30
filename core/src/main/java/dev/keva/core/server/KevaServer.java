@@ -41,7 +41,7 @@ public class KevaServer implements Server {
     private Channel channel;
 
     @Autowired
-    public KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper, AOFManager aofManager) {
+    private KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper, AOFManager aofManager) {
         this.database = database;
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
