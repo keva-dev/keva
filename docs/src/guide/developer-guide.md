@@ -41,6 +41,10 @@ Avoid using redundant keywords. To list a few:
 - `private` constructor modifier in an `enum`
 - field access prefixed with `this.` where unnecessary
 
+## Avoid using `lombok.val` and `lombok.var`
+
+Avoid using `lombok.val` and `lombok.var` in your code.
+
 ## Use `public` only when necessary
 
 The classes, methods and fields that are not meant to be used by a user should not be

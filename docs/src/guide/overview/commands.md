@@ -2,7 +2,7 @@
 
 Follows [Redis's commands](https://redis.io/commands).
 
-Implemented commands:
+This is a list of commands that are available in the current latest version of Keva:
 
 <details>
     <summary>Server</summary>
