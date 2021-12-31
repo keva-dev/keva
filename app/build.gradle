@@ -16,6 +16,7 @@ dependencies {
 
     implementation 'ch.qos.logback:logback-classic:1.2.7'
     implementation 'ch.qos.logback:logback-core:1.2.7'
+    implementation 'io.dropwizard.metrics:metrics-core:4.2.0'
 
     testImplementation 'redis.clients:jedis:3.7.0'
 }

@@ -10,6 +10,7 @@ public final class Constants {
     public static final int FLAG_CH = 1 << 5;
 
     public static final int NUM_WORKERS = Runtime.getRuntime().availableProcessors() * 2;
+    public static final int PARALELLISATION_FACTOR = 256;
 
     private Constants() {
     }

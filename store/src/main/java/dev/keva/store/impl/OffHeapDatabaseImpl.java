@@ -38,14 +38,14 @@ import static dev.keva.util.Constants.FLAG_GT;
 import static dev.keva.util.Constants.FLAG_LT;
 import static dev.keva.util.Constants.FLAG_NX;
 import static dev.keva.util.Constants.FLAG_XX;
-import static dev.keva.util.Constants.NUM_WORKERS;
+import static dev.keva.util.Constants.PARALELLISATION_FACTOR;
 
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new SpinLock();
-    private final ArrayList<SpinLock> keyLocks = new ArrayList<>(Collections.nCopies(NUM_WORKERS, new SpinLock()));
+    private final ArrayList<SpinLock> keyLocks = new ArrayList<>(Collections.nCopies(PARALELLISATION_FACTOR, new SpinLock()));
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
     public OffHeapDatabaseImpl(DatabaseConfig config) {
@@ -54,7 +54,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                     .name("keva-chronicle-map")
                     .averageKey("SampleSampleSampleKey".getBytes())
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
-                    .actualSegments(NUM_WORKERS)
+                    .actualSegments(PARALELLISATION_FACTOR)
                     .entries(1_000_000);
 
             boolean shouldPersist = config.getIsPersistence();
@@ -74,9 +74,9 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     @Override
     public Lock getLockForKey(final byte[] key) {
         long keyHash = new ByteArrayDataAccess().getData(key).hash(LongHashFunction.xx_r39());
-        int index = 0;
-        if (Maths.isPowerOf2(NUM_WORKERS)) {
-            index = ((int) keyHash) & (NUM_WORKERS - 1);
+        int index;
+        if (Maths.isPowerOf2(PARALELLISATION_FACTOR)) {
+            index = ((int) keyHash) & (PARALELLISATION_FACTOR - 1);
         } else {
             index = (int) (keyHash >>> 31);
         }

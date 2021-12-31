@@ -1,5 +1,6 @@
 package dev.keva.core.command.mapping;
 
+import com.google.common.base.Stopwatch;
 import dev.keva.core.aof.AOFContainer;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
@@ -11,12 +12,14 @@ import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.store.lock.SpinLock;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
+import io.sentry.ISpan;
+import io.sentry.ITransaction;
+import io.sentry.Sentry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -27,6 +30,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
 @Component
@@ -52,6 +57,8 @@ public class CommandMapper {
 
     @Autowired
     private AOFContainer aof;
+
+    private AtomicLong total = new AtomicLong();
 
     public void init() {
         val reflections = new Reflections("dev.keva.core.command.impl");
