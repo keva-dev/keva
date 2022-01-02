@@ -1,5 +1,8 @@
 package dev.keva.core.server;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
+import com.codahale.metrics.Timer;
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -27,17 +30,29 @@ public class NettyChannelHandler extends SimpleChannelInboundHandler<Command> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws InterruptedException {
+        Timer timer = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(NettyChannelHandler.class, "channelRead0"));
+        Timer.Context context = timer.time();
         val name = command.getName();
+        Timer timer2 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(NettyChannelHandler.class, "getCommand"));
+        Timer.Context context2 = timer2.time();
         val commandWrapper = commandMapper.getMethods().get(new BytesKey(name));
+        context2.stop();
         Reply<?> reply;
         if (commandWrapper == null) {
             reply = new ErrorReply("ERR unknown command `" + new String(name) + "`");
         } else {
+            Timer timer4 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(NettyChannelHandler.class, "commandExecute"));
+            Timer.Context context4 = timer4.time();
             reply = commandWrapper.execute(ctx, command);
+            context4.stop();
         }
+        Timer timer3 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(NettyChannelHandler.class, "replyWrite"));
+        Timer.Context context3 = timer3.time();
         if (reply != null) {
             ctx.write(reply);
+            context3.stop();
         }
+        context.stop();
     }
 
     @Override

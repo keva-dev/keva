@@ -1,5 +1,8 @@
 package dev.keva.store.impl;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
+import com.codahale.metrics.Timer;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
 import dev.keva.store.type.ZSet;
@@ -55,7 +58,7 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
                     .averageKey("SampleSampleSampleKey".getBytes())
                     .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
                     .actualSegments(PARALELLISATION_FACTOR)
-                    .entries(1_000_000);
+                    .entries(10_000_000);
 
             boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
@@ -155,8 +158,11 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
 
     @Override
     public void put(byte[] key, byte[] val) {
+        Timer timer = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(OffHeapDatabaseImpl.class, "put"));
+        Timer.Context context = timer.time();
         chronicleMap.put(key, val);
         chronicleMap.remove(getExpireKey(key));
+        context.stop();
     }
 
     @Override

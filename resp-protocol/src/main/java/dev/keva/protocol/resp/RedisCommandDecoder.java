@@ -1,5 +1,8 @@
 package dev.keva.protocol.resp;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
+import com.codahale.metrics.Timer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
@@ -13,6 +16,8 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         if (bytes != null) {
+            Timer timer = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(RedisCommandDecoder.class, "decode"));
+            Timer.Context context = timer.time();
             int numArgs = bytes.length;
             for (int i = arguments; i < numArgs; i++) {
                 if (in.readByte() == '$') {
@@ -38,6 +43,7 @@ public class RedisCommandDecoder extends ReplayingDecoder<Void> {
             } finally {
                 bytes = null;
                 arguments = 0;
+                context.stop();
             }
         } else if (in.readByte() == '*') {
             long l = RedisReplyDecoder.readLong(in);

@@ -12,6 +12,7 @@ dependencies {
     implementation 'io.netty:netty-handler:4.1.70.Final'
     implementation 'io.netty:netty-buffer:4.1.70.Final'
     implementation 'io.sentry:sentry:5.5.2'
+    implementation 'io.dropwizard.metrics:metrics-core:4.2.0'
 }
 
 javadoc {

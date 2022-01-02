@@ -1,6 +1,8 @@
 package dev.keva.core.command.mapping;
 
-import com.google.common.base.Stopwatch;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
+import com.codahale.metrics.Timer;
 import dev.keva.core.aof.AOFContainer;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
@@ -9,6 +11,7 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.core.command.impl.connection.manager.AuthManager;
 import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.server.NettyChannelHandler;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -17,9 +20,6 @@ import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
-import io.sentry.ISpan;
-import io.sentry.ITransaction;
-import io.sentry.Sentry;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -30,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
@@ -77,6 +76,8 @@ public class CommandMapper {
                     val isAuthEnabled = password != null && password.length() > 0;
 
                     methods.put(new BytesKey(name.getBytes()), (ctx, command) -> {
+                        Timer timer2 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(CommandMapper.class, "whole"));
+                        Timer.Context context2 = timer2.time();
                         if (isAuthEnabled && !Arrays.equals(command.getName(), "auth".getBytes())) {
                             boolean authenticated = authManager.isAuthenticated(ctx.channel());
                             if (!authenticated) {
@@ -106,17 +107,25 @@ public class CommandMapper {
                         }
 
                         try {
+                            Timer timer3 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(NettyChannelHandler.class, "reflection"));
+                            Timer.Context context3 = timer3.time();
                             Object[] objects = new Object[types.length];
                             command.toArguments(objects, types, ctx);
                             Lock lock;
                             // TODO: use key annotation on methods
-                            if (command.getObjects().length > 1) {
-                                lock = database.getLockForKey(command.getObjects()[1]);
-                            } else {
+//                            if (command.getObjects().length > 1) {
+//                                lock = database.getLockForKey(command.getObjects()[1]);
+//                            } else {
                                 lock = database.getLock();
-                            }
+//                            }
+                            context3.stop();
+                            Timer timer = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(CommandMapper.class, "lock"));
+                            Timer.Context context = timer.time();
                             lock.lock();
+                            context.stop();
                             try {
+                                Timer timer4 = SharedMetricRegistries.getDefault().timer(MetricRegistry.name(CommandMapper.class, "process"));
+                                context = timer4.time();
                                 if (ctx != null && isAoF && isMutate) {
                                     try {
                                         aof.write(command);
@@ -128,6 +137,8 @@ public class CommandMapper {
                             } finally {
                                 command.recycle();
                                 lock.unlock();
+                                context.stop();
+                                context2.stop();
                             }
                         } catch (Exception e) {
                             log.error(e.getMessage(), e);
