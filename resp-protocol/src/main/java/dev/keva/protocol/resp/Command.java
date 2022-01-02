@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class Command {
     private static final byte LOWER_DIFF = 'a' - 'A';
 
-    private static final Recycler<Command> RECYCLER = new Recycler<>() {
+    private static final Recycler<Command> RECYCLER = new Recycler<Command>() {
         protected Command newObject(Recycler.Handle<Command> handle) {
             return new Command(handle);
         }
