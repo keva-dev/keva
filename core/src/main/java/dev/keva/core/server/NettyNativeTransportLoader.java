@@ -14,8 +14,9 @@ public class NettyNativeTransportLoader {
 
     static {
         Platform os = detectPlatformOS();
+        boolean isPlatformX86 = isPlatformX86();
         boolean result;
-        if (os == Platform.WINDOWS || os == Platform.SOLARIS || os == Platform.UNIX || os == Platform.UNKNOWN) {
+        if (!isPlatformX86 || os == Platform.WINDOWS || os == Platform.SOLARIS || os == Platform.UNIX || os == Platform.UNKNOWN) {
             result = loadDefault();
             log.info("Loaded default library for {}", os);
         } else if (os == Platform.LINUX) {
@@ -26,8 +27,13 @@ public class NettyNativeTransportLoader {
             log.info("Loaded kqueue native library for {}", os);
         }
         if (!result) {
-            log.error("Failed to load library for Netty");
-            System.exit(1);
+            log.error("Failed to load native library for {}", os);
+            result = loadDefault();
+            if (!result) {
+                log.error("Failed to load default library for {}", os);
+                System.exit(1);
+            }
+            log.info("Loaded default library for {}", os);
         }
     }
 
@@ -46,6 +52,10 @@ public class NettyNativeTransportLoader {
         } else {
             return Platform.UNKNOWN;
         }
+    }
+
+    public static boolean isPlatformX86() {
+        return System.getProperty("os.arch").contains("x86");
     }
 
     public static boolean loadDefault() {

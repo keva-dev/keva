@@ -69,7 +69,7 @@ public class KevaServer implements Server {
         try {
             commandMapper.init();
             int ioThreads = Runtime.getRuntime().availableProcessors() * 2;
-            if (config.getIoThreads() > 0) {
+            if (config.getIoThreads() != null && config.getIoThreads() > 0) {
                 ioThreads = config.getIoThreads();
             }
             Class<? extends AbstractEventExecutorGroup> executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();

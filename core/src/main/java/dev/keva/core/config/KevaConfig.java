@@ -57,6 +57,7 @@ public class KevaConfig {
                 .persistence(true)
                 .aof(false)
                 .aofInterval(1000)
+                .ioThreads(-1)
                 .build();
     }
 }
