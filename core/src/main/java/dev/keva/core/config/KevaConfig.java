@@ -16,12 +16,12 @@ import lombok.*;
 @AllArgsConstructor
 @Configuration
 public class KevaConfig {
-    @ConfigProp(name = "hostname", defaultVal = "localhost")
-    @CliProp(name = "h", type = CliPropType.VAL)
+    @ConfigProp(name = "host", defaultVal = "localhost")
+    @CliProp(name = "host", type = CliPropType.VAL)
     private String hostname;
 
     @ConfigProp(name = "port", defaultVal = "6379")
-    @CliProp(name = "p", type = CliPropType.VAL)
+    @CliProp(name = "port", type = CliPropType.VAL)
     private Integer port;
 
     @ConfigProp(name = "save", defaultVal = "true")
@@ -44,6 +44,10 @@ public class KevaConfig {
     @CliProp(name = "requirepass", type = CliPropType.VAL)
     private String password;
 
+    @ConfigProp(name = "io-threads", defaultVal = "-1")
+    @CliProp(name = "io-threads", type = CliPropType.VAL)
+    private Integer ioThreads;
+
     @Bean
     public static KevaConfig ofDefaults() {
         return builder()
@@ -53,6 +57,7 @@ public class KevaConfig {
                 .persistence(true)
                 .aof(false)
                 .aofInterval(1000)
+                .ioThreads(-1)
                 .build();
     }
 }
