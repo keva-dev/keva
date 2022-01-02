@@ -34,7 +34,7 @@ import java.util.concurrent.locks.Lock;
 @Slf4j
 public class CommandMapper {
     @Getter
-    private final Map<BytesKey, CommandWrapper> methods = new HashMap<>();
+    private final Map<BytesKey, CommandWrapper> methods = new HashMap<>(50);
 
     @Autowired
     private KevaIoC context;

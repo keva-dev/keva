@@ -33,7 +33,7 @@ public class Publish {
         if (set != null) {
             for (Channel channel : set) {
                 if (channel.isActive()) {
-                    Reply<?>[] replies = new Reply[3];
+                    BulkReply[] replies = new BulkReply[3];
                     replies[0] = new BulkReply("message");
                     replies[1] = new BulkReply(topic);
                     replies[2] = new BulkReply(message);

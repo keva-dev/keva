@@ -4,6 +4,7 @@ import com.google.common.base.Stopwatch;
 import dev.keva.core.aof.AOFManager;
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.exception.NettyNativeLoaderException;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -64,12 +65,16 @@ public class KevaServer implements Server {
         return context.getBean(KevaServer.class);
     }
 
-    public ServerBootstrap bootstrapServer() throws NettyNativeTransportLoader.NettyNativeLoaderException {
+    public ServerBootstrap bootstrapServer() throws NettyNativeLoaderException {
         try {
             commandMapper.init();
+            int ioThreads = Runtime.getRuntime().availableProcessors() * 2;
+            if (config.getIoThreads() != null && config.getIoThreads() > 0) {
+                ioThreads = config.getIoThreads();
+            }
             Class<? extends AbstractEventExecutorGroup> executorGroupClazz = NettyNativeTransportLoader.getEventExecutorGroupClazz();
             bossGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(1);
-            workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor().newInstance();
+            workerGroup = (EventLoopGroup) executorGroupClazz.getDeclaredConstructor(int.class).newInstance(ioThreads);
             return new ServerBootstrap().group(bossGroup, workerGroup)
                     .channel(NettyNativeTransportLoader.getServerSocketChannelClazz())
                     .childHandler(nettyChannelInitializer)
@@ -82,7 +87,7 @@ public class KevaServer implements Server {
                     .childOption(ChannelOption.TCP_NODELAY, true);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             log.error(e.getMessage(), e);
-            throw new NettyNativeTransportLoader.NettyNativeLoaderException("Cannot load Netty classes");
+            throw new NettyNativeLoaderException("Cannot load Netty classes");
         }
     }
 
