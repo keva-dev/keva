@@ -81,10 +81,4 @@ public class NettyNativeTransportLoader {
     public enum Platform {
         LINUX, MAC, WINDOWS, SOLARIS, UNIX, UNKNOWN
     }
-
-    public static class NettyNativeLoaderException extends Exception {
-        public NettyNativeLoaderException(String message) {
-            super(message);
-        }
-    }
 }

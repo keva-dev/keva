@@ -3,9 +3,6 @@ plugins {
     id 'com.adarshr.test-logger' version '2.1.0'
 }
 
-group 'dev.keva'
-version '1.0-SNAPSHOT'
-
 repositories {
     mavenCentral()
 }

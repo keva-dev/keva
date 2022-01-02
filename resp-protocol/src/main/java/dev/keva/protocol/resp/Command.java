@@ -4,13 +4,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.Recycler;
 import lombok.Getter;
 
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-public class Command implements Serializable {
+public class Command {
     private static final byte LOWER_DIFF = 'a' - 'A';
 
-    private static final Recycler<Command> RECYCLER = new Recycler<Command>() {
+    private static final Recycler<Command> RECYCLER = new Recycler<>() {
         protected Command newObject(Recycler.Handle<Command> handle) {
             return new Command(handle);
         }
