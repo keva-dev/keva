@@ -19,32 +19,43 @@ public class ReplicationBuffer {
     @Getter
     private long startingOffset = 0;
     @Getter
-    private long capacity = 0;
+    private long currentSize = 0;
     @Getter
     private long limit; // in bytes
+    @Getter
+    private long replicationId;
 
     public void init() {
         buffer = new ArrayDeque<>();
+        replicationId = System.currentTimeMillis();
         limit = 1024 * 1024; // default to 1 MB
     }
 
+    public void rebase(long replicationId, long startingOffset) {
+        this.startingOffset = startingOffset;
+        this.currentOffset = startingOffset;
+        this.replicationId = replicationId;
+        this.currentSize = 0;
+        buffer.clear();
+    }
+
     private boolean isWriteCommand(byte[] cmdName) {
-        return  Arrays.stream(WriteCommand.values()).anyMatch(writeCommand -> Arrays.equals(writeCommand.getRaw(), cmdName));
+        return Arrays.stream(WriteCommand.values()).anyMatch(writeCommand -> Arrays.equals(writeCommand.getRaw(), cmdName));
     }
 
     public void buffer(Command command) {
         if (!isWriteCommand(command.getName())) {
             return;
         }
-        if (capacity >= limit) {
+        if (currentSize >= limit) {
             Command removed = buffer.removeFirst();
             startingOffset++;
-            capacity = capacity - removed.getByteSize();
+            currentSize = currentSize - removed.getByteSize();
         }
         // need a new instance because the original object will get recycled
         buffer.addLast(Command.newInstance(command.getObjects(), false));
         currentOffset++;
-        capacity += capacity + command.getByteSize();
+        currentSize += currentSize + command.getByteSize();
         log.trace(Arrays.toString(buffer.toArray()));
     }
 
