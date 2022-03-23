@@ -60,6 +60,16 @@ public class Command {
         return length;
     }
 
+    public long getByteSize() {
+        long size = 0;
+        if (objects != null) {
+            for (byte[] object : objects) {
+                size += object.length;
+            }
+        }
+        return size;
+    }
+
     public byte[] getName() {
         return objects[0];
     }
