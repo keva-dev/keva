@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
-import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -24,15 +23,13 @@ public class ReplicationBuffer {
     @Getter
     private long limit; // in bytes
 
-    private final Stream<WriteCommand> writeCommandStream = Arrays.stream(WriteCommand.values());
-
     public void init() {
         buffer = new ArrayDeque<>();
         limit = 1024 * 1024; // default to 1 MB
     }
 
     private boolean isWriteCommand(byte[] cmdName) {
-        return writeCommandStream.anyMatch(writeCommand -> Arrays.equals(writeCommand.getRaw(), cmdName));
+        return  Arrays.stream(WriteCommand.values()).anyMatch(writeCommand -> Arrays.equals(writeCommand.getRaw(), cmdName));
     }
 
     public void buffer(Command command) {
