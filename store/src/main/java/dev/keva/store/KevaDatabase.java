@@ -90,4 +90,5 @@ public interface KevaDatabase {
 
     void mset(byte[]... key);
 
+    void loadFromSnapshot(String snapshotFilePath);
 }

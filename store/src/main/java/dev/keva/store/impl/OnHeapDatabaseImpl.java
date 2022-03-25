@@ -2,11 +2,11 @@ package dev.keva.store.impl;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
+import dev.keva.store.KevaDatabase;
+import dev.keva.store.lock.SpinLock;
 import dev.keva.store.type.ZSet;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
-import dev.keva.store.KevaDatabase;
-import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -22,8 +22,11 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.function.BiFunction;
 
-import static dev.keva.util.Constants.*;
+import static dev.keva.util.Constants.FLAG_CH;
 import static dev.keva.util.Constants.FLAG_GT;
+import static dev.keva.util.Constants.FLAG_LT;
+import static dev.keva.util.Constants.FLAG_NX;
+import static dev.keva.util.Constants.FLAG_XX;
 
 public class OnHeapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
@@ -904,6 +907,11 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void loadFromSnapshot(String snapshotFilePath) {
+
     }
 
     public byte[] decrby(byte[] key, long amount) {

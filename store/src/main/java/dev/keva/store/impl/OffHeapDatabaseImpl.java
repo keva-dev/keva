@@ -2,12 +2,12 @@ package dev.keva.store.impl;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
-import dev.keva.store.type.ZSet;
-import dev.keva.util.hashbytes.BytesKey;
-import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
 import dev.keva.store.lock.SpinLock;
+import dev.keva.store.type.ZSet;
+import dev.keva.util.hashbytes.BytesKey;
+import dev.keva.util.hashbytes.BytesValue;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -943,6 +943,12 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
         } finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void loadFromSnapshot(String snapshotFilePath) {
+        this.flush();
+        // load everything up
     }
 
     public byte[] decrby(byte[] key, long amount) {
