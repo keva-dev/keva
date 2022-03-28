@@ -12,6 +12,7 @@ with TCP sockets and a [RESP](https://redis.io/topics/protocol) protocol.
 - Compatible with Redis protocol
 - Multithreading engine helps to maximize the use of system's resources
 - Persistence in-memory data to disk
+- Various backend databases to choose: LevelDB, LMDB, RocksDB, BoltDB, etc. (WIP)
 
 ## Major dependencies
 
