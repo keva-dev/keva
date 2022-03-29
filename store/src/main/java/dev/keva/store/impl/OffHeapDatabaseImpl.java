@@ -7,7 +7,6 @@ import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.DatabaseConfig;
 import dev.keva.store.KevaDatabase;
-import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BinaryOperator;
 
 import static dev.keva.util.Constants.FLAG_CH;
@@ -39,7 +39,7 @@ import static dev.keva.util.Constants.FLAG_XX;
 public class OffHeapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
-    private final Lock lock = new SpinLock();
+    private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
     public OffHeapDatabaseImpl(DatabaseConfig config) {

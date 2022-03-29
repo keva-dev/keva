@@ -6,7 +6,6 @@ import dev.keva.store.type.ZSet;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
 import dev.keva.store.KevaDatabase;
-import dev.keva.store.lock.SpinLock;
 import lombok.Getter;
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -20,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 
 import static dev.keva.util.Constants.*;
@@ -28,7 +28,7 @@ import static dev.keva.util.Constants.FLAG_GT;
 public class OnHeapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
-    private final Lock lock = new SpinLock();
+    private final Lock lock = new ReentrantLock();
 
     private final Map<BytesKey, BytesValue> map = new HashMap<>(100);
 
