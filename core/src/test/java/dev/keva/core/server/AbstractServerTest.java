@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import redis.clients.jedis.params.StrAlgoLCSParams;
 import redis.clients.jedis.params.ZAddParams;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -1036,6 +1037,24 @@ public abstract class AbstractServerTest {
             String get2 = jedis.get("key2");
             assertEquals("World", get2);
         } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void lcs() {
+        try {
+            String mset1 = jedis.mset("key1", "mynewtext", "key2", "ohmytext");
+            assertEquals("OK", mset1);
+            String get1 = jedis.get("key1");
+            assertEquals("mynewtext", get1);
+            String get2 = jedis.get("key2");
+            assertEquals("ohmytext", get2);
+            Long lcs = jedis.strAlgoLCSKeys("key1", "key2", StrAlgoLCSParams.StrAlgoLCSParams().idx().withMatchLen()).getLen();
+            assertEquals(lcs, 6);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
             fail(e);
         }
     }
