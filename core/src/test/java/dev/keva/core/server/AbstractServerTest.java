@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import redis.clients.jedis.params.StrAlgoLCSParams;
 import redis.clients.jedis.params.ZAddParams;
+import redis.clients.jedis.resps.LCSMatchResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -1035,6 +1037,71 @@ public abstract class AbstractServerTest {
             assertEquals("Hello", get1);
             String get2 = jedis.get("key2");
             assertEquals("World", get2);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void lcs1() {
+        try {
+            String mset1 = jedis.mset("key1", "ohmytext", "key2", "mynewtext");
+            assertEquals("OK", mset1);
+
+            LCSMatchResult lcs1 = jedis.strAlgoLCSKeys("key1", "key2", StrAlgoLCSParams.StrAlgoLCSParams().idx().withMatchLen());
+
+            // match string: mytext
+            assertEquals(lcs1.getLen(), 6);
+
+            assertEquals(lcs1.getMatches().get(0).getA().getStart(), 4);
+            assertEquals(lcs1.getMatches().get(0).getA().getEnd(), 7);
+            assertEquals(lcs1.getMatches().get(0).getB().getStart(), 5);
+            assertEquals(lcs1.getMatches().get(0).getB().getEnd(), 8);
+            assertEquals(lcs1.getMatches().get(0).getMatchLen(), 4);
+
+            assertEquals(lcs1.getMatches().get(1).getA().getStart(), 2);
+            assertEquals(lcs1.getMatches().get(1).getA().getEnd(), 3);
+            assertEquals(lcs1.getMatches().get(1).getB().getStart(), 0);
+            assertEquals(lcs1.getMatches().get(1).getB().getEnd(), 1);
+            assertEquals(lcs1.getMatches().get(1).getMatchLen(), 2);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    void lcs2() {
+        try {
+            String mset1 = jedis.mset("key1", "thisisasuperlongrandomtext", "key2", "isthisarandomlongtext");
+            assertEquals("OK", mset1);
+
+            LCSMatchResult lcs1 = jedis.strAlgoLCSKeys("key1", "key2", StrAlgoLCSParams.StrAlgoLCSParams().idx().withMatchLen());
+
+            assertEquals(lcs1.getLen(), 15);
+
+            assertEquals(lcs1.getMatches().get(0).getA().getStart(), 22);
+            assertEquals(lcs1.getMatches().get(0).getA().getEnd(), 25);
+            assertEquals(lcs1.getMatches().get(0).getB().getStart(), 17);
+            assertEquals(lcs1.getMatches().get(0).getB().getEnd(), 20);
+            assertEquals(lcs1.getMatches().get(0).getMatchLen(), 4);
+
+            assertEquals(lcs1.getMatches().get(1).getA().getStart(), 16);
+            assertEquals(lcs1.getMatches().get(1).getA().getEnd(), 21);
+            assertEquals(lcs1.getMatches().get(1).getB().getStart(), 7);
+            assertEquals(lcs1.getMatches().get(1).getB().getEnd(), 12);
+            assertEquals(lcs1.getMatches().get(1).getMatchLen(), 6);
+
+            assertEquals(lcs1.getMatches().get(2).getA().getStart(), 4);
+            assertEquals(lcs1.getMatches().get(2).getA().getEnd(), 6);
+            assertEquals(lcs1.getMatches().get(2).getB().getStart(), 4);
+            assertEquals(lcs1.getMatches().get(2).getB().getEnd(), 6);
+            assertEquals(lcs1.getMatches().get(2).getMatchLen(), 3);
+
+            assertEquals(lcs1.getMatches().get(3).getA().getStart(), 2);
+            assertEquals(lcs1.getMatches().get(3).getA().getEnd(), 3);
+            assertEquals(lcs1.getMatches().get(3).getB().getStart(), 0);
+            assertEquals(lcs1.getMatches().get(3).getB().getEnd(), 1);
+            assertEquals(lcs1.getMatches().get(3).getMatchLen(), 2);
         } catch (Exception e) {
             fail(e);
         }
