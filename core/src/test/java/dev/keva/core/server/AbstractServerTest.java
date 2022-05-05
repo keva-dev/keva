@@ -1114,25 +1114,25 @@ public abstract class AbstractServerTest {
             assertEquals("OK", set);
 
             String substr1 = jedis.substr("mykey", 0, 3);
-            assertEquals(substr1, "This");
+            assertEquals("This", substr1);
 
             String substr2 = jedis.substr("mykey", -3, -1);
-            assertEquals(substr2, "ing");
+            assertEquals("ing", substr2);
 
             String substr3 = jedis.substr("mykey", -3, -2);
-            assertEquals(substr3, "in");
+            assertEquals("in", substr3);
 
             String substr4 = jedis.substr("mykey", -3, -3);
-            assertEquals(substr4, "i");
+            assertEquals("i", substr4);
 
             String substr5 = jedis.substr("mykey", 0, -1);
-            assertEquals(substr5, "This is a string");
+            assertEquals("This is a string", substr5);
 
             String substr6 = jedis.substr("mykey", 0, -2);
-            assertEquals(substr6, "This is a strin");
+            assertEquals("This is a strin", substr6);
 
             String substr7 = jedis.substr("mykey", 10, 100);
-            assertEquals(substr7, "string");
+            assertEquals("string", substr7);
         } catch (Exception e) {
             fail(e);
         }
