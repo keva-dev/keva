@@ -63,7 +63,6 @@ public class GetEx {
                 throw new CommandException("Syntax error");
             }
         }
-        System.out.println(flgs);
         byte[] got = database.get(params[0]);
         if (got == null) {
             return BulkReply.NIL_REPLY;
@@ -88,7 +87,6 @@ public class GetEx {
             if (isHavingOneOfTheseFlgs(flgs, EX_FLG, PX_FLG)) {
                 expireAt += System.currentTimeMillis();
             }
-            System.out.println(new Timestamp(expireAt).toLocalDateTime());
 
             if (expireAt < System.currentTimeMillis()) {
                 database.remove(params[0]);
