@@ -37,7 +37,7 @@ public class KevaServerTest extends AbstractServerTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(10);
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");

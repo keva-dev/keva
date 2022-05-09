@@ -42,7 +42,7 @@ public class AOFTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(10);
         return server;
     }
 
@@ -75,7 +75,7 @@ public class AOFTest {
         }
         jedis.disconnect();
         // Wait for the interval to run
-        TimeUnit.SECONDS.sleep(4);
+        TimeUnit.SECONDS.sleep(10);
         try {
             stop(server);
         } catch (Exception e) {
