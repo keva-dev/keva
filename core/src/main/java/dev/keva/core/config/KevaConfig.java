@@ -17,15 +17,15 @@ import lombok.*;
 @Configuration
 public class KevaConfig {
     @ConfigProp(name = "hostname", defaultVal = "localhost")
-    @CliProp(name = "h", type = CliPropType.VAL)
+    @CliProp(name = {"h", "host"}, type = CliPropType.VAL)
     private String hostname;
 
     @ConfigProp(name = "port", defaultVal = "6379")
-    @CliProp(name = "p", type = CliPropType.VAL)
+    @CliProp(name = {"p", "port"}, type = CliPropType.VAL)
     private Integer port;
 
     @ConfigProp(name = "save", defaultVal = "true")
-    @CliProp(name = "save", type = CliPropType.FLAG)
+    @CliProp(name = {"save", "s"}, type = CliPropType.FLAG)
     private Boolean persistence;
 
     @ConfigProp(name = "appendonly", defaultVal = "false")
