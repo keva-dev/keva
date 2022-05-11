@@ -45,6 +45,7 @@ public class ReplicationManager {
             return;
         }
         Jedis jedis = createJedisClient(kevaConfig.getReplicaOf());
+        // PSYNC replicationId startingOffset
         byte[] rawResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.PSYNC, String.valueOf(repBuffer.getReplicationId()),
             String.valueOf(repBuffer.getStartingOffset()));
         String response = SafeEncoder.encode(rawResponse);
