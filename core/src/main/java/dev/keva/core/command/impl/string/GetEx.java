@@ -25,11 +25,11 @@ public class GetEx {
     private final String PXAT = "PXAT";
     private final String PERSIST = "PERSIST";
 
-    private int EX_FLG = 1 << 2;
-    private int PX_FLG = 1 << 3;
-    private int EXAT_FLG = 1 << 6;
-    private int PXAT_FLG = 1 << 7;
-    private int PERSIST_FLG = 1 << 8;
+    private final int EX_FLG = 1 << 2;
+    private final int PX_FLG = 1 << 3;
+    private final int EXAT_FLG = 1 << 6;
+    private final int PXAT_FLG = 1 << 7;
+    private final int PERSIST_FLG = 1 << 8;
 
     @Autowired
     public GetEx(KevaDatabase database) {
@@ -37,7 +37,7 @@ public class GetEx {
     }
 
     @Execute
-    public Reply<?> execute(byte[][] params) {
+    public BulkReply execute(byte[][] params) {
         int flgs = 0;
         String nextArg = null;
         long expireTime = 0;
@@ -69,7 +69,7 @@ public class GetEx {
         }
 
         if (isHavingOneOfTheseFlgs(flgs, PERSIST_FLG)) {
-            // how to remove expire time???
+            database.removeExpire(params[0]);
         } else {
             try {
                 expireTime = Long.parseLong(nextArg);
