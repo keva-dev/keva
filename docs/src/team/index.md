@@ -34,19 +34,6 @@ Keva project is built by a team of enthusiastic and passionate engineers formed 
         </td>
     </tr>
     <tr style="background: #fff">
-        <td><img src="https://avatars.githubusercontent.com/u/35887761?v=4" style="max-width: 100px;"></td>
-        <td>
-            <h3>Toai Duong</h3>
-            <p>Keva Sentinel, Keva SQL</p>
-            <p>
-                <a href="https://github.com/duongcongtoai" target="_blank">duongcongtoai</a>
-            </p>
-            <p>
-                <a href="mailto:toai@keva.dev" target="_blank">toai@keva.dev</a>
-            </p>
-        </td>
-    </tr>
-    <tr style="background: #fff">
         <td><img src="https://avatars.githubusercontent.com/u/20265834?v=4" style="max-width: 100px;"></td>
         <td>
             <h3>Tuan Ha</h3>
@@ -76,12 +63,12 @@ Keva project is built by a team of enthusiastic and passionate engineers formed 
         <td><img src="https://avatars.githubusercontent.com/u/42906612?v=4" style="max-width: 100px;"></td>
         <td>
             <h3>Saurav Prakash</h3>
-            <p>Core Focus</p>
+            <p>Core Focus, Performance Tuner</p>
             <p>
                 <a href="https://github.com/the123saurav" target="_blank">the123saurav</a>
             </p>
             <p>
-                <a href="mailto:an@keva.dev" target="_blank">shaurav@keva.dev</a>
+                <a href="mailto:an@keva.dev" target="_blank">saurav@keva.dev</a>
             </p>
         </td>
     </tr>
