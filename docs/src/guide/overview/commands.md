@@ -56,6 +56,7 @@ This is a list of commands that are available in the current latest version of K
 - GETRANGE
 - MSET
 - INCRBYFLOAT
+- SUBSTR
 
 </details>
 

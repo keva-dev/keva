@@ -1106,4 +1106,35 @@ public abstract class AbstractServerTest {
             fail(e);
         }
     }
+
+    @Test
+    void substr() {
+        try {
+            String set = jedis.set("mykey", "This is a string");
+            assertEquals("OK", set);
+
+            String substr1 = jedis.substr("mykey", 0, 3);
+            assertEquals("This", substr1);
+
+            String substr2 = jedis.substr("mykey", -3, -1);
+            assertEquals("ing", substr2);
+
+            String substr3 = jedis.substr("mykey", -3, -2);
+            assertEquals("in", substr3);
+
+            String substr4 = jedis.substr("mykey", -3, -3);
+            assertEquals("i", substr4);
+
+            String substr5 = jedis.substr("mykey", 0, -1);
+            assertEquals("This is a string", substr5);
+
+            String substr6 = jedis.substr("mykey", 0, -2);
+            assertEquals("This is a strin", substr6);
+
+            String substr7 = jedis.substr("mykey", 10, 100);
+            assertEquals("string", substr7);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }
