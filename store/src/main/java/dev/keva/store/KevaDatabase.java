@@ -90,4 +90,5 @@ public interface KevaDatabase {
 
     void mset(byte[]... key);
 
+    byte[] substr(byte[] key, int startInt, int endInt);
 }
