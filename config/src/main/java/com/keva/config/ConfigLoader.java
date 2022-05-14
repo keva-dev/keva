@@ -19,7 +19,7 @@ public final class ConfigLoader {
         ArgsHolder config = ArgsParser.parse(args);
         T overrider = ConfigLoaderUtil.fromArgs(config, clazz);
 
-        String configFilePath = config.getArgVal("f");
+        String configFilePath = config.getArgVal(new String[]{"f"});
         if (configFilePath != null) {
             returnConf = loadConfigFromFile(configFilePath, clazz);
         }

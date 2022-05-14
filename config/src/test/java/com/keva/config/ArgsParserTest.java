@@ -15,31 +15,31 @@ class ArgsParserTest {
                 "--p", "123123", "--a", "--b"
         };
         ArgsHolder parse = ArgsParser.parse(args);
-        assertEquals("true", parse.getFlag("a"));
-        assertEquals("true", parse.getFlag("b"));
-        assertEquals("123123", parse.getArgVal("p"));
+        assertEquals("true", parse.getFlag(new String[]{"a"}));
+        assertEquals("true", parse.getFlag(new String[]{"b"}));
+        assertEquals("123123", parse.getArgVal(new String[]{"p"}));
 
         args = new String[]{
                 "--a", "--b", "false"
         };
         parse = ArgsParser.parse(args);
-        assertEquals("true", parse.getFlag("a"));
-        assertEquals("false", parse.getArgVal("b"));
+        assertEquals("true", parse.getFlag(new String[]{"a"}));
+        assertEquals("false", parse.getArgVal(new String[]{"b"}));
 
         args = new String[]{
                 "--a", "--b", "false"
         };
         parse = ArgsParser.parse(args);
-        assertEquals("true", parse.getFlag("a"));
-        assertEquals("false", parse.getFlag("b"));
+        assertEquals("true", parse.getFlag(new String[]{"a"}));
+        assertEquals("false", parse.getFlag(new String[]{"b"}));
 
         args = new String[]{
                 "--a", "aa", "--b", "notTrue"
         };
         parse = ArgsParser.parse(args);
-        assertEquals("aa", parse.getArgVal("a"));
-        assertEquals("false", parse.getFlag("b"));
-        assertNull(parse.getFlag("c"));
-        assertNull(parse.getArgVal("c"));
+        assertEquals("aa", parse.getArgVal(new String[]{"a"}));
+        assertEquals("false", parse.getFlag(new String[]{"b"}));
+        assertNull(parse.getFlag(new String[]{"c"}));
+        assertNull(parse.getArgVal(new String[]{"c"}));
     }
 }

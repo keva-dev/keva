@@ -17,12 +17,14 @@ public class ArgsHolder {
     }
 
     @SuppressWarnings("ReturnOfNull")
-    public String getFlag(String name) {
-        if (values.containsKey(name)) {
-            return "true".equalsIgnoreCase(values.get(name)) ? "true" : "false";
-        }
-        if (flags.contains(name)) {
-            return "true";
+    public String getFlag(String[] names) {
+        for (String name : names) {
+            if (values.containsKey(name)) {
+                return "true".equalsIgnoreCase(values.get(name)) ? "true" : "false";
+            }
+            if (flags.contains(name)) {
+                return "true";
+            }
         }
         return null;
     }
@@ -32,9 +34,11 @@ public class ArgsHolder {
     }
 
     @SuppressWarnings("ReturnOfNull")
-    public String getArgVal(String name) {
-        if (values.containsKey(name)) {
-            return values.get(name);
+    public String getArgVal(String[] names) {
+        for (String name : names) {
+            if (values.containsKey(name)) {
+                return values.get(name);
+            }
         }
         return null;
     }
