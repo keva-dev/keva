@@ -44,6 +44,10 @@ public class KevaConfig {
     @CliProp(name = "requirepass", type = CliPropType.VAL)
     private String password;
 
+    @ConfigProp(name = "io-threads", defaultVal = "-1")
+    @CliProp(name = "io-threads", type = CliPropType.VAL)
+    private Integer ioThreads;
+
     @Bean
     public static KevaConfig ofDefaults() {
         return builder()

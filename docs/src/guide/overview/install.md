@@ -44,5 +44,5 @@ docker pull kevadev/keva-server
 Run container:
 
 ```
-docker run --name some-keva -d -p 6379:6379 keva-server 
+docker run --name some-keva -d -p 6379:6379 kevadev/keva-server 
 ```
