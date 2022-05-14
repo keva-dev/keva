@@ -960,4 +960,35 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             lock.unlock();
         }
     }
+
+    public byte[] substr(byte[] key, int startInt, int endInt) {
+        lock.lock();
+        try {
+            byte[] value = this.get(key);
+            if (value == null) {
+                return null;
+            }
+            String valueStr = new String(value, StandardCharsets.UTF_8);
+
+            // Convert negative indexes to positive ones
+            if (startInt < 0 && endInt < 0 && startInt > endInt) {
+                return null;
+            }
+            if (startInt < 0) startInt = valueStr.length() + startInt;
+            if (endInt < 0) endInt = valueStr.length() + endInt;
+            if (startInt < 0) startInt = 0;
+            if (endInt < 0) endInt = 0;
+            if (endInt >= valueStr.length()) endInt = valueStr.length() - 1;
+
+            byte[] result;
+            if (startInt > endInt) {
+                result = "".getBytes();
+            } else {
+                result = valueStr.substring(startInt, endInt + 1).getBytes(StandardCharsets.UTF_8);
+            }
+            return result;
+        } finally {
+            lock.unlock();
+        }
+    }
 }
