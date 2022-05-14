@@ -42,7 +42,7 @@ module.exports = {
       },
       {
         text: 'Blogs',
-        link: 'https://tuhuynh.com/tags/keva',
+        link: 'https://blog.keva.dev',
       },
       {
         text: 'Team',
@@ -51,10 +51,6 @@ module.exports = {
       {
         text: 'Keva IoC',
         link: 'https://github.com/keva-dev/keva-ioc',
-      },
-      {
-        text: 'Keva Web',
-        link: 'https://github.com/keva-dev/keva-web',
       },
       {
         text: 'Slack',
