@@ -24,7 +24,7 @@ Parameters:
 
     Option                          Description
     ------                          -----------
-    --port <Integer>                Accept connections on the specified port (default: 6379)
+    --p, --port <Integer>           Accept connections on the specified port (default: 6379)
     --save <Boolean>                Enable save the DB to disk (default: true)
     --appendonly <Boolean>          Enable append-only-file (default: false)
     --appendfsync <Integer>         Define append-only fsync in ms (default: 1000)
