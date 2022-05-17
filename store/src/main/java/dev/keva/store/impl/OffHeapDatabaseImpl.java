@@ -145,6 +145,12 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
+    public void removeExpire(byte[] key) {
+        byte[] expireKey = getExpireKey(key);
+        chronicleMap.remove(expireKey);
+    }
+
+    @Override
     public boolean remove(byte[] key) {
         lock.lock();
         try {
