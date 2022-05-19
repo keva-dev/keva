@@ -1,139 +1,23 @@
-# Commands
+# Redis Compatibility
 
-Follows [Redis's commands](https://redis.io/commands).
+Keva supports Redis client protocol up to version 6.2. Following table shows the list of supported [Redis commands](https://redis.io/commands):
 
 This is a list of commands that are available in the current latest version of Keva:
 
-<details>
-    <summary>Server</summary>
-
-- INFO
-- FLUSHDB
-- TIME
-
-</details>
-
-<details>
-    <summary>Connection</summary>
-
-- AUTH
-- ECHO
-- PING
-- QUIT
-- CLIENT ID
-- CLIENT INFO
-
-</details>
-
-<details>
-    <summary>Key</summary>
-
-- DEL
-- EXISTS
-- RENAME
-- EXPIRE
-- EXPIREAT
-- DUMP
-- RESTORE
-- TYPE
-
-</details>
-
-<details>
-    <summary>String</summary>
-
-- APPEND
-- GET
-- INCRBY
-- INCR
-- SET
-- GETSET
-- MGET
-- STRLEN
-- SETRANGE
-- DECR
-- DECRBY
-- GETRANGE
-- MSET
-- INCRBYFLOAT
-- SUBSTR
-- STRALGO LCS
-- GETEX
-- MSETNX
-- PSETEX
-- SETEX
-- SETNX
-
-</details>
-
-<details>
-    <summary>Hash</summary>
-
-- HGET
-- HGETALL
-- HKEYS
-- HVALS
-- HSET
-- HDEL
-- HEXISTS
-- HLEN
-- HSTRLEN
-
-</details>
-
-<details>
-    <summary>List</summary>
-
-- LPUSH
-- RPUSH
-- LPOP
-- RPOP
-- LLEN
-- LRANGE
-- LINDEX
-- LSET
-- LREM
-
-</details>
-
-<details>
-    <summary>Set</summary>
-
-- SADD
-- SMEMBERS
-- SISMEMBER
-- SCARD
-- SDIFF
-- SINTER
-- SUNION
-- SMOVE
-- SREM
-
-</details>
-
-<details>
-    <summary>SortedSet</summary>
-
-- ZADD
-- ZSCORE
-
-</details>
-
-<details>
-    <summary>Pub/Sub</summary>
-
-- SUBSCRIBE
-- UNSUBSCRIBE
-- PUBLISH
-
-</details>
-
-<details>
-    <summary>Transactions</summary>
-
-- MULTI
-- EXEC
-- DISCARD
-- WATCH
-
-</details>
+| Feature      | Supported? | Supported Commands                                                                                                                                                                      |
+|--------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| String       | ✅          | APPEND - GET - INCRBY - INCR - SET - GETSET - MGET - STRLEN - SETRANGE - DECR - DECRBY - GETRANGE - MSET - INCRBYFLOAT - SUBSTR - STRALGO LCS - GETEX - MSETNX - PSETEX - SETEX - SETNX |
+| Hash         | ✅          | HGET - HGETALL - HKEYS - HVALS - HSET - HDEL - HEXISTS - HLEN - HSTRLEN                                                                                                                 |
+| List         | ✅          | LPUSH - RPUSH - LPOP - RPOP - LLEN - LRANGE - LINDEX - LSET - LREM                                                                                                                      |
+| Set          | ✅          | SADD - SMEMBERS - SISMEMBER - SCARD - SDIFF - SINTER - SUNION - SMOVE - SREM                                                                                                            |
+| SortedSet    | ✅          | ZADD - ZSCORE                                                                                                                                                                           |
+| Transactions | ✅          | MULTI - EXEC - DISCARD - WATCH                                                                                                                                                          |
+| Generic      | ✅          | DEL - EXISTS - RENAME - EXPIRE - EXPIREAT - DUMP - RESTORE - TYPE                                                                                                                       |
+| Connection   | ✅          | AUTH - ECHO - PING - QUIT - CLIENT ID - CLIENT INFO                                                                                                                                     |
+| Server       | ✅          | INFO - FLUSHDB - TIME                                                                                                                                                                   |
+| Scripting    | ❌          |                                                                                                                                                                                         |
+| Pub/Sub      | ✅          | SUBSCRIBE - UNSUBSCRIBE - PUBLISH                                                                                                                                                       |
+| Cluster      | ❌          |                                                                                                                                                                                         |
+| Geo          | ❌          |                                                                                                                                                                                         |
+| HyperLogLog  | ❌          |                                                                                                                                                                                         |
+| Streams      | ❌          |                                                                                                                                                                                         |
