@@ -1,5 +1,6 @@
 package dev.keva.core.command.impl.replication;
 
+import com.google.common.io.Files;
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
 import dev.keva.core.command.annotation.Mutate;
@@ -10,72 +11,68 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
+import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.SneakyThrows;
 
+import java.io.File;
 import java.util.ArrayList;
+
+import static dev.keva.core.command.annotation.ParamLength.Type.EXACT;
 
 @Component
 @CommandImpl("psync")
-@ParamLength(2)
+@ParamLength(type = EXACT, value = 2)
 @Mutate
-public class PSYNC {
-    private final KevaDatabase database;
-    private final KevaConfig kevaConfig;
+public class Psync {
+
     private final ReplicationBuffer repBuffer;
-    private final String snapshotFilePath;
+    private final String persistenceFilePath;
 
     @Autowired
-    public PSYNC(KevaDatabase database, KevaConfig kevaConfig, ReplicationBuffer repBuffer) {
-        this.database = database;
-        this.kevaConfig = kevaConfig;
+    public Psync(KevaConfig kevaConfig, ReplicationBuffer repBuffer) {
         this.repBuffer = repBuffer;
-        this.snapshotFilePath = kevaConfig.getWorkDirectory() + "/temp.kdb";
+        this.persistenceFilePath = kevaConfig.getWorkDirectory() + "/dump.kdb";
     }
 
     @Execute
-    public MultiBulkReply execute(ChannelHandlerContext ctx,
-                                  byte[] replicationId,
-                                  byte[] startingOffset) {
+    public StatusReply execute(byte[] replicationId,
+                               byte[] startingOffset,
+                               ChannelHandlerContext ctx) {
         // PSYNC replicationId startingOffset
         String repId = new String(replicationId);
+        String masterRepId = String.valueOf(repBuffer.getReplicationId());
         long slaveStartingOffset = Long.parseLong(new String(startingOffset));
-        boolean needFullResync = repBuffer.getStartingOffset() > slaveStartingOffset;
+        boolean needFullResync = !masterRepId.equalsIgnoreCase(repId) || repBuffer.getStartingOffset() > slaveStartingOffset;
         ArrayList<String> cmdList = repBuffer.dump();
         if (needFullResync) {
             ctx.write(new BulkReply("FULLRESYNC " + repBuffer.getReplicationId() + " " + repBuffer.getStartingOffset()));
 
-            // generate snapshot
-            generateSnapshot();
-
             // send snapshot
-            String snapshotFileAsString = readSnapshotFileToString();
-            ctx.write(new BulkReply(snapshotFileAsString));
+            ctx.write(new BulkReply(readSnapshotFileToString()));
 
             // register slave
             // start long connection with slave to forward command afterwards
 
             // send buffered commands
-            ctx.write(new BulkReply(cmdList.toString()));
+            Reply<?>[] cmdReplies = new Reply[cmdList.size()];
+            for (int i = 0; i < cmdList.size(); i++) {
+                String cmd = cmdList.get(i);
+                cmdReplies[i] = new BulkReply(cmd);
+            }
+            ctx.write(new MultiBulkReply(cmdReplies));
         } else {
             ctx.write(new StatusReply("CONTINUE"));
             ctx.write(new BulkReply(cmdList.toString()));
         }
 
-        return null;
+        return new StatusReply("OK");
     }
 
-    private String readSnapshotFileToString() {
-        return "";
-    }
-
-    private void generateSnapshot() {
-        // https://github.com/keva-dev/keva-dbutil/blob/master/src/main/java/dev/keva/dbutil/Converter.java
-
-        // load chroniclemap in new thread
-
-        // serialize to snapshot file
+    @SneakyThrows
+    private byte[] readSnapshotFileToString() {
+        return Files.asByteSource(new File(persistenceFilePath)).read();
     }
 
 }
