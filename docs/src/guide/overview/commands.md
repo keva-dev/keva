@@ -57,6 +57,12 @@ This is a list of commands that are available in the current latest version of K
 - MSET
 - INCRBYFLOAT
 - SUBSTR
+- STRALGO LCS
+- GETEX
+- MSETNX
+- PSETEX
+- SETEX
+- SETNX
 
 </details>
 

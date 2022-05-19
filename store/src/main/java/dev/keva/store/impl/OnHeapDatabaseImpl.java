@@ -97,6 +97,12 @@ public class OnHeapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
+    public void removeExpire(byte[] key) {
+        BytesKey expireKey = getExpireKey(key);
+        map.remove(expireKey);
+    }
+
+    @Override
     public byte[] get(byte[] key) {
         lock.lock();
         try {
