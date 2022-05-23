@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -90,8 +91,8 @@ public class MasterTest {
             .build());
         byte[] valueInBytes = database.get("abc".getBytes(StandardCharsets.UTF_8));
         assertArrayEquals("edf".getBytes(StandardCharsets.UTF_8), valueInBytes);
-//        List<String> multiBulkReply = jedis.getClient().getMultiBulkReply();
-//        assertTrue("set abc edf".equalsIgnoreCase(multiBulkReply.get(0)));
+        List<String> multiBulkReply = jedis.getClient().getMultiBulkReply();
+        assertTrue("set abc edf".equalsIgnoreCase(multiBulkReply.get(0)));
     }
 
     public static boolean deleteDir(File dir) {

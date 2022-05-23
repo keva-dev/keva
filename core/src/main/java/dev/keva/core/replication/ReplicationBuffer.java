@@ -9,6 +9,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -41,7 +42,7 @@ public class ReplicationBuffer {
     }
 
     private boolean isWriteCommand(byte[] cmdName) {
-        return Arrays.stream(WriteCommand.values()).anyMatch(writeCommand -> Arrays.equals(writeCommand.getRaw(), cmdName));
+        return Arrays.stream(WriteCommand.values()).anyMatch(writeCommand -> writeCommand.name().equalsIgnoreCase(new String(cmdName)));
     }
 
     public void buffer(Command command) {
@@ -61,7 +62,16 @@ public class ReplicationBuffer {
     }
 
     public ArrayList<String> dump() {
-        return new ArrayList<>();
+        return buffer.stream().map(Command::getObjects)
+            .map(objArr -> {
+                StringBuilder cmdStrBuilder = new StringBuilder();
+                for (byte[] bytes : objArr) {
+                    cmdStrBuilder.append(new String(bytes));
+                    cmdStrBuilder.append(" ");
+                }
+                return cmdStrBuilder.toString().trim();
+            })
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
 }
