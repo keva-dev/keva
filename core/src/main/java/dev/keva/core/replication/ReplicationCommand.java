@@ -4,7 +4,9 @@ import redis.clients.jedis.commands.ProtocolCommand;
 import redis.clients.jedis.util.SafeEncoder;
 
 public enum ReplicationCommand implements ProtocolCommand {
-    PSYNC;
+    PSYNC, // for master - slave data synchronization
+    REPLCONF // for master - slave information
+    ;
 
     private final byte[] raw;
 

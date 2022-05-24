@@ -45,10 +45,22 @@ public class ReplicationManager {
             return;
         }
         Jedis jedis = createJedisClient(kevaConfig.getReplicaOf());
+        // REPLCONF <option> <value> <option> <value> ...
+        StringBuilder replConfArgBuilder = new StringBuilder();
+        replConfArgBuilder.append("ip-address").append(" ")
+            .append(kevaConfig.getHostname()).append(" ")
+            .append("listening-port").append(" ")
+            .append(kevaConfig.getPort()).append(" ");
+        byte[] replConfResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.REPLCONF, replConfArgBuilder.toString());
+        String response = SafeEncoder.encode(replConfResponse);
+        if (response.startsWith("OK")) {
+            // create heartbeat cron here
+        }
+
         // PSYNC replicationId startingOffset
         byte[] rawResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.PSYNC, String.valueOf(repBuffer.getReplicationId()),
             String.valueOf(repBuffer.getStartingOffset()));
-        String response = SafeEncoder.encode(rawResponse);
+        response = SafeEncoder.encode(rawResponse);
         if (response.startsWith("FULLRESYNC")) {
             // parse the new replication id and offset
             String[] fullResyncRes = response.split(" ");

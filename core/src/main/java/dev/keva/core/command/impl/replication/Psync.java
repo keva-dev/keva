@@ -67,7 +67,7 @@ public class Psync {
             ctx.write(new BulkReply(cmdList.toString()));
         }
 
-        return new StatusReply("OK");
+        return StatusReply.OK;
     }
 
     @SneakyThrows
