@@ -35,8 +35,7 @@ public class PersistenceTest {
             }
         }).start();
 
-        // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        server.getReady().join();
         return server;
     }
 

@@ -17,15 +17,21 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.AbstractEventExecutorGroup;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @ComponentScan("dev.keva.core")
 public class KevaServer implements Server {
+
+    @Getter
+    private final CompletableFuture<Void> ready = new CompletableFuture<>();
+
     private static final String KEVA_BANNER = "\n" +
             "  _  __  ___  __   __    _   \n" +
             " | |/ / | __| \\ \\ / /   /_\\  \n" +
@@ -115,6 +121,8 @@ public class KevaServer implements Server {
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
 
+            ready.complete(null);
+
             channel = sync.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
@@ -122,6 +130,8 @@ public class KevaServer implements Server {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
             log.error("Failed to start server: ", e);
+            // Release err future
+            ready.completeExceptionally(e);
         } finally {
             stopwatch.stop();
         }
