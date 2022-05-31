@@ -2,7 +2,7 @@
 home: true
 heroImage: https://i.imgur.com/z0c9bV7.png
 tagline: Low latency in-memory key-value store, used as Redis replacement
-actionText: Quick Start →
+actionText: Get Started
 actionLink: /guide/
 features:
 - title: Redis drop-in alternative

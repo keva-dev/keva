@@ -13,11 +13,12 @@ import dev.keva.store.KevaDatabase;
 @CommandImpl("hset")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 3)
 @Mutate
-public class HSet {
+public class HSet extends HashBase {
     private final KevaDatabase database;
 
     @Autowired
     public HSet(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
@@ -37,7 +38,7 @@ public class HSet {
         int count = 0;
         for (int i = 1; i < args.length; i += 2) {
             if (args[i] != null) {
-                database.hset(args[0].getBytes(), args[i].getBytes(), args[i + 1].getBytes());
+                this.set(args[0].getBytes(), args[i].getBytes(), args[i + 1].getBytes());
                 count++;
             }
         }

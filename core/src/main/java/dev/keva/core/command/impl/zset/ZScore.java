@@ -11,17 +11,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("zscore")
 @ParamLength(type = ParamLength.Type.EXACT, value = 2)
-public final class ZScore {
+public final class ZScore extends ZBase {
     private final KevaDatabase database;
 
     @Autowired
     public ZScore(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public BulkReply execute(byte[] key, byte[] member) {
-        Double result = database.zscore(key, member);
+        Double result = this.score(key, member);
         if (result == null) {
             return BulkReply.NIL_REPLY;
         }

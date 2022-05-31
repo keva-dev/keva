@@ -12,17 +12,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("smembers")
 @ParamLength(1)
-public class SMembers {
+public class SMembers extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SMembers(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public MultiBulkReply execute(byte[] key) {
-        byte[][] result = database.smembers(key);
+        byte[][] result = this.members(key);
         if (result == null) {
             return MultiBulkReply.EMPTY;
         }
