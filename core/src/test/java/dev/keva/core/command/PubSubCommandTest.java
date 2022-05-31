@@ -24,7 +24,7 @@ public class PubSubCommandTest extends BaseCommandTest {
 
     @AfterAll
     static void afterAll() {
-        jedis.disconnect();
+        subscriber.disconnect();
     }
 
     @Test
