@@ -38,49 +38,37 @@ public class ZSetCommandTest extends BaseCommandTest {
 
     @Test
     void zaddSingleWithoutOptions() {
-        try {
-            Long result = jedis.zadd("zset", 1.0, "val");
-            assertEquals(1, result);
+        Long result = jedis.zadd("zset", 1.0, "val");
+        assertEquals(1, result);
 
-            result = jedis.zadd("zset", 1.0, "val");
-            assertEquals(0, result);
-        } catch (Exception e) {
-            fail(e);
-        }
+        result = jedis.zadd("zset", 1.0, "val");
+        assertEquals(0, result);
     }
 
     @Test
     void zaddMultipleWithoutOptions() {
-        try {
-            Map<String, Double> members = new HashMap<>();
-            int numMembers = 100;
-            for (int i = 0; i < numMembers; ++i) {
-                members.put(Integer.toString(i), (double) i);
-            }
-            Long result = jedis.zadd("zset", members);
-            assertEquals(numMembers, result);
-
-            result = jedis.zadd("zset", members);
-            assertEquals(0, result);
-        } catch (Exception e) {
-            fail(e);
+        Map<String, Double> members = new HashMap<>();
+        int numMembers = 100;
+        for (int i = 0; i < numMembers; ++i) {
+            members.put(Integer.toString(i), (double) i);
         }
+        Long result = jedis.zadd("zset", members);
+        assertEquals(numMembers, result);
+
+        result = jedis.zadd("zset", members);
+        assertEquals(0, result);
     }
 
     @Test
     void zaddCh() {
-        try {
-            Long result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
-            assertEquals(1, result);
+        Long result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
+        assertEquals(1, result);
 
-            result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
-            assertEquals(0, result);
+        result = jedis.zadd("zset", 1.0, "mem", new ZAddParams().ch());
+        assertEquals(0, result);
 
-            result = jedis.zadd("zset", 2.0, "mem", new ZAddParams().ch());
-            assertEquals(1, result);
-        } catch (Exception e) {
-            fail(e);
-        }
+        result = jedis.zadd("zset", 2.0, "mem", new ZAddParams().ch());
+        assertEquals(1, result);
     }
 
     @Test

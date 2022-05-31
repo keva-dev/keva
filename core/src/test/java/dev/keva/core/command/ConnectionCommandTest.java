@@ -9,32 +9,20 @@ public class ConnectionCommandTest extends BaseCommandTest {
 
     @Test
     void ping() {
-        try {
-            val pong = jedis.ping();
-            assertTrue("PONG".contentEquals(pong));
-            assertEquals("PONG", pong);
-        } catch (Exception e) {
-            fail(e);
-        }
+        val pong = jedis.ping();
+        assertTrue("PONG".contentEquals(pong));
+        assertEquals("PONG", pong);
     }
 
     @Test
     void clientInfo() {
-        try {
-            val info = jedis.clientInfo();
-            assertNotNull(info);
-        } catch (Exception e) {
-            fail(e);
-        }
+        val info = jedis.clientInfo();
+        assertNotNull(info);
     }
 
     @Test
     void clientId() {
-        try {
-            val info = jedis.clientId();
-            assertNotNull(info);
-        } catch (Exception e) {
-            fail(e);
-        }
+        val info = jedis.clientId();
+        assertNotNull(info);
     }
 }
