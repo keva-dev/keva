@@ -7,11 +7,9 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
-import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.store.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
 
 @Component
 @CommandImpl("getex")
@@ -91,7 +89,7 @@ public class GetEx {
             if (expireAt < System.currentTimeMillis()) {
                 database.remove(params[0]);
             } else {
-                database.expireAt(params[0], expireAt);
+                database.setExpiration(params[0], expireAt);
             }
         }
         return new BulkReply(got);

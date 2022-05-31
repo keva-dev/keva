@@ -32,7 +32,7 @@ public class SetEX {
             throw new CommandException("invalid expire time in 'setex' command");
         }
         database.put(params[0], params[2]);
-        database.expireAt(params[0], System.currentTimeMillis() + seconds * 1000);
+        database.setExpiration(params[0], System.currentTimeMillis() + seconds * 1000);
         return StatusReply.OK;
     }
 }

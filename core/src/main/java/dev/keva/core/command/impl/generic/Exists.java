@@ -1,4 +1,4 @@
-package dev.keva.core.command.impl.key;
+package dev.keva.core.command.impl.generic;
 
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;

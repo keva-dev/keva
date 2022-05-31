@@ -49,16 +49,15 @@ public abstract class HashBase {
     }
 
     protected void set(byte[] key, byte[] field, byte[] value) {
-        database.compute(key, (k, oldVal) -> {
-            HashMap<BytesKey, BytesValue> map;
-            if (oldVal == null) {
-                map = new HashMap<>();
-            } else {
-                map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(oldVal);
-            }
-            map.put(new BytesKey(field), new BytesValue(value));
-            return SerializationUtils.serialize(map);
-        });
+        HashMap<BytesKey, BytesValue> map;
+        byte[] oldValue = database.get(key);
+        if (oldValue == null) {
+            map = new HashMap<>();
+        } else {
+            map = (HashMap<BytesKey, BytesValue>) SerializationUtils.deserialize(oldValue);
+        }
+        map.put(new BytesKey(field), new BytesValue(value));
+        database.put(key, SerializationUtils.serialize(map));
     }
 
     protected boolean delete(byte[] key, byte[] field) {

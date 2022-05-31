@@ -13,9 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BinaryOperator;
 
-import static dev.keva.store.constant.DatabaseConstants.EXP_POSTFIX;
+import static dev.keva.store.constant.DatabaseConstants.EXPIRE_POSTFIX;
 
 @Slf4j
 public class ChronicleMapDatabaseImpl implements KevaDatabase {
@@ -71,14 +70,6 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
-    public byte[] compute(byte[] key, BinaryOperator<byte[]> fn) {
-        if (isExpired(key)) {
-            chronicleMap.remove(key);
-        }
-        return chronicleMap.compute(key, fn);
-    }
-
-    @Override
     public void removeExpire(byte[] key) {
         byte[] expireKey = getExpireKey(key);
         chronicleMap.remove(expireKey);
@@ -102,7 +93,7 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
-    public void expireAt(byte[] key, long timestampInMillis) {
+    public void setExpiration(byte[] key, long timestampInMillis) {
         byte[] expireKey = getExpireKey(key);
         byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
         if (timestampInMillis <= System.currentTimeMillis()) {
@@ -113,7 +104,7 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     private byte[] getExpireKey(byte[] key) {
-        return Bytes.concat(key, EXP_POSTFIX);
+        return Bytes.concat(key, EXPIRE_POSTFIX);
     }
 
     private boolean isExpired(byte[] key) {

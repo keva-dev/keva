@@ -1,7 +1,6 @@
 package dev.keva.store;
 
 import java.util.concurrent.locks.Lock;
-import java.util.function.BinaryOperator;
 
 public interface KevaDatabase {
     Lock getLock();
@@ -14,11 +13,9 @@ public interface KevaDatabase {
 
     boolean remove(byte[] key);
 
-    byte[] compute(byte[] key, BinaryOperator<byte[]> fn);
-
     boolean rename(byte[] key, byte[] newKey);
 
-    void expireAt(byte[] key, long timestampInMillis);
+    void setExpiration(byte[] key, long timestampInMillis);
 
     void removeExpire(byte[] key);
 }

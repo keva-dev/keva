@@ -28,19 +28,17 @@ public class Incr {
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        byte[] newVal;
+        long curVal = 0;
         try {
-            newVal = database.compute(key, (k, oldVal) -> {
-                long curVal = 0L;
-                if (oldVal != null) {
-                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
-                }
-                curVal = curVal + 1L;
-                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
-            });
+            byte[] oldVal = database.get(key);
+            if (oldVal != null) {
+                curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+            }
+            curVal = curVal + 1;
+            database.put(key, Long.toString(curVal).getBytes());
         } catch (NumberFormatException ex) {
             throw new CommandException("Failed to parse integer from value stored");
         }
-        return new IntegerReply(Long.parseLong(new String(newVal, StandardCharsets.UTF_8)));
+        return new IntegerReply(curVal);
     }
 }
