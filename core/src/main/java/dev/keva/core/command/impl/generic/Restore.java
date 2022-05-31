@@ -1,4 +1,4 @@
-package dev.keva.core.command.impl.key;
+package dev.keva.core.command.impl.generic;
 
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
@@ -35,7 +35,7 @@ public class Restore {
         database.put(key, value);
         long expireTime = new BigInteger(ttl).longValue();
         if (expireTime > 0) {
-            database.expireAt(key, System.currentTimeMillis() + expireTime * 1000);
+            database.setExpiration(key, System.currentTimeMillis() + expireTime * 1000);
         }
         return StatusReply.OK;
     }

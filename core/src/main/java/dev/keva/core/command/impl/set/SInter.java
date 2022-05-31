@@ -12,17 +12,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("sinter")
 @ParamLength(2)
-public class SInter {
+public class SInter extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SInter(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public MultiBulkReply execute(byte[]... keys) {
-        byte[][] diff = database.sinter(keys);
+        byte[][] diff = this.inter(keys);
         BulkReply[] replies = new BulkReply[diff.length];
         for (int i = 0; i < diff.length; i++) {
             replies[i] = new BulkReply(diff[i]);
