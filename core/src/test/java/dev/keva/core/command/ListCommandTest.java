@@ -2,8 +2,10 @@ package dev.keva.core.command;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ListCommandTest extends BaseCommandTest {
 
@@ -11,21 +13,21 @@ public class ListCommandTest extends BaseCommandTest {
     void wrongTypeSet() {
         val setAbc = jedis.set("abc", "123");
         assertEquals("OK", setAbc);
-        jedis.lpush("abc", "123");
+        assertThrows(JedisDataException.class, () -> jedis.lpush("abc", "123"));
     }
 
     @Test
     void wrongTypeSet2() {
         val setAbc = jedis.lpush("abc", "123");
         assertEquals(1, setAbc);
-        jedis.hset("abc", "key", "val");
+        assertThrows(JedisDataException.class, () -> jedis.hset("abc", "key", "val"));
     }
 
     @Test
     void wrongTypeSet3() {
         val setAbc = jedis.hset("abc", "key", "val");
         assertEquals(1, setAbc);
-        jedis.lpush("abc", "123");
+        assertThrows(JedisDataException.class, () -> jedis.lpush("abc", "123"));
     }
 
     @Test

@@ -15,14 +15,8 @@ public class ConnectionCommandTest extends BaseCommandTest {
     }
 
     @Test
-    void clientInfo() {
-        val info = jedis.clientInfo();
-        assertNotNull(info);
-    }
-
-    @Test
-    void clientId() {
-        val info = jedis.clientId();
+    void info() {
+        val info = jedis.info();
         assertNotNull(info);
     }
 
