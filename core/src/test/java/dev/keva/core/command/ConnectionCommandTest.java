@@ -25,4 +25,5 @@ public class ConnectionCommandTest extends BaseCommandTest {
         val info = jedis.clientId();
         assertNotNull(info);
     }
+
 }

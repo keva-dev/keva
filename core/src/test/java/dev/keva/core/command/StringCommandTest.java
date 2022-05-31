@@ -400,4 +400,5 @@ public class StringCommandTest extends BaseCommandTest {
         String val3 = jedis.get("mykey");
         assertEquals("Hello", val3);
     }
+
 }
