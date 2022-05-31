@@ -35,9 +35,10 @@ import static dev.keva.util.Constants.FLAG_LT;
 import static dev.keva.util.Constants.FLAG_NX;
 import static dev.keva.util.Constants.FLAG_XX;
 
+import static dev.keva.store.constant.DatabaseConstants.EXP_POSTFIX;
+
 @Slf4j
 public class ChronicleMapDatabaseImpl implements KevaDatabase {
-    private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;

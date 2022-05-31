@@ -13,7 +13,7 @@ import java.util.NavigableSet;
 import java.util.TreeSet;
 
 /**
- * A SortedSet implementation tailor made for Redis, and hence no generic definition.
+ * A SortedSet implementation tailor-made for Redis, and hence no generic definition.
  * The current implementation uses TreeSet which internally used Balanced BST.
  * In the future, if needed, we can implement a SkipList.
  */
