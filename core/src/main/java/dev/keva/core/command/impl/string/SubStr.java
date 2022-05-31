@@ -23,8 +23,31 @@ public class SubStr {
 
     @Execute
     public BulkReply execute(byte[] key, byte[] start, byte[] end) {
-        return new BulkReply(database.substr(key,
-                Integer.parseInt(new String(start, StandardCharsets.UTF_8)),
-                Integer.parseInt(new String(end, StandardCharsets.UTF_8))));
+        int startInt = Integer.parseInt(new String(start, StandardCharsets.UTF_8));
+        int endInt = Integer.parseInt(new String(end, StandardCharsets.UTF_8));
+        byte[] value = database.get(key);
+        if (value == null) {
+            return null;
+        }
+        String valueStr = new String(value, StandardCharsets.UTF_8);
+
+        // Convert negative indexes to positive ones
+        if (startInt < 0 && endInt < 0 && startInt > endInt) {
+            return null;
+        }
+        if (startInt < 0) startInt = valueStr.length() + startInt;
+        if (endInt < 0) endInt = valueStr.length() + endInt;
+        if (startInt < 0) startInt = 0;
+        if (endInt < 0) endInt = 0;
+        if (endInt >= valueStr.length()) endInt = valueStr.length() - 1;
+
+        byte[] result;
+        if (startInt > endInt) {
+            result = "".getBytes();
+        } else {
+            result = valueStr.substring(startInt, endInt + 1).getBytes(StandardCharsets.UTF_8);
+        }
+
+        return new BulkReply(result);
     }
 }

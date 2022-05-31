@@ -12,17 +12,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("sdiff")
 @ParamLength(2)
-public class SDiff {
+public class SDiff extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SDiff(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public MultiBulkReply execute(byte[]... keys) {
-        byte[][] diff = database.sdiff(keys);
+        byte[][] diff = this.diff(keys);
         BulkReply[] replies = new BulkReply[diff.length];
         for (int i = 0; i < diff.length; i++) {
             replies[i] = new BulkReply(diff[i]);

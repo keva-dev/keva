@@ -13,17 +13,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("lrange")
 @ParamLength(3)
-public class LRange {
+public class LRange extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public LRange(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public Reply<?> execute(byte[] key, byte[] start, byte[] stop) {
-        byte[][] got = database.lrange(key, Integer.parseInt(new String(start)), Integer.parseInt(new String(stop)));
+        byte[][] got = this.range(key, Integer.parseInt(new String(start)), Integer.parseInt(new String(stop)));
         if (got == null) {
             return MultiBulkReply.EMPTY;
         }

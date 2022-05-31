@@ -1,4 +1,4 @@
-package dev.keva.core.command.impl.key;
+package dev.keva.core.command.impl.generic;
 
 import dev.keva.core.command.annotation.CommandImpl;
 import dev.keva.core.command.annotation.Execute;
@@ -25,7 +25,7 @@ public class ExpireAt {
     public IntegerReply execute(byte[] key, byte[] at) {
         try {
             long atInMillis = Long.parseLong(new String(at, StandardCharsets.UTF_8));
-            database.expireAt(key, atInMillis);
+            database.setExpiration(key, atInMillis);
             return new IntegerReply(1);
         } catch (Exception ignore) {
             return new IntegerReply(0);

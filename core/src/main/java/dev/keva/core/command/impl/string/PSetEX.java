@@ -35,7 +35,7 @@ public class PSetEX {
             throw new CommandException("invalid expire time in 'psetex' command");
         }
         database.put(params[0], params[2]);
-        database.expireAt(params[0], System.currentTimeMillis() + milliseconds);
+        database.setExpiration(params[0], System.currentTimeMillis() + milliseconds);
         return StatusReply.OK;
     }
 }

@@ -15,25 +15,26 @@ import dev.keva.store.KevaDatabase;
 @CommandImpl("rpop")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 1)
 @Mutate
-public class RPop {
+public class RPop extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public RPop(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public Reply<?> execute(byte[] key, byte[] count) {
         if (count == null) {
-            byte[] got = database.rpop(key);
+            byte[] got = this.rpop(key);
             return got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
         }
 
         int countInt = Integer.parseInt(new String(count));
         Reply<?>[] replies = new Reply[countInt];
         for (int i = 0; i < countInt; i++) {
-            byte[] got = database.rpop(key);
+            byte[] got = this.rpop(key);
             replies[i] = got == null ? BulkReply.NIL_REPLY : new BulkReply(got);
         }
         return new MultiBulkReply(replies);
