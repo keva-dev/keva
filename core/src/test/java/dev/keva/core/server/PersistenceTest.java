@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import redis.clients.jedis.Jedis;
 
-import java.util.concurrent.TimeUnit;
-
 import static dev.keva.core.utils.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;

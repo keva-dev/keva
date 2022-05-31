@@ -1,6 +1,5 @@
 package dev.keva.app;
 
-import dev.keva.app.Application;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.Jedis;

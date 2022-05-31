@@ -1,21 +1,18 @@
 package dev.keva.core.server;
 
-import dev.keva.core.command.impl.string.GetEx;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.params.StrAlgoLCSParams;
+import redis.clients.jedis.params.ZAddParams;
+import redis.clients.jedis.resps.LCSMatchResult;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
-import redis.clients.jedis.params.GetExParams;
-import redis.clients.jedis.params.StrAlgoLCSParams;
-import redis.clients.jedis.params.ZAddParams;
-import redis.clients.jedis.resps.LCSMatchResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
