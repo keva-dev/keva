@@ -1,6 +1,8 @@
-package dev.keva.core.server;
+package dev.keva.core.command;
 
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.server.KevaServer;
+import dev.keva.core.server.Server;
 import dev.keva.core.utils.PortUtil;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -12,12 +14,15 @@ import redis.clients.jedis.Jedis;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class KevaServerTest extends AbstractServerTest {
-    static String host = "localhost";
-    static int port = PortUtil.getAvailablePort();
+public class BaseCommandTest {
+    protected static Jedis jedis;
+    protected static Server server;
+    protected static Jedis subscriber;
 
     @BeforeAll
     static void startServer() throws Exception {
+        String host = "localhost";
+        int port = PortUtil.getAvailablePort();
         val config = KevaConfig.builder()
                 .persistence(false)
                 .aof(false)
@@ -37,7 +42,7 @@ public class KevaServerTest extends AbstractServerTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(2);  // TODO: fix this
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");
@@ -55,4 +60,5 @@ public class KevaServerTest extends AbstractServerTest {
     void reset() {
         server.clear();
     }
+
 }
