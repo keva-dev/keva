@@ -29,7 +29,14 @@ public class Decr {
     public IntegerReply execute(byte[] key) {
         byte[] newVal;
         try {
-            newVal = database.decrby(key, 1L);
+            newVal = database.compute(key, (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal - 1L;
+                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
         } catch (NumberFormatException ex) {
             throw new CommandException("value is not an integer or out of range");
         }

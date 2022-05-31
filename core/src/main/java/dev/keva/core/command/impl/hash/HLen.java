@@ -11,17 +11,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("hlen")
 @ParamLength(1)
-public class HLen {
+public class HLen extends HashBase {
     private final KevaDatabase database;
 
     @Autowired
     public HLen(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        byte[][] got = database.hgetAll(key);
+        byte[][] got = this.getAll(key);
         return got == null ? new IntegerReply(0) : new IntegerReply(got.length / 2);
     }
 }

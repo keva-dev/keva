@@ -13,11 +13,12 @@ import dev.keva.store.KevaDatabase;
 @CommandImpl("hdel")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 2)
 @Mutate
-public class HDel {
+public class HDel extends HashBase {
     private final KevaDatabase database;
 
     @Autowired
     public HDel(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
@@ -25,7 +26,7 @@ public class HDel {
     public IntegerReply execute(byte[] key, byte[]... fields) {
         int deleted = 0;
         for (byte[] field : fields) {
-            boolean result = database.hdel(key, field);
+            boolean result = this.delete(key, field);
             if (result) {
                 deleted++;
             }

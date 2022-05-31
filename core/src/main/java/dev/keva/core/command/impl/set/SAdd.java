@@ -15,17 +15,18 @@ import java.util.Arrays;
 @CommandImpl("sadd")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 2)
 @Mutate
-public class SAdd {
+public class SAdd extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SAdd(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[][] params) {
-        int added = database.sadd(params[0], Arrays.copyOfRange(params, 1, params.length));
+        int added = this.add(params[0], Arrays.copyOfRange(params, 1, params.length));
         return new IntegerReply(added);
     }
 }

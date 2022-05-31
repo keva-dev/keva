@@ -12,6 +12,7 @@ import dev.keva.protocol.resp.reply.StatusReply;
 import dev.keva.store.KevaDatabase;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
@@ -36,13 +37,20 @@ public class MSetNX {
         for (int i = 0; i < params.length; i += 2) {
             keys[i / 2] = params[i];
         }
-        byte[][] gets = database.mget(keys);
+        byte[][] gets = new byte[keys.length][];
+        for (int i = 0; i < keys.length; i++) {
+            byte[] key = keys[i];
+            byte[] got = database.get(key);
+            gets[i] = got;
+        }
 
-        if (Arrays.stream(gets).anyMatch(get -> get != null)) {
+        if (Arrays.stream(gets).anyMatch(Objects::nonNull)) {
             return new IntegerReply(0);
         }
 
-        database.mset(params);
+        for (int i = 0; i < params.length; i += 2) {
+            database.put(params[i], params[i + 1]);
+        }
         return new IntegerReply(1);
     }
 }

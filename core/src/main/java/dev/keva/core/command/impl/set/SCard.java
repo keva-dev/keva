@@ -11,17 +11,18 @@ import dev.keva.store.KevaDatabase;
 @Component
 @CommandImpl("scard")
 @ParamLength(1)
-public class SCard {
+public class SCard extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SCard(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        int num = database.scard(key);
+        int num = this.size(key);
         return new IntegerReply(num);
     }
 }

@@ -98,8 +98,8 @@ public class GetEx {
     }
 
     private boolean isHavingOneOfTheseFlgs(int flgs, int... flgsToCompare) {
-        for (int i = 0; i < flgsToCompare.length; i++) {
-            if ((flgs & flgsToCompare[i]) != 0) {
+        for (int j : flgsToCompare) {
+            if ((flgs & j) != 0) {
                 return true;
             }
         }

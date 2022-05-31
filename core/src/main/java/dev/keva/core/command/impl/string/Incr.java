@@ -30,7 +30,14 @@ public class Incr {
     public IntegerReply execute(byte[] key) {
         byte[] newVal;
         try {
-            newVal = database.incrBy(key, 1L);
+            newVal = database.compute(key, (k, oldVal) -> {
+                long curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal + 1L;
+                return Long.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
         } catch (NumberFormatException ex) {
             throw new CommandException("Failed to parse integer from value stored");
         }

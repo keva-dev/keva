@@ -31,7 +31,14 @@ public class IncrByFloat {
         byte[] newVal;
         try {
             double amount = Double.parseDouble(new String(incr, StandardCharsets.UTF_8));
-            newVal = database.incrbyfloat(key, amount);
+            newVal = database.compute(key, (k, oldVal) -> {
+                double curVal = 0L;
+                if (oldVal != null) {
+                    curVal = Double.parseDouble(new String(oldVal, StandardCharsets.UTF_8));
+                }
+                curVal = curVal + amount;
+                return Double.toString(curVal).getBytes(StandardCharsets.UTF_8);
+            });
         } catch (NumberFormatException ex) {
             throw new CommandException("Value is not a valid float");
         }

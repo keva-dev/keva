@@ -13,17 +13,18 @@ import dev.keva.store.KevaDatabase;
 @CommandImpl("smove")
 @ParamLength(3)
 @Mutate
-public class SMove {
+public class SMove extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SMove(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[] source, byte[] destination, byte[] member) {
-        int count = database.smove(source, destination, member);
+        int count = this.move(source, destination, member);
         return new IntegerReply(count);
     }
 }
