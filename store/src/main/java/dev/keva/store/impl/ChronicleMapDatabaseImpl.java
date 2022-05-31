@@ -36,13 +36,13 @@ import static dev.keva.util.Constants.FLAG_NX;
 import static dev.keva.util.Constants.FLAG_XX;
 
 @Slf4j
-public class OffHeapDatabaseImpl implements KevaDatabase {
+public class ChronicleMapDatabaseImpl implements KevaDatabase {
     private static final byte[] EXP_POSTFIX = new byte[]{(byte) 0x7f, (byte) 0x2f, (byte) 0x61, (byte) 0x74};
     @Getter
     private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
-    public OffHeapDatabaseImpl(DatabaseConfig config) {
+    public ChronicleMapDatabaseImpl(DatabaseConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")

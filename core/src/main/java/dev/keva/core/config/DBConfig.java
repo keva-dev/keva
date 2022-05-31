@@ -18,6 +18,6 @@ public class DBConfig {
                 .isPersistence(kevaConfig.getPersistence())
                 .workingDirectory(kevaConfig.getWorkDirectory())
                 .build();
-        return DatabaseFactory.createOffHeapDatabase(dbConfig);
+        return DatabaseFactory.createChronicleMapDatabase(dbConfig);
     }
 }
