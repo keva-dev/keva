@@ -15,14 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class BaseCommandTest {
+    protected static final String host = "localhost";
+    protected static final int port = PortUtil.getAvailablePort();
     protected static Jedis jedis;
     protected static Server server;
-    protected static Jedis subscriber;
 
     @BeforeAll
     static void startServer() throws Exception {
-        String host = "localhost";
-        int port = PortUtil.getAvailablePort();
         val config = KevaConfig.builder()
                 .persistence(false)
                 .aof(false)
@@ -42,12 +41,10 @@ public class BaseCommandTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);  // TODO: fix this
+        TimeUnit.SECONDS.sleep(2);
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");
-        subscriber = new Jedis(host, port);
-        subscriber.auth("keva-auth");
     }
 
     @AfterAll

@@ -1,8 +1,11 @@
 package dev.keva.core.command;
 
 import lombok.val;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +14,18 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PubSubCommandTest extends BaseCommandTest {
+    private static Jedis subscriber;
+
+    @BeforeAll
+    static void beforeAll() {
+        subscriber = new Jedis(host, port);
+        subscriber.auth("keva-auth");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        jedis.disconnect();
+    }
 
     @Test
     @Timeout(30)
