@@ -7,9 +7,11 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
+import net.openhft.chronicle.values.Values;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -69,12 +71,6 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
-    public void removeExpire(byte[] key) {
-        byte[] expireKey = getExpireKey(key);
-        chronicleMap.remove(expireKey);
-    }
-
-    @Override
     public boolean rename(byte[] key, byte[] newKey) {
         byte[] moveValue = chronicleMap.get(key);
         if (moveValue == null) {
@@ -92,6 +88,11 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
+    public Set<byte[]> keySet() {
+        return chronicleMap.keySet();
+    }
+
+    @Override
     public void setExpiration(byte[] key, long timestampInMillis) {
         byte[] expireKey = getExpireKey(key);
         byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
@@ -100,6 +101,12 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
         } else {
             chronicleMap.put(expireKey, timestampBytes);
         }
+    }
+
+    @Override
+    public void removeExpire(byte[] key) {
+        byte[] expireKey = getExpireKey(key);
+        chronicleMap.remove(expireKey);
     }
 
     private byte[] getExpireKey(byte[] key) {

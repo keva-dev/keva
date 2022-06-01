@@ -1,5 +1,6 @@
 package dev.keva.storage;
 
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 public interface KevaDatabase {
@@ -14,6 +15,8 @@ public interface KevaDatabase {
     boolean remove(byte[] key);
 
     boolean rename(byte[] key, byte[] newKey);
+
+    Set<byte[]> keySet();
 
     void setExpiration(byte[] key, long timestampInMillis);
 
