@@ -18,7 +18,7 @@ class ApplicationTest {
     @Test
     void testMain() throws Exception {
         new Thread(() -> Application.main(ARGS)).start();
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(5);
 
         val jedis = new Jedis("localhost", port);
         val pong = jedis.ping();

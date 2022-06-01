@@ -9,7 +9,6 @@ import org.junit.jupiter.api.io.TempDir;
 import redis.clients.jedis.Jedis;
 
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
 
 import static dev.keva.core.utils.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
