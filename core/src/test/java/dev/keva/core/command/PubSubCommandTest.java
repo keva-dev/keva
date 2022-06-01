@@ -16,19 +16,6 @@ import java.util.concurrent.TimeoutException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PubSubCommandTest extends BaseCommandTest {
-    private static Jedis subscriber;
-
-    @BeforeAll
-    static void beforeAll() {
-        subscriber = new Jedis(host, port);
-        subscriber.auth("keva-auth");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        subscriber.disconnect();
-    }
-
     @Test
     @Timeout(30)
     void pubsub() throws ExecutionException, InterruptedException, TimeoutException {

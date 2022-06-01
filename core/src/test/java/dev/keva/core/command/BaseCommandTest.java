@@ -17,6 +17,7 @@ public class BaseCommandTest {
     protected static final String host = "localhost";
     protected static final int port = PortUtil.getAvailablePort();
     protected static Jedis jedis;
+    protected static Jedis subscriber;
     protected static Server server;
 
     @BeforeAll
@@ -45,11 +46,15 @@ public class BaseCommandTest {
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");
+
+        subscriber = new Jedis(host, port);
+        subscriber.auth("keva-auth");
     }
 
     @AfterAll
     static void stop() {
         jedis.disconnect();
+        subscriber.disconnect();
         server.shutdown();
     }
 
