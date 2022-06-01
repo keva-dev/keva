@@ -55,5 +55,4 @@ public class BaseCommandTest {
     void reset() {
         server.clear();
     }
-
 }
