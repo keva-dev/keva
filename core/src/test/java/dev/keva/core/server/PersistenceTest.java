@@ -33,7 +33,7 @@ public class PersistenceTest {
             }
         }).start();
 
-        server.getReady().join();
+        server.await();
         return server;
     }
 

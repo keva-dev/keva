@@ -39,7 +39,7 @@ public class BaseCommandTest {
         }).start();
 
         // Wait for server to start
-        server.getReady().join();
+        server.await();
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");

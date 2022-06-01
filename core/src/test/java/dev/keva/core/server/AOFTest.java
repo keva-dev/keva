@@ -41,7 +41,7 @@ public class AOFTest {
             }
         }).start();
 
-        server.getReady().join();
+        server.await();
         return server;
     }
 
