@@ -15,7 +15,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.hashbytes.BytesKey;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

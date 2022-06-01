@@ -1,9 +1,9 @@
-package dev.keva.store.impl;
+package dev.keva.storage.impl;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
-import dev.keva.store.DatabaseConfig;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.DatabaseConfig;
+import dev.keva.storage.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static dev.keva.store.constant.DatabaseConstants.EXPIRE_POSTFIX;
+import static dev.keva.storage.constant.DatabaseConstants.EXPIRE_POSTFIX;
 
 @Slf4j
 public class ChronicleMapDatabaseImpl implements KevaDatabase {

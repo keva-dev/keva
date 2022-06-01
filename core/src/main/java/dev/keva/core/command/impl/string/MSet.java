@@ -7,7 +7,7 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 

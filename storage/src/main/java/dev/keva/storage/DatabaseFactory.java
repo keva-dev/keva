@@ -1,6 +1,6 @@
-package dev.keva.store;
+package dev.keva.storage;
 
-import dev.keva.store.impl.ChronicleMapDatabaseImpl;
+import dev.keva.storage.impl.ChronicleMapDatabaseImpl;
 import lombok.Setter;
 
 @Setter

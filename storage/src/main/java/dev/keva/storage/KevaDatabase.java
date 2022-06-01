@@ -1,4 +1,4 @@
-package dev.keva.store;
+package dev.keva.storage;
 
 import java.util.concurrent.locks.Lock;
 

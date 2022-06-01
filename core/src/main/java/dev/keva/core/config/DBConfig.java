@@ -3,9 +3,9 @@ package dev.keva.core.config;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Bean;
 import dev.keva.ioc.annotation.Configuration;
-import dev.keva.store.DatabaseConfig;
-import dev.keva.store.DatabaseFactory;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.DatabaseConfig;
+import dev.keva.storage.DatabaseFactory;
+import dev.keva.storage.KevaDatabase;
 
 @Configuration
 public class DBConfig {

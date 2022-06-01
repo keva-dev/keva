@@ -1,4 +1,4 @@
-package dev.keva.store;
+package dev.keva.storage;
 
 import lombok.Builder;
 import lombok.Getter;
