@@ -20,7 +20,7 @@ class ApplicationTest {
         new Thread(() -> Application.main(ARGS)).start();
         TimeUnit.SECONDS.sleep(2);
 
-        val jedis = new Jedis("localhost", 6379);
+        val jedis = new Jedis("localhost", port);
         val pong = jedis.ping();
         assertEquals("PONG", pong);
     }
