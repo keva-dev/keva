@@ -11,8 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import redis.clients.jedis.Jedis;
 
-import java.util.concurrent.TimeUnit;
-
 @Slf4j
 public class BaseCommandTest {
     protected static final String host = "localhost";
@@ -21,7 +19,7 @@ public class BaseCommandTest {
     protected static Server server;
 
     @BeforeAll
-    static void startServer() throws Exception {
+    static void startServer() {
         val config = KevaConfig.builder()
                 .persistence(false)
                 .aof(false)
@@ -41,7 +39,7 @@ public class BaseCommandTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        server.await();
 
         jedis = new Jedis(host, port);
         jedis.auth("keva-auth");
