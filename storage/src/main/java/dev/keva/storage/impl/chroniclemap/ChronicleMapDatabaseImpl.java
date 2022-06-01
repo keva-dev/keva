@@ -1,8 +1,7 @@
-package dev.keva.storage.impl;
+package dev.keva.storage.impl.chroniclemap;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
-import dev.keva.storage.DatabaseConfig;
 import dev.keva.storage.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
-    public ChronicleMapDatabaseImpl(DatabaseConfig config) {
+    public ChronicleMapDatabaseImpl(ChronicleMapConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")

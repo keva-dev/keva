@@ -1,11 +1,11 @@
-package dev.keva.storage;
+package dev.keva.storage.impl.chroniclemap;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class DatabaseConfig {
+public class ChronicleMapConfig {
     Boolean isPersistence;
     String workingDirectory;
 }
