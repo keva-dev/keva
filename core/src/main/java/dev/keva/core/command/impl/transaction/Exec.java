@@ -8,7 +8,7 @@ import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.Reply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import io.netty.channel.ChannelHandlerContext;
 
 import static dev.keva.protocol.resp.reply.BulkReply.NIL_REPLY;

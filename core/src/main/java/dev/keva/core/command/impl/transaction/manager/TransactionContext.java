@@ -5,7 +5,7 @@ import dev.keva.core.command.mapping.CommandWrapper;
 import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
 import dev.keva.protocol.resp.reply.Reply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.hashbytes.BytesKey;
 import dev.keva.util.hashbytes.BytesValue;
 import io.netty.channel.ChannelHandlerContext;

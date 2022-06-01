@@ -10,7 +10,7 @@ import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.Reply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.DoubleUtil;
 import dev.keva.util.hashbytes.BytesKey;
 
