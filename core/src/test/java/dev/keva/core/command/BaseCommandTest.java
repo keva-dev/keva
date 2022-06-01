@@ -9,6 +9,7 @@ import lombok.val;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Timeout;
 import redis.clients.jedis.Jedis;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class BaseCommandTest {
     protected static Server server;
 
     @BeforeAll
+    @Timeout(30)
     static void startServer() {
         val config = KevaConfig.builder()
                 .persistence(false)
