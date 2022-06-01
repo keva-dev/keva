@@ -45,14 +45,16 @@ public class ReplicationManager {
             return;
         }
         Jedis jedis = createJedisClient(kevaConfig.getReplicaOf());
+        String response;
+
         // REPLCONF <option> <value> <option> <value> ...
         StringBuilder replConfArgBuilder = new StringBuilder();
-        replConfArgBuilder.append("ip-address").append(" ")
+        replConfArgBuilder.append(ReplConstants.IP_ADDRESS).append(" ")
             .append(kevaConfig.getHostname()).append(" ")
-            .append("listening-port").append(" ")
+            .append(ReplConstants.LISTENING_PORT).append(" ")
             .append(kevaConfig.getPort()).append(" ");
         byte[] replConfResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.REPLCONF, replConfArgBuilder.toString());
-        String response = SafeEncoder.encode(replConfResponse);
+        response = SafeEncoder.encode(replConfResponse);
         if (response.startsWith("OK")) {
             // create heartbeat cron here
         }
@@ -76,6 +78,8 @@ public class ReplicationManager {
             // continue to receive commands from master's replication buffer
             replicateBufferedCommands(jedis.getClient().getMultiBulkReply());
         }
+
+        // send REPLCONF ACK to tell master start forwarding command
         log.info("Partial sync completed");
     }
 
