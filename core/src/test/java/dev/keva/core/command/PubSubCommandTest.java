@@ -1,35 +1,21 @@
 package dev.keva.core.command;
 
 import lombok.val;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PubSubCommandTest extends BaseCommandTest {
-    private static Jedis subscriber;
-
-    @BeforeAll
-    static void beforeAll() {
-        subscriber = new Jedis(host, port);
-        subscriber.auth("keva-auth");
-    }
-
-    @AfterAll
-    static void afterAll() {
-        subscriber.disconnect();
-    }
-
     @Test
     @Timeout(30)
-    void pubsub() throws ExecutionException, InterruptedException {
+    void pubsub() throws ExecutionException, InterruptedException, TimeoutException {
         CompletableFuture<String> future = new CompletableFuture<>();
         new Thread(() -> subscriber.subscribe(new JedisPubSub() {
             @Override
@@ -42,7 +28,7 @@ public class PubSubCommandTest extends BaseCommandTest {
                 jedis.publish("test", "Test message");
             }
         }, "test")).start();
-        val message = future.get();
+        val message = future.get(25, TimeUnit.SECONDS);
         assertEquals("Test message", message);
     }
 

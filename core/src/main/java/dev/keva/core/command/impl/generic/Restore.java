@@ -8,7 +8,7 @@ import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import java.math.BigInteger;
 import java.util.Base64;

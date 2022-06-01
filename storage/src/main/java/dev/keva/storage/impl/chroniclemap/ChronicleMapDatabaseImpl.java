@@ -1,20 +1,21 @@
-package dev.keva.store.impl;
+package dev.keva.storage.impl.chroniclemap;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.Longs;
-import dev.keva.store.DatabaseConfig;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
+import net.openhft.chronicle.values.Values;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static dev.keva.store.constant.DatabaseConstants.EXPIRE_POSTFIX;
+import static dev.keva.storage.constant.DatabaseConstants.EXPIRE_POSTFIX;
 
 @Slf4j
 public class ChronicleMapDatabaseImpl implements KevaDatabase {
@@ -22,7 +23,7 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
 
-    public ChronicleMapDatabaseImpl(DatabaseConfig config) {
+    public ChronicleMapDatabaseImpl(ChronicleMapConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")
@@ -70,12 +71,6 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
-    public void removeExpire(byte[] key) {
-        byte[] expireKey = getExpireKey(key);
-        chronicleMap.remove(expireKey);
-    }
-
-    @Override
     public boolean rename(byte[] key, byte[] newKey) {
         byte[] moveValue = chronicleMap.get(key);
         if (moveValue == null) {
@@ -93,6 +88,11 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     }
 
     @Override
+    public Set<byte[]> keySet() {
+        return chronicleMap.keySet();
+    }
+
+    @Override
     public void setExpiration(byte[] key, long timestampInMillis) {
         byte[] expireKey = getExpireKey(key);
         byte[] timestampBytes = Longs.toByteArray(timestampInMillis);
@@ -101,6 +101,12 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
         } else {
             chronicleMap.put(expireKey, timestampBytes);
         }
+    }
+
+    @Override
+    public void removeExpire(byte[] key) {
+        byte[] expireKey = getExpireKey(key);
+        chronicleMap.remove(expireKey);
     }
 
     private byte[] getExpireKey(byte[] key) {

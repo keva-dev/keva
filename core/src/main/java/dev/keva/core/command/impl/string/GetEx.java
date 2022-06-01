@@ -7,7 +7,7 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 

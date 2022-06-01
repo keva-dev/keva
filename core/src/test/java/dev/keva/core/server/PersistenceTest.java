@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class PersistenceTest {
     static String host = "localhost";
 
-    Server startServer(int port) throws Exception {
+    Server startServer(int port) {
         val config = KevaConfig.builder()
                 .hostname(host)
                 .port(port)
@@ -42,6 +42,7 @@ public class PersistenceTest {
     }
 
     @Test
+    @Timeout(30)
     void save() {
         sync(getAvailablePort());
     }

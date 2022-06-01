@@ -9,7 +9,6 @@ import org.junit.jupiter.api.io.TempDir;
 import redis.clients.jedis.Jedis;
 
 import java.nio.file.Path;
-import java.util.concurrent.TimeUnit;
 
 import static dev.keva.core.utils.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,11 +49,12 @@ public class AOFTest {
     }
 
     @Test
+    @Timeout(30)
     void save() throws InterruptedException {
         sync(getAvailablePort());
     }
 
-    void sync(int port) throws InterruptedException {
+    void sync(int port) {
         Server server = null;
         try {
             server = startServer(port);

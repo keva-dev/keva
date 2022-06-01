@@ -1,6 +1,6 @@
 package dev.keva.core.command.impl.zset;
 
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.hashbytes.BytesKey;
 import lombok.NonNull;
 import org.apache.commons.lang3.SerializationUtils;

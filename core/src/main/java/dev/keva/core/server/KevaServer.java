@@ -9,7 +9,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;

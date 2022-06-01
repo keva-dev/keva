@@ -1,6 +1,6 @@
 package dev.keva.core.command.impl.set;
 
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.hashbytes.BytesKey;
 import org.apache.commons.lang3.SerializationUtils;
 

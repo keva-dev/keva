@@ -178,4 +178,16 @@ public class GenericCommandTest extends BaseCommandTest {
         assertEquals("hash", type3);
     }
 
+    @Test
+    void keys() {
+        val set1 = jedis.set("key1", "Hello World");
+        assertEquals("OK", set1);
+        val set2 = jedis.set("key2", "Hello World");
+        assertEquals("OK", set2);
+        val keys = jedis.keys("*");
+        assertEquals(2, keys.size());
+        assertEquals("key1", keys.toArray()[0]);
+        assertEquals("key2", keys.toArray()[1]);
+    }
+
 }
