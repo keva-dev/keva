@@ -20,5 +20,5 @@ EXPOSE 6379
 
 ENTRYPOINT ["java","-jar","-Xms24m","keva.jar"]
 
-# docker build -f arm.Dockerfile -t keva-server:1.0.0-rc1-arm .
+# docker build -f arm.Dockerfile -t keva-server:1.0.0-rc2-arm .
 # docker run -d --name keva-server -p 6767:6379 keva-server:latest
