@@ -149,6 +149,7 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+      image: 'img/preview.png',
     }),
   plugins: ['docusaurus-plugin-sass'],
 };

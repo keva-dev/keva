@@ -44,7 +44,6 @@ export default function Home() {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
       description="Fully open source low latency in-memory key-value database, used as Redis replacement">
       <HomepageHeader />
       <main>
@@ -52,7 +51,7 @@ export default function Home() {
       </main>
       <div className={styles.grokking}>
         <h3>Coordinated by</h3>
-        <div><img src="https://i.imgur.com/5k8qMpf.png"/></div>
+        <div><img src="https://i.imgur.com/5k8qMpf.png" alt="Grokking Vietnam"/></div>
         <div><a href="https://www.grokking.org/" target="_blank" rel="noreferrer">Grokking Vietnam</a></div>
       </div>
     </Layout>
