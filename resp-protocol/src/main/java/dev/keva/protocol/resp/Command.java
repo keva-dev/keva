@@ -100,6 +100,19 @@ public class Command {
         }
     }
 
+    public String toCommandString(boolean withName) {
+        StringBuilder cmdStrBuilder = new StringBuilder();
+        int i = 1;
+        if (withName) {
+            i = 0;
+        }
+        for (; i < objects.length; i++) {
+            cmdStrBuilder.append(new String(objects[i]));
+            cmdStrBuilder.append(" ");
+        }
+        return cmdStrBuilder.toString().trim();
+    }
+
     public void recycle() {
         objects = null;
         handle.recycle(this);

@@ -1,6 +1,7 @@
 package dev.keva.core.server;
 
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.replication.ReplConstants;
 import dev.keva.core.replication.ReplicationCommand;
 import dev.keva.core.utils.PortUtil;
 import dev.keva.store.DatabaseConfig;
@@ -71,8 +72,17 @@ public class MasterTest {
     @Test
     public void testPsync() throws IOException {
         jedis.set("abc", "edf");
-        byte[] rawResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.PSYNC, "", "0");
+        StringBuilder replConfArgBuilder = new StringBuilder();
+        replConfArgBuilder.append(ReplConstants.IP_ADDRESS).append(" ")
+            .append(host).append(" ")
+            .append(ReplConstants.LISTENING_PORT).append(" ")
+            .append(port).append(" ");
+
+        byte[] rawResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.REPLCONF, replConfArgBuilder.toString());
         String response = SafeEncoder.encode(rawResponse);
+        assertTrue(response.startsWith("OK"));
+        rawResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.PSYNC, "", "0");
+        response = SafeEncoder.encode(rawResponse);
         assertTrue(response.startsWith("FULLRESYNC"));
         String[] fullResyncRes = response.split(" ");
         String masterRepId = fullResyncRes[1];

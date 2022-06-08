@@ -5,10 +5,10 @@ import dev.keva.protocol.resp.Command;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,7 +28,7 @@ public class ReplicationBuffer {
     private long replicationId;
 
     public void init() {
-        buffer = new ArrayDeque<>();
+        buffer = new ConcurrentLinkedDeque<>();
         replicationId = System.currentTimeMillis();
         limit = 1024 * 1024; // default to 1 MB
     }
@@ -62,16 +62,12 @@ public class ReplicationBuffer {
     }
 
     public ArrayList<String> dump() {
-        return buffer.stream().map(Command::getObjects)
-            .map(objArr -> {
-                StringBuilder cmdStrBuilder = new StringBuilder();
-                for (byte[] bytes : objArr) {
-                    cmdStrBuilder.append(new String(bytes));
-                    cmdStrBuilder.append(" ");
-                }
-                return cmdStrBuilder.toString().trim();
-            })
+        return buffer.stream().map(cmd -> cmd.toCommandString(true))
             .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public Command peekLast() {
+        return buffer.peekLast();
     }
 
 }
