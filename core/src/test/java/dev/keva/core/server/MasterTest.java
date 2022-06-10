@@ -22,9 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static dev.keva.core.server.TestUtil.deleteDir;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -103,19 +103,6 @@ public class MasterTest {
         assertArrayEquals("edf".getBytes(StandardCharsets.UTF_8), valueInBytes);
         List<String> multiBulkReply = jedis.getClient().getMultiBulkReply();
         assertTrue("set abc edf".equalsIgnoreCase(multiBulkReply.get(0)));
-    }
-
-    public static boolean deleteDir(File dir) {
-        if (dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < Objects.requireNonNull(children).length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-        return dir.delete();
     }
 
 }

@@ -80,7 +80,14 @@ public class ReplicationManager {
         }
 
         // send REPLCONF ACK to tell master start forwarding command
-        log.info("Partial sync completed");
+        replConfResponse = (byte[]) jedis.sendBlockingCommand(ReplicationCommand.REPLCONF, "ACK " + repBuffer.getCurrentOffset());
+        response = SafeEncoder.encode(replConfResponse);
+        if (response.startsWith("OK")) {
+            log.info("Partial sync process successful");
+        } else {
+            log.info("Failed to ACK master");
+        }
+        log.info("Partial sync process completed");
     }
 
     private void replicateBufferedCommands(List<String> multiBulkReply) {

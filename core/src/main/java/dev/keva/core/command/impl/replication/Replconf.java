@@ -10,14 +10,11 @@ import dev.keva.core.replication.ReplicationBuffer;
 import dev.keva.core.replication.SlaveContext;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
-import dev.keva.protocol.resp.Command;
 import dev.keva.protocol.resp.reply.StatusReply;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Protocol;
 
-import java.util.Locale;
 import java.util.concurrent.Executors;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
@@ -26,6 +23,7 @@ import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 @CommandImpl("replconf")
 @ParamLength(type = AT_LEAST, value = 1)
 @Mutate
+@Slf4j
 public class Replconf {
 
     private final ConnSlaveMap connSlaveMap;
@@ -49,9 +47,10 @@ public class Replconf {
                 .build();
         }
 
+        String[] cmdArgs = StringUtils.split(new String(args[0]), " ");
         // REPLCONF ACK offset
-        if (new String(args[0]).equalsIgnoreCase("ACK")) {
-            slaveContext.setOffset(Long.parseLong(new String(args[1])));
+        if (cmdArgs[0].equalsIgnoreCase("ACK")) {
+            slaveContext.setOffset(Long.parseLong(cmdArgs[1]));
 
             // mark slave as online
             if (slaveContext.getStatus() == SlaveContext.Status.SYNCING) {
@@ -59,18 +58,13 @@ public class Replconf {
             }
             // start sending buffered commands periodically
             Executors.newSingleThreadExecutor().submit(() -> {
-                while (slaveContext.getStatus() == SlaveContext.Status.ONLINE) {
-                    Command command = repBuffer.peekLast();
-                    Jedis jedis = new Jedis(slaveContext.getIpAddress(), Integer.parseInt(slaveContext.getPort()));
-                    Protocol.Command jedisCmd = Protocol.Command.valueOf(new String(command.getName()).toUpperCase(Locale.ROOT));
-                    jedis.sendCommand(jedisCmd, StringUtils.split(command.toCommandString(false), " "));
-                }
+                slaveContext.startForwardCommandJob(repBuffer);
             });
+            log.info("Started command forwarding thread for slave {}", slaveContext.slaveName());
 
             return StatusReply.OK;
         }
 
-        String[] cmdArgs = StringUtils.split(new String(args[0]), " ");
         for (int i = 0; i < cmdArgs.length; i++) {
             String option = cmdArgs[i];
             if (option.equalsIgnoreCase(ReplConstants.IP_ADDRESS)) {
@@ -81,7 +75,7 @@ public class Replconf {
                 slaveContext.setPort(cmdArgs[i + 1]);
             }
         }
-
+        log.info("Slave context {}", slaveContext.toString());
         connSlaveMap.put(connKey, slaveContext);
         return StatusReply.OK;
     }

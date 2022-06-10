@@ -18,6 +18,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +36,7 @@ import static dev.keva.util.Constants.FLAG_GT;
 import static dev.keva.util.Constants.FLAG_LT;
 import static dev.keva.util.Constants.FLAG_NX;
 import static dev.keva.util.Constants.FLAG_XX;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Slf4j
 public class OffHeapDatabaseImpl implements KevaDatabase {
@@ -41,8 +44,15 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
     @Getter
     private final Lock lock = new SpinLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
+    private final DatabaseConfig config;
+    private String persistenceFilePath;
 
     public OffHeapDatabaseImpl(DatabaseConfig config) {
+        this.config = config;
+        initDb(this.config);
+    }
+
+    private void initDb(DatabaseConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
                     .name("keva-chronicle-map")
@@ -53,8 +63,9 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
             boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
                 String workingDir = config.getWorkingDirectory();
-                String location = workingDir.equals("./") ? "" : workingDir + "/";
-                File file = new File(location + "dump.kdb");
+                persistenceFilePath = workingDir.equals("./") ? "" : workingDir + "/";
+                persistenceFilePath = persistenceFilePath + "dump.kdb";
+                File file = new File(persistenceFilePath);
                 this.chronicleMap = mapBuilder.createPersistedTo(file);
             } else {
                 this.chronicleMap = mapBuilder.create();
@@ -947,8 +958,17 @@ public class OffHeapDatabaseImpl implements KevaDatabase {
 
     @Override
     public void loadFromSnapshot(String snapshotFilePath) {
-        this.flush();
-        // load everything up
+        lock.lock();
+        try {
+            this.flush();
+            // load everything up
+            Files.copy(Paths.get(snapshotFilePath), Paths.get(persistenceFilePath), REPLACE_EXISTING);
+            initDb(this.config);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public byte[] decrby(byte[] key, long amount) {

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 
@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ReplicationBuffer {
 
-    private Deque<Command> buffer;
+    @Getter
+    private ConcurrentLinkedDeque<Command> buffer;
     @Getter
     private long currentOffset = 0;
     @Getter
@@ -26,6 +27,8 @@ public class ReplicationBuffer {
     private long limit; // in bytes
     @Getter
     private long replicationId;
+
+    private final List<ConcurrentLinkedDeque<Command>> slaveBuffers = new ArrayList<>();
 
     public void init() {
         buffer = new ConcurrentLinkedDeque<>();
@@ -55,9 +58,13 @@ public class ReplicationBuffer {
             currentSize = currentSize - removed.getByteSize();
         }
         // need a new instance because the original object will get recycled
-        buffer.addLast(Command.newInstance(command.getObjects(), false));
+        Command cmdInstance = Command.newInstance(command.getObjects(), false);
+        buffer.add(cmdInstance);
         currentOffset++;
         currentSize += currentSize + command.getByteSize();
+        slaveBuffers.forEach(buf -> {
+            buf.addLast(cmdInstance);
+        });
         log.trace(Arrays.toString(buffer.toArray()));
     }
 
@@ -66,8 +73,8 @@ public class ReplicationBuffer {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public Command peekLast() {
-        return buffer.peekLast();
+    public void register(ConcurrentLinkedDeque<Command> slaveBuffer) {
+        slaveBuffers.add(slaveBuffer);
     }
 
 }
