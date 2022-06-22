@@ -7,7 +7,7 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
@@ -27,7 +27,9 @@ public class MSet {
         if (keys.length % 2 != 0) {
             throw new CommandException("Wrong number of arguments for MSET");
         }
-        database.mset(keys);
+        for (int i = 0; i < keys.length; i += 2) {
+            database.put(keys[i], keys[i + 1]);
+        }
         return StatusReply.OK;
     }
 }

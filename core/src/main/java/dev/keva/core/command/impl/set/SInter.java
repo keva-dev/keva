@@ -7,22 +7,23 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 @Component
 @CommandImpl("sinter")
 @ParamLength(2)
-public class SInter {
+public class SInter extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SInter(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public MultiBulkReply execute(byte[]... keys) {
-        byte[][] diff = database.sinter(keys);
+        byte[][] diff = this.inter(keys);
         BulkReply[] replies = new BulkReply[diff.length];
         for (int i = 0; i < diff.length; i++) {
             replies[i] = new BulkReply(diff[i]);

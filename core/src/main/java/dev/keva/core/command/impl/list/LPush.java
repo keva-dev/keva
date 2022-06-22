@@ -7,7 +7,7 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import java.util.Arrays;
 
@@ -15,17 +15,18 @@ import java.util.Arrays;
 @CommandImpl("lpush")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 2)
 @Mutate
-public class LPush {
+public class LPush extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public LPush(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[]... params) {
-        int count = database.lpush(params[0], Arrays.copyOfRange(params, 1, params.length));
+        int count = this.lpush(params[0], Arrays.copyOfRange(params, 1, params.length));
         return new IntegerReply(count);
     }
 }

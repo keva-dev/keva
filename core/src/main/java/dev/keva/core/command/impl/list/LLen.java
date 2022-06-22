@@ -6,22 +6,30 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
+import dev.keva.util.hashbytes.BytesValue;
+
+import java.util.LinkedList;
 
 @Component
 @CommandImpl("llen")
 @ParamLength(1)
-public class LLen {
+public class LLen extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public LLen(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
-    public IntegerReply execute(byte[] key, byte[] count) {
-        int got = database.llen(key);
-        return new IntegerReply(got);
+    public IntegerReply execute(byte[] key) {
+        byte[] value = database.get(key);
+        if (value == null) {
+            return new IntegerReply(0);
+        }
+        LinkedList<BytesValue> list = this.getList(key);
+        return new IntegerReply(list.size());
     }
 }

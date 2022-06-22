@@ -7,23 +7,24 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 @Component
 @CommandImpl("lrem")
 @ParamLength(3)
 @Mutate
-public class LRem {
+public class LRem extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public LRem(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public IntegerReply execute(byte[] key, byte[] count, byte[] value) {
-        int result = database.lrem(key, Integer.parseInt(new String(count)), value);
+        int result = this.remove(key, Integer.parseInt(new String(count)), value);
         return new IntegerReply(result);
     }
 }

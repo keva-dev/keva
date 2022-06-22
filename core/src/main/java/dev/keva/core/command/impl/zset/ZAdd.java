@@ -10,7 +10,7 @@ import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.ErrorReply;
 import dev.keva.protocol.resp.reply.IntegerReply;
 import dev.keva.protocol.resp.reply.Reply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.DoubleUtil;
 import dev.keva.util.hashbytes.BytesKey;
 
@@ -23,7 +23,7 @@ import static dev.keva.util.Constants.*;
 @CommandImpl("zadd")
 @ParamLength(type = ParamLength.Type.AT_LEAST, value = 3)
 @Mutate
-public final class ZAdd {
+public final class ZAdd extends ZBase {
     private static final String XX = "xx";
     private static final String NX = "nx";
     private static final String GT = "gt";
@@ -35,6 +35,7 @@ public final class ZAdd {
 
     @Autowired
     public ZAdd(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
@@ -109,10 +110,10 @@ public final class ZAdd {
         }
 
         if (incr) {
-            Double result = database.zincrby(params[0], members[0].getKey(), members[0].getValue(), flags);
+            Double result = this.increaseBy(params[0], members[0].getKey(), members[0].getValue(), flags);
             return result == null ? BulkReply.NIL_REPLY : new BulkReply(DoubleUtil.toString(result));
         }
-        int result = database.zadd(params[0], members, flags);
+        int result = this.add(params[0], members, flags);
         return new IntegerReply(result);
     }
 }

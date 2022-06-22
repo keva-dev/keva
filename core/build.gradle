@@ -11,7 +11,7 @@ dependencies {
     implementation project(':util')
     implementation project(':config')
     implementation project(':resp-protocol')
-    implementation project(':store')
+    implementation project(':storage')
 
     implementation 'dev.keva:keva-ioc:1.0.0'
 

@@ -31,7 +31,7 @@ task fatJar(type: Jar) {
     dependsOn(':config:build')
     dependsOn(':util:build')
     dependsOn(':resp-protocol:build')
-    dependsOn(':store:build')
+    dependsOn(':storage:build')
     dependsOn(':core:build')
     manifest.from jar.manifest
     classifier = 'all'

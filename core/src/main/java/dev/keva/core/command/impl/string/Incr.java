@@ -8,7 +8,7 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 
@@ -28,12 +28,17 @@ public class Incr {
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        byte[] newVal;
+        long curVal = 0;
         try {
-            newVal = database.incrBy(key, 1L);
+            byte[] oldVal = database.get(key);
+            if (oldVal != null) {
+                curVal = Long.parseLong(new String(oldVal, StandardCharsets.UTF_8));
+            }
+            curVal = curVal + 1;
+            database.put(key, Long.toString(curVal).getBytes());
         } catch (NumberFormatException ex) {
             throw new CommandException("Failed to parse integer from value stored");
         }
-        return new IntegerReply(Long.parseLong(new String(newVal, StandardCharsets.UTF_8)));
+        return new IntegerReply(curVal);
     }
 }

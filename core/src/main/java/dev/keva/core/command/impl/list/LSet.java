@@ -7,23 +7,24 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.StatusReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 @Component
 @CommandImpl("lset")
 @ParamLength(3)
 @Mutate
-public class LSet {
+public class LSet extends ListBase {
     private final KevaDatabase database;
 
     @Autowired
     public LSet(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public StatusReply execute(byte[] key, byte[] index, byte[] value) {
-        database.lset(key, Integer.parseInt(new String(index)), value);
+        this.set(key, Integer.parseInt(new String(index)), value);
         return StatusReply.OK;
     }
 }

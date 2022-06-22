@@ -7,22 +7,23 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 @Component
 @CommandImpl("sunion")
 @ParamLength(2)
-public class SUnion {
+public class SUnion extends SetBase {
     private final KevaDatabase database;
 
     @Autowired
     public SUnion(KevaDatabase database) {
+        super(database);
         this.database = database;
     }
 
     @Execute
     public MultiBulkReply execute(byte[]... keys) {
-        byte[][] diff = database.sunion(keys);
+        byte[][] diff = this.union(keys);
         BulkReply[] replies = new BulkReply[diff.length];
         for (int i = 0; i < diff.length; i++) {
             replies[i] = new BulkReply(diff[i]);

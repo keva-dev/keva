@@ -6,7 +6,9 @@ import dev.keva.core.command.annotation.ParamLength;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.IntegerReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
 @CommandImpl("strlen")
@@ -21,6 +23,11 @@ public class Strlen {
 
     @Execute
     public IntegerReply execute(byte[] key) {
-        return new IntegerReply(database.strlen(key));
+        byte[] value = database.get(key);
+        if (value == null) {
+            return new IntegerReply(0);
+        }
+        int result = new String(value, StandardCharsets.UTF_8).length();
+        return new IntegerReply(result);
     }
 }

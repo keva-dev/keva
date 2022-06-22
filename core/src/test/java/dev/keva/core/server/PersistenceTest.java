@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import redis.clients.jedis.Jedis;
 
-import java.util.concurrent.TimeUnit;
-
 import static dev.keva.core.utils.PortUtil.getAvailablePort;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class PersistenceTest {
     static String host = "localhost";
 
-    Server startServer(int port) throws Exception {
+    Server startServer(int port) {
         val config = KevaConfig.builder()
                 .hostname(host)
                 .port(port)
@@ -35,8 +33,7 @@ public class PersistenceTest {
             }
         }).start();
 
-        // Wait for server to start
-        TimeUnit.SECONDS.sleep(2);
+        server.await();
         return server;
     }
 
@@ -45,6 +42,7 @@ public class PersistenceTest {
     }
 
     @Test
+    @Timeout(30)
     void save() {
         sync(getAvailablePort());
     }

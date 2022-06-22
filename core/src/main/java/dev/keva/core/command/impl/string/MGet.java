@@ -7,7 +7,7 @@ import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
 import dev.keva.protocol.resp.reply.MultiBulkReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
@@ -25,7 +25,12 @@ public class MGet {
     @Execute
     public MultiBulkReply execute(byte[]... keys) {
         BulkReply[] replies = new BulkReply[keys.length];
-        byte[][] mget = database.mget(keys);
+        byte[][] mget = new byte[keys.length][];
+        for (int i = 0; i < keys.length; i++) {
+            byte[] key = keys[i];
+            byte[] got = database.get(key);
+            mget[i] = got;
+        }
         for (int i = 0; i < mget.length; i++) {
             replies[i] = mget[i] == null ? BulkReply.NIL_REPLY : new BulkReply(mget[i]);
         }

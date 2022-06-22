@@ -10,7 +10,7 @@ import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.ioc.annotation.ComponentScan;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.Channel;
@@ -21,12 +21,15 @@ import io.netty.util.concurrent.AbstractEventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
 @ComponentScan("dev.keva.core")
 public class KevaServer implements Server {
+    private final CompletableFuture<Void> ready = new CompletableFuture<>();
+
     private static final String KEVA_BANNER = "\n" +
             "  _  __  ___  __   __    _   \n" +
             " | |/ / | __| \\ \\ / /   /_\\  \n" +
@@ -121,6 +124,8 @@ public class KevaServer implements Server {
 
             replicationManager.init();
 
+            ready.complete(null);
+
             channel = sync.channel();
             channel.closeFuture().sync();
         } catch (InterruptedException e) {
@@ -128,9 +133,16 @@ public class KevaServer implements Server {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
             log.error("Failed to start server: ", e);
+            // Release err future
+            ready.completeExceptionally(e);
         } finally {
             stopwatch.stop();
         }
+    }
+
+    @Override
+    public void await() {
+        this.ready.join();
     }
 
     @Override

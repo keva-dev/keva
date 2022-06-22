@@ -8,7 +8,7 @@ import dev.keva.core.exception.CommandException;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.reply.BulkReply;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 
 import java.nio.charset.StandardCharsets;
 
@@ -28,13 +28,18 @@ public class IncrByFloat {
 
     @Execute
     public BulkReply execute(byte[] key, byte[] incr) {
-        byte[] newVal;
+        double amount = Double.parseDouble(new String(incr, StandardCharsets.UTF_8));
+        double curVal = 0L;
         try {
-            double amount = Double.parseDouble(new String(incr, StandardCharsets.UTF_8));
-            newVal = database.incrbyfloat(key, amount);
+            byte[] oldVal = database.get(key);
+            if (oldVal != null) {
+                curVal = Double.parseDouble(new String(oldVal, StandardCharsets.UTF_8));
+            }
+            curVal = curVal + amount;
+            database.put(key, Double.toString(curVal).getBytes());
         } catch (NumberFormatException ex) {
-            throw new CommandException("Value is not a valid float");
+            throw new CommandException("Failed to parse integer from value stored");
         }
-        return new BulkReply(newVal);
+        return new BulkReply(Double.toString(curVal).getBytes());
     }
 }
