@@ -10,6 +10,7 @@ import redis.clients.jedis.Jedis;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -60,8 +61,10 @@ public class ReplicationTest {
         assertEquals("before", slaveJedis.get("abcd"));
 
         masterJedis.set("after", "wards");
+        TimeUnit.MILLISECONDS.sleep(200);
         assertEquals("wards", slaveJedis.get("after"));
         masterJedis.set("after", "second");
+        TimeUnit.MILLISECONDS.sleep(200);
         assertEquals("second", slaveJedis.get("after"));
 
         masterServer.shutdown();
