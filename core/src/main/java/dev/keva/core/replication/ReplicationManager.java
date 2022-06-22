@@ -6,7 +6,7 @@ import dev.keva.core.config.KevaConfig;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
 import dev.keva.protocol.resp.Command;
-import dev.keva.store.KevaDatabase;
+import dev.keva.storage.KevaDatabase;
 import dev.keva.util.hashbytes.BytesKey;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

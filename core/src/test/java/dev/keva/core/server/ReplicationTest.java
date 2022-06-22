@@ -10,7 +10,6 @@ import redis.clients.jedis.Jedis;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -36,7 +35,7 @@ public class ReplicationTest {
         KevaServer masterServer = KevaServer.of(masterConfig);
 
         new Thread(masterServer).start();
-        TimeUnit.SECONDS.sleep(5);
+        masterServer.await();
 
         Jedis masterJedis = new Jedis(host, masterPort);
         masterJedis.set("abcd", "before");
@@ -55,7 +54,7 @@ public class ReplicationTest {
             .build();
         KevaServer slaveServer = KevaServer.of(slaveConfig);
         new Thread(slaveServer).start();
-        TimeUnit.SECONDS.sleep(5);
+        slaveServer.await();
 
         Jedis slaveJedis = new Jedis(host, slavePort, Integer.MAX_VALUE);
         assertEquals("before", slaveJedis.get("abcd"));

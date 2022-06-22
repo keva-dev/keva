@@ -4,9 +4,9 @@ import dev.keva.core.config.KevaConfig;
 import dev.keva.core.replication.ReplConstants;
 import dev.keva.core.replication.ReplicationCommand;
 import dev.keva.core.utils.PortUtil;
-import dev.keva.store.DatabaseConfig;
-import dev.keva.store.KevaDatabase;
-import dev.keva.store.impl.OffHeapDatabaseImpl;
+import dev.keva.storage.KevaDatabase;
+import dev.keva.storage.impl.chroniclemap.ChronicleMapConfig;
+import dev.keva.storage.impl.chroniclemap.ChronicleMapDatabaseImpl;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.jupiter.api.AfterAll;
@@ -22,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static dev.keva.core.server.TestUtil.deleteDir;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -58,7 +57,7 @@ public class MasterTest {
         }).start();
 
         // Wait for server to start
-        TimeUnit.SECONDS.sleep(5);
+        server.await();
 
         jedis = new Jedis(host, port);
     }
@@ -95,7 +94,7 @@ public class MasterTest {
         deleteDir(new File("mastertest"));
         Files.createDirectory(Paths.get("mastertest"));
         Files.write(snapshot, fileContent);
-        KevaDatabase database = new OffHeapDatabaseImpl(DatabaseConfig.builder()
+        KevaDatabase database = new ChronicleMapDatabaseImpl(ChronicleMapConfig.builder()
             .isPersistence(true)
             .workingDirectory("./mastertest")
             .build());

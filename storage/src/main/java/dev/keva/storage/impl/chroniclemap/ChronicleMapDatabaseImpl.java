@@ -7,35 +7,45 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.map.ChronicleMap;
 import net.openhft.chronicle.map.ChronicleMapBuilder;
-import net.openhft.chronicle.values.Values;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static dev.keva.storage.constant.DatabaseConstants.EXPIRE_POSTFIX;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 @Slf4j
 public class ChronicleMapDatabaseImpl implements KevaDatabase {
     @Getter
     private final Lock lock = new ReentrantLock();
     private ChronicleMap<byte[], byte[]> chronicleMap;
+    private final ChronicleMapConfig config;
+    private String persistenceFilePath;
 
     public ChronicleMapDatabaseImpl(ChronicleMapConfig config) {
+        this.config = config;
+        initDb(this.config);
+    }
+
+    private void initDb(ChronicleMapConfig config) {
         try {
             ChronicleMapBuilder<byte[], byte[]> mapBuilder = ChronicleMapBuilder.of(byte[].class, byte[].class)
-                    .name("keva-chronicle-map")
-                    .averageKey("SampleSampleSampleKey".getBytes())
-                    .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
-                    .entries(1_000_000);
+                .name("keva-chronicle-map")
+                .averageKey("SampleSampleSampleKey".getBytes())
+                .averageValue("SampleSampleSampleSampleSampleSampleValue".getBytes())
+                .entries(1_000_000);
 
             boolean shouldPersist = config.getIsPersistence();
             if (shouldPersist) {
                 String workingDir = config.getWorkingDirectory();
-                String location = workingDir.equals("./") ? "" : workingDir + "/";
-                File file = new File(location + "dump.kdb");
+                persistenceFilePath = workingDir.equals("./") ? "" : workingDir + "/";
+                persistenceFilePath = persistenceFilePath + "dump.kdb";
+                File file = new File(persistenceFilePath);
                 this.chronicleMap = mapBuilder.createPersistedTo(file);
             } else {
                 this.chronicleMap = mapBuilder.create();
@@ -107,6 +117,21 @@ public class ChronicleMapDatabaseImpl implements KevaDatabase {
     public void removeExpire(byte[] key) {
         byte[] expireKey = getExpireKey(key);
         chronicleMap.remove(expireKey);
+    }
+
+    @Override
+    public void loadFromSnapshot(String snapshotFilePath) {
+        lock.lock();
+        try {
+            this.flush();
+            // load everything up
+            Files.copy(Paths.get(snapshotFilePath), Paths.get(persistenceFilePath), REPLACE_EXISTING);
+            initDb(this.config);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
     }
 
     private byte[] getExpireKey(byte[] key) {
