@@ -113,6 +113,7 @@ public class KevaServer implements Server {
             stopwatch.start();
             ServerBootstrap server = bootstrapServer();
 
+            replicationManager.init();
             aofManager.init();
 
             ChannelFuture sync = server.bind(config.getPort()).sync();
@@ -121,8 +122,6 @@ public class KevaServer implements Server {
                     config.getHostname(), config.getPort(),
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
-
-            replicationManager.init();
 
             ready.complete(null);
 
