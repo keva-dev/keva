@@ -38,9 +38,12 @@ public class ReplicationManager {
         this.snapshotFilePath = kevaConfig.getWorkDirectory() + "/temp.kdb";
     }
 
-    public void init() {
+    public void initBuffer() {
         // both slave and master need replication buffer initialized
         repBuffer.init();
+    }
+
+    public void init() {
         if (kevaConfig.getReplicaOf() == null || kevaConfig.getReplicaOf().isEmpty()) {
             return;
         }

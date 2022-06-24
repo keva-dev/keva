@@ -3,17 +3,20 @@ package dev.keva.core.replication;
 import dev.keva.protocol.resp.Command;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 @Builder
 @Data
+@Slf4j
 public class SlaveContext {
 
     private String ipAddress;
@@ -33,14 +36,16 @@ public class SlaveContext {
     public void startForwardCommandJob(ReplicationBuffer repBuffer) {
         ConcurrentLinkedDeque<Command> slaveBuffer = new ConcurrentLinkedDeque<>(repBuffer.getBuffer());
         repBuffer.register(slaveBuffer);
-        Jedis jedis = new Jedis(this.getIpAddress(), Integer.parseInt(this.getPort()), 120000);
+        Jedis jedis = new Jedis(this.getIpAddress(), Integer.parseInt(this.getPort()));
         while (this.getStatus() == SlaveContext.Status.ONLINE) {
             if (slaveBuffer.isEmpty()) {
                 continue;
             }
             Command command = slaveBuffer.removeFirst();
             Protocol.Command jedisCmd = Protocol.Command.valueOf(new String(command.getName()).toUpperCase(Locale.ROOT));
-            jedis.sendCommand(jedisCmd, StringUtils.split(command.toCommandString(false), " "));
+            String cmdStr = command.toCommandString(false);
+            log.debug("Forwarding cmd [{} {}] at {}", jedisCmd, cmdStr, Instant.now().getEpochSecond());
+            jedis.sendCommand(jedisCmd, StringUtils.split(cmdStr, " "));
         }
     }
 

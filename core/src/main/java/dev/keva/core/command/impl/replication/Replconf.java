@@ -10,12 +10,11 @@ import dev.keva.core.replication.ReplicationBuffer;
 import dev.keva.core.replication.SlaveContext;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
+import dev.keva.protocol.resp.reply.Reply;
 import dev.keva.protocol.resp.reply.StatusReply;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.concurrent.Executors;
 
 import static dev.keva.core.command.annotation.ParamLength.Type.AT_LEAST;
 
@@ -36,7 +35,7 @@ public class Replconf {
     }
 
     @Execute
-    public StatusReply execute(byte[][] args, ChannelHandlerContext ctx) {
+    public Reply<String> execute(byte[][] args, ChannelHandlerContext ctx) {
         String connKey = SlaveContext.getConnKey(ctx.channel().remoteAddress());
         SlaveContext slaveContext;
         if (connSlaveMap.contains(connKey)) {
@@ -57,9 +56,7 @@ public class Replconf {
                 slaveContext.setStatus(SlaveContext.Status.ONLINE);
             }
             // start sending buffered commands periodically
-            Executors.newSingleThreadExecutor().submit(() -> {
-                slaveContext.startForwardCommandJob(repBuffer);
-            });
+            new Thread(() -> slaveContext.startForwardCommandJob(repBuffer)).start();
             log.info("Started command forwarding thread for slave {}", slaveContext.slaveName());
 
             return StatusReply.OK;

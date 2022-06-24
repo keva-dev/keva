@@ -38,7 +38,7 @@ public class ReplicationTest {
         new Thread(masterServer).start();
         masterServer.await();
 
-        Jedis masterJedis = new Jedis(host, masterPort);
+        Jedis masterJedis = new Jedis(host, masterPort, Integer.MAX_VALUE);
         masterJedis.set("abcd", "before");
 
         int slavePort = PortUtil.getAvailablePort();
