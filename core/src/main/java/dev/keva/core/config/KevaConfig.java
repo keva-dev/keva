@@ -48,6 +48,10 @@ public class KevaConfig {
     @CliProp(name = "io-threads", type = CliPropType.VAL)
     private Integer ioThreads;
 
+    @ConfigProp(name = "replicaof", defaultVal = "")
+    @CliProp(name = "replicaof", type = CliPropType.VAL)
+    private String replicaOf;
+
     @Bean
     public static KevaConfig ofDefaults() {
         return builder()
@@ -57,6 +61,7 @@ public class KevaConfig {
                 .persistence(true)
                 .aof(false)
                 .aofInterval(1000)
+                .ioThreads(-1)
                 .build();
     }
 }

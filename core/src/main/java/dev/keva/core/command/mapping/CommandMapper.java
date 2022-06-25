@@ -9,6 +9,7 @@ import dev.keva.core.command.impl.connection.manager.AuthManager;
 import dev.keva.core.command.impl.transaction.manager.TransactionContext;
 import dev.keva.core.command.impl.transaction.manager.TransactionManager;
 import dev.keva.core.config.KevaConfig;
+import dev.keva.core.replication.ReplicationBuffer;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -53,6 +54,9 @@ public class CommandMapper {
 
     @Autowired
     private AOFContainer aof;
+
+    @Autowired
+    private ReplicationBuffer repBuf;
 
     public void init() {
         Reflections reflections = new Reflections("dev.keva.core.command.impl");
@@ -110,6 +114,7 @@ public class CommandMapper {
                                         log.error("Error writing to AOF", e);
                                     }
                                 }
+                                repBuf.buffer(command);
                                 Object[] objects = new Object[types.length];
                                 command.toArguments(objects, types, ctx);
                                 command.recycle();

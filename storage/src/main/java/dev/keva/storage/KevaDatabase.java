@@ -21,4 +21,7 @@ public interface KevaDatabase {
     void setExpiration(byte[] key, long timestampInMillis);
 
     void removeExpire(byte[] key);
+
+    void loadFromSnapshot(String snapshotFilePath);
+
 }

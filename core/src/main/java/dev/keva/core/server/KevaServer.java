@@ -5,6 +5,7 @@ import dev.keva.core.aof.AOFManager;
 import dev.keva.core.command.mapping.CommandMapper;
 import dev.keva.core.config.KevaConfig;
 import dev.keva.core.exception.NettyNativeLoaderException;
+import dev.keva.core.replication.ReplicationManager;
 import dev.keva.ioc.KevaIoC;
 import dev.keva.ioc.annotation.Autowired;
 import dev.keva.ioc.annotation.Component;
@@ -39,18 +40,21 @@ public class KevaServer implements Server {
     private final NettyChannelInitializer nettyChannelInitializer;
     private final CommandMapper commandMapper;
     private final AOFManager aofManager;
+    private final ReplicationManager replicationManager;
     private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel channel;
 
     @Autowired
-    private KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer, CommandMapper commandMapper, AOFManager aofManager) {
+    private KevaServer(KevaDatabase database, KevaConfig config, NettyChannelInitializer nettyChannelInitializer,
+                       CommandMapper commandMapper, AOFManager aofManager, ReplicationManager replicationManager) {
         this.database = database;
         this.config = config;
         this.nettyChannelInitializer = nettyChannelInitializer;
         this.commandMapper = commandMapper;
         this.aofManager = aofManager;
+        this.replicationManager = replicationManager;
     }
 
     public static KevaServer ofDefaults() {
@@ -109,6 +113,7 @@ public class KevaServer implements Server {
             stopwatch.start();
             ServerBootstrap server = bootstrapServer();
 
+            replicationManager.initBuffer();
             aofManager.init();
 
             ChannelFuture sync = server.bind(config.getPort()).sync();
@@ -118,6 +123,7 @@ public class KevaServer implements Server {
                     stopwatch.elapsed(TimeUnit.MILLISECONDS));
             log.info("Ready to accept connections");
 
+            replicationManager.init();
             ready.complete(null);
 
             channel = sync.channel();

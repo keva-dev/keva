@@ -60,6 +60,16 @@ public class Command {
         return length;
     }
 
+    public long getByteSize() {
+        long size = 0;
+        if (objects != null) {
+            for (byte[] object : objects) {
+                size += object.length;
+            }
+        }
+        return size;
+    }
+
     public byte[] getName() {
         return objects[0];
     }
@@ -88,6 +98,19 @@ public class Command {
             }
             position++;
         }
+    }
+
+    public String toCommandString(boolean withName) {
+        StringBuilder cmdStrBuilder = new StringBuilder();
+        int i = 1;
+        if (withName) {
+            i = 0;
+        }
+        for (; i < objects.length; i++) {
+            cmdStrBuilder.append(new String(objects[i]));
+            cmdStrBuilder.append(" ");
+        }
+        return cmdStrBuilder.toString().trim();
     }
 
     public void recycle() {

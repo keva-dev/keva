@@ -24,7 +24,7 @@ dependencies {
     implementation 'org.reflections:reflections:0.10.2'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
 
-    testImplementation 'redis.clients:jedis:3.7.0'
+    implementation 'redis.clients:jedis:3.7.0'
 }
 
 publishing {

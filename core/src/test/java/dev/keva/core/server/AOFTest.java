@@ -85,6 +85,7 @@ public class AOFTest {
     @Timeout(20)
     void recover() {
         val port = getAvailablePort();
+        sync(port);
         Server server = null;
         try {
             server = startServer(port);
