@@ -88,10 +88,6 @@ const config = {
                 label: 'Cloud',
                 href: 'https://cloud.keva.dev/',
               },
-              {
-                label: 'Enterprise',
-                href: 'https://cloud.keva.dev/',
-              },
             ],
           },
           {

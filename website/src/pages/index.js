@@ -49,10 +49,16 @@ export default function Home() {
       <main>
         <HomepageFeatures />
       </main>
-      <div className={styles.grokking}>
-        <h3>Coordinated by</h3>
-        <div><img src="https://i.imgur.com/5k8qMpf.png" alt="Grokking Vietnam"/></div>
-        <div><a href="https://www.grokking.org/" target="_blank" rel="noreferrer">Grokking Vietnam</a></div>
+      <div className={styles.sponsors}>
+        <h3>Supported by</h3>
+        <div className={styles.sponsor}>
+          <div><img src="https://i.imgur.com/5k8qMpf.png" alt="Grokking Vietnam"/></div>
+          <div><a href="https://www.grokking.org/" target="_blank" rel="noreferrer">Grokking Vietnam</a></div>
+        </div>
+        <div className={styles.sponsor}>
+          <div><img src="https://i.imgur.com/2FmPAWC.png" alt="Grokking Vietnam"/></div>
+          <div><a href="https://www.jetbrains.com/" target="_blank" rel="noreferrer">Jetbrains IDEs</a></div>
+        </div>
       </div>
     </Layout>
   );
