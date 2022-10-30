@@ -9,7 +9,7 @@ COPY ./app/build.gradle ./app/keva.properties ./app/
 RUN ./gradlew dependencies
 
 COPY . .
-RUN ./gradlew :app:build -x test
+RUN ./gradlew :app:fatJar -x test
 
 FROM adoptopenjdk/openjdk11:jdk-11.0.6_10-alpine
 
